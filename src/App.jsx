@@ -1,3 +1,4 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import Statistics from './components/Statistics';
@@ -8,21 +9,41 @@ import EnergyFlow from './components/EnergyFlow';
 import CallToAction from './components/CallToAction';
 import Footer from './components/Footer';
 
+// Microgrid Pages
+import StationList from './pages/Microgrid/StationList';
+import CreateStation from './pages/Microgrid/CreateStation';
+import StationDetails from './pages/Microgrid/StationDetails';
+
+function Home() {
+  return (
+    <>
+      <HeroSection />
+      <Statistics />
+      <HowItWorks />
+      <Features />
+      <UserRoles />
+      <EnergyFlow />
+      <CallToAction />
+    </>
+  );
+}
+
 function App() {
   return (
-    <div className="min-h-screen bg-navy-900 text-slate-50 font-sans antialiased selection:bg-teal-500/30 selection:text-white">
-      <Navbar />
-      <main>
-        <HeroSection />
-        <Statistics />
-        <HowItWorks />
-        <Features />
-        <UserRoles />
-        <EnergyFlow />
-        <CallToAction />
-      </main>
-      <Footer />
-    </div>
+    <Router>
+      <div className="min-h-screen bg-navy-900 text-slate-50 font-sans antialiased selection:bg-teal-500/30 selection:text-white">
+        <Navbar />
+        <main className="bg-slate-50 text-slate-900">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/stations" element={<StationList />} />
+            <Route path="/stations/create" element={<CreateStation />} />
+            <Route path="/stations/:id" element={<StationDetails />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
