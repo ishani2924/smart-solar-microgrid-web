@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, X, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +24,21 @@ const Navbar = () => {
     { name: 'Features', href: '#features' },
     { name: 'Contact', href: '#contact' },
   ];
+
+  const getDashboardLink = () => {
+    if (!user) return '/login';
+    switch (user.role) {
+      case 'Prosumer': return '/profile';
+      case 'Backoffice': return '/admin/users';
+      case 'GridOperator': return '/operator/dashboard';
+      default: return '/';
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <header
@@ -51,9 +69,37 @@ const Navbar = () => {
               </li>
             ))}
           </ul>
-          <button className="bg-teal-500 hover:bg-teal-400 text-navy-900 px-6 py-2 rounded-full font-semibold transition-all hover:shadow-[0_0_15px_rgba(45,212,191,0.4)]">
-            Login
-          </button>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <Link
+                to={getDashboardLink()}
+                className="bg-teal-500 hover:bg-teal-400 text-navy-900 px-6 py-2 rounded-full font-semibold transition-all hover:shadow-[0_0_15px_rgba(45,212,191,0.4)]"
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-slate-300 hover:text-teal-400 transition-colors text-sm font-medium"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link
+                to="/login"
+                className="text-slate-300 hover:text-teal-400 transition-colors text-sm font-medium"
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="bg-teal-500 hover:bg-teal-400 text-navy-900 px-6 py-2 rounded-full font-semibold transition-all hover:shadow-[0_0_15px_rgba(45,212,191,0.4)]"
+              >
+                Register
+              </Link>
+            </div>
+          )}
         </nav>
 
         {/* Mobile Menu Toggle */}
@@ -85,9 +131,40 @@ const Navbar = () => {
                   {link.name}
                 </a>
               ))}
-              <button className="bg-teal-500 text-navy-900 px-6 py-3 rounded-full font-semibold mt-4 text-center">
-                Login
-              </button>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    to={getDashboardLink()}
+                    className="text-slate-300 hover:text-teal-400 transition-colors text-lg font-medium py-2 border-b border-white/5"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="text-slate-300 hover:text-teal-400 transition-colors text-lg font-medium py-2 border-b border-white/5 text-left"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-slate-300 hover:text-teal-400 transition-colors text-lg font-medium py-2 border-b border-white/5"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="bg-teal-500 text-navy-900 px-6 py-3 rounded-full font-semibold mt-4 text-center"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
             </div>
           </motion.div>
         )}
