@@ -151,6 +151,21 @@ export const prosumerAdminAPI = {
     const response = await api.patch(`/prosumers/${id}/status`, { status });
     return response.data;
   },
+
+  getDeactivationRequests: async () => {
+    const response = await api.get('/prosumers/deactivation-requests');
+    return response.data;
+  },
+
+  approveDeactivation: async (id) => {
+    const response = await api.post(`/prosumers/${id}/approve-deactivation`);
+    return response.data;
+  },
+
+  rejectDeactivation: async (id) => {
+    const response = await api.post(`/prosumers/${id}/reject-deactivation`);
+    return response.data;
+  },
 };
 
 export default api;

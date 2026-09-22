@@ -27,9 +27,23 @@ const AdminProsumers = () => {
       setLoading(true);
       const response = await prosumerAdminAPI.getAllProsumers();
       if (response.success) {
-        setProsumers(response.data);
+        // Handle both array and object with numeric keys
+        let prosumersArray;
+        if (Array.isArray(response.data)) {
+          prosumersArray = response.data;
+        } else if (response.data && typeof response.data === 'object') {
+          // Convert object with numeric keys to array
+          prosumersArray = Object.values(response.data);
+        } else {
+          prosumersArray = [];
+        }
+        setProsumers(prosumersArray);
+      } else {
+        setProsumers([]);
+        setMessage({ type: 'error', text: response.message || 'Failed to fetch prosumers' });
       }
     } catch (error) {
+      setProsumers([]);
       setMessage({ type: 'error', text: 'Failed to fetch prosumers' });
     } finally {
       setLoading(false);
@@ -97,6 +111,12 @@ const AdminProsumers = () => {
         >
           Manage Users
         </button>
+            <button
+              onClick={() => navigate('/admin/deactivation-requests')}
+              className="bg-navy-700 hover:bg-navy-600 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Deactivation Requests
+            </button>
       </div>
 
       {/* Content Area */}
@@ -156,7 +176,7 @@ const AdminProsumers = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
-                {prosumers.map((prosumer) => (
+                {Array.isArray(prosumers) && prosumers.map((prosumer) => (
                   <tr key={prosumer.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-8 py-5 whitespace-nowrap">
                       <div className="text-sm font-semibold text-charcoal-900">
