@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import Statistics from './components/Statistics';
@@ -22,6 +22,7 @@ import OperatorDashboard from './pages/OperatorDashboard';
 import StationList from './pages/Microgrid/StationList';
 import CreateStation from './pages/Microgrid/CreateStation';
 import StationDetails from './pages/Microgrid/StationDetails';
+import EditStation from './pages/Microgrid/EditStation';
 
 function Home() {
   return (
@@ -38,6 +39,29 @@ function Home() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute requiredRoles={['Admin']}><AdminUsers /></ProtectedRoute>} />
+          <Route path="/admin/prosumers" element={<ProtectedRoute requiredRoles={['Admin']}><AdminProsumers /></ProtectedRoute>} />
+          <Route path="/operator/dashboard" element={<ProtectedRoute requiredRoles={['GridOperator']}><OperatorDashboard /></ProtectedRoute>} />
+          
+          <Route path="/stations" element={<StationList />} />
+          <Route path="/stations/create" element={<CreateStation />} />
+          <Route path="/stations/:id" element={<StationDetails />} />
+          <Route path="/stations/:id/edit" element={<EditStation />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

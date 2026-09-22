@@ -23,6 +23,16 @@ export const createStation = async (data) => {
   return response.json();
 };
 
+export const updateStation = async (id, data) => {
+  const response = await fetch(`${API_BASE_URL}/stations/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to update station');
+  return true;
+};
+
 export const updateStationStatus = async (id, status) => {
   const response = await fetch(`${API_BASE_URL}/stations/${id}/status`, {
     method: 'PATCH',
@@ -52,4 +62,14 @@ export const createSlot = async (stationId, data) => {
     throw new Error(err || 'Failed to create slot');
   }
   return response.json();
+};
+
+export const updateSlotStatus = async (slotId, status) => {
+  const response = await fetch(`${API_BASE_URL}/slots/${slotId}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(status),
+  });
+  if (!response.ok) throw new Error('Failed to update slot status');
+  return true;
 };

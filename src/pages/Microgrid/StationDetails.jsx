@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchStationById, fetchSlots, createSlot, updateStationStatus } from '../../services/MicrogridService';
+import { fetchStationById, fetchSlots, createSlot, updateStationStatus, updateSlotStatus } from '../../services/MicrogridService';
 
 export default function StationDetails() {
   const { id } = useParams();
@@ -50,6 +50,16 @@ export default function StationDetails() {
     try {
       const newStatus = station.status === 'Active' ? 'Inactive' : 'Active';
       await updateStationStatus(id, newStatus);
+      loadData();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleToggleSlotStatus = async (slotId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'Available' ? 'Full' : 'Available';
+      await updateSlotStatus(slotId, newStatus);
       loadData();
     } catch (err) {
       alert(err.message);
@@ -155,12 +165,13 @@ export default function StationDetails() {
                 <th className="p-3 border-b text-sm">Time</th>
                 <th className="p-3 border-b text-sm">Capacity</th>
                 <th className="p-3 border-b text-sm">Status</th>
+                <th className="p-3 border-b text-sm">Actions</th>
               </tr>
             </thead>
             <tbody>
               {slots.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="p-4 text-center text-gray-500 text-sm">No slots created yet.</td>
+                  <td colSpan="5" className="p-4 text-center text-gray-500 text-sm">No slots created yet.</td>
                 </tr>
               ) : (
                 slots.map(slot => (
@@ -175,6 +186,14 @@ export default function StationDetails() {
                       }`}>
                         {slot.status}
                       </span>
+                    </td>
+                    <td className="p-3 border-b text-sm">
+                      <button 
+                        onClick={() => handleToggleSlotStatus(slot.slotId, slot.status)}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {slot.status === 'Available' ? 'Mark Full' : 'Mark Available'}
+                      </button>
                     </td>
                   </tr>
                 ))

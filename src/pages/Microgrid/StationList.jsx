@@ -70,6 +70,9 @@ export default function StationList() {
                   <Link to={`/stations/${station.stationId}`} className="text-blue-600 hover:underline mr-4">
                     View
                   </Link>
+                  <Link to={`/stations/${station.stationId}/edit`} className="text-blue-600 hover:underline mr-4">
+                    Edit
+                  </Link>
                   <button 
                     onClick={() => handleToggleStatus(station.stationId, station.status)}
                     className="text-gray-600 hover:underline"
