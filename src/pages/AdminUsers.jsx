@@ -32,10 +32,34 @@ const AdminUsers = () => {
     try {
       setLoading(true);
       const response = await userAPI.getAllUsers();
+      console.log('Full API response:', response);
+      console.log('Response success:', response.success);
+      console.log('Response data:', response.data);
+      console.log('Response data type:', typeof response.data);
+      console.log('Is array:', Array.isArray(response.data));
+      
       if (response.success) {
-        setUsers(response.data);
+        // Handle both array and object with numeric keys
+        let usersArray;
+        if (Array.isArray(response.data)) {
+          usersArray = response.data;
+        } else if (response.data && typeof response.data === 'object') {
+          // Convert object with numeric keys to array
+          usersArray = Object.values(response.data);
+        } else {
+          usersArray = [];
+        }
+        
+        console.log('Setting users array:', usersArray);
+        console.log('Users array length:', usersArray.length);
+        setUsers(usersArray);
+      } else {
+        setUsers([]);
+        setMessage({ type: 'error', text: response.message || 'Failed to fetch users' });
       }
     } catch (error) {
+      console.error('Fetch error:', error);
+      setUsers([]);
       setMessage({ type: 'error', text: 'Failed to fetch users' });
     } finally {
       setLoading(false);
@@ -168,7 +192,7 @@ const AdminUsers = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-navy-700">
-                {users.map((userItem) => (
+                {Array.isArray(users) && users.map((userItem) => (
                   <tr key={userItem.id} className="hover:bg-navy-700/50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-white">{userItem.email}</div>

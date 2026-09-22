@@ -27,9 +27,23 @@ const AdminProsumers = () => {
       setLoading(true);
       const response = await prosumerAdminAPI.getAllProsumers();
       if (response.success) {
-        setProsumers(response.data);
+        // Handle both array and object with numeric keys
+        let prosumersArray;
+        if (Array.isArray(response.data)) {
+          prosumersArray = response.data;
+        } else if (response.data && typeof response.data === 'object') {
+          // Convert object with numeric keys to array
+          prosumersArray = Object.values(response.data);
+        } else {
+          prosumersArray = [];
+        }
+        setProsumers(prosumersArray);
+      } else {
+        setProsumers([]);
+        setMessage({ type: 'error', text: response.message || 'Failed to fetch prosumers' });
       }
     } catch (error) {
+      setProsumers([]);
       setMessage({ type: 'error', text: 'Failed to fetch prosumers' });
     } finally {
       setLoading(false);
@@ -167,7 +181,7 @@ const AdminProsumers = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-navy-700">
-                {prosumers.map((prosumer) => (
+                {Array.isArray(prosumers) && prosumers.map((prosumer) => (
                   <tr key={prosumer.id} className="hover:bg-navy-700/50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-white">
