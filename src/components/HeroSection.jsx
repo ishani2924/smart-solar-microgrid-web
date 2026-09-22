@@ -11,9 +11,9 @@ const HeroSection = () => {
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          
+
           {/* Left Column - Content */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -23,12 +23,12 @@ const HeroSection = () => {
               <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
               <span className="text-sm font-medium text-teal-300">Next-Gen Enterprise Platform</span>
             </div>
-            
+
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight text-white">
               Smart Energy.<br />
               <span className="text-gradient">Smarter Microgrids.</span>
             </h1>
-            
+
             <p className="text-lg text-slate-300 leading-relaxed max-w-xl mb-4">
               A smart platform that connects solar prosumers, grid operators and microgrid stations to simplify energy-slot reservations and secure energy transfers.
             </p>
@@ -38,7 +38,7 @@ const HeroSection = () => {
                 Get Started / Login
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
-              
+
               <button className="flex items-center justify-center gap-2 glass-panel hover:bg-white/5 text-white border border-white/10 px-8 py-4 rounded-xl font-semibold transition-all hover:border-teal-500/50 text-lg">
                 <Play className="w-5 h-5 text-teal-400" />
                 Learn How It Works
@@ -63,7 +63,7 @@ const HeroSection = () => {
           </motion.div>
 
           {/* Right Column - 3D Scene */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
