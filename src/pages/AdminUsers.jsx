@@ -148,24 +148,26 @@ const AdminUsers = () => {
           <h1 className="text-3xl font-bold text-charcoal-900 tracking-tight">User Management</h1>
           <p className="text-gray-500 text-sm font-medium">Manage system users</p>
         </div>
-            <button
-              onClick={() => navigate('/admin/prosumers')}
-              className="bg-navy-700 hover:bg-navy-600 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              Manage Prosumers
-            </button>
-            <button
-              onClick={() => navigate('/admin/deactivation-requests')}
-              className="bg-navy-700 hover:bg-navy-600 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              Deactivation Requests
-            </button>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="bg-lime-400 hover:bg-lime-500 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm"
-        >
-          Create User
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/admin/prosumers')}
+            className="bg-white border border-gray-200 hover:bg-gray-50 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm"
+          >
+            Manage Prosumers
+          </button>
+          <button
+            onClick={() => navigate('/admin/deactivation-requests')}
+            className="bg-white border border-gray-200 hover:bg-gray-50 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm"
+          >
+            Deactivation Requests
+          </button>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="bg-lime-400 hover:bg-lime-500 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm"
+          >
+            Create User
+          </button>
+        </div>
       </div>
 
       {/* Content Area */}

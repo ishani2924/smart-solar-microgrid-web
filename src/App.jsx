@@ -18,6 +18,8 @@ import UserRolesSection from './components/UserRolesSection';
 import PlatformSection from './components/PlatformSection';
 import WhySolarGridSection from './components/WhySolarGridSection';
 import CallToAction from './components/CallToAction';
+import Statistics from './components/Statistics';
+import EnergyFlow from './components/EnergyFlow';
 import OperatorDashboard from './pages/OperatorDashboard';
 import Analysis from './pages/Analysis';
 import Support from './pages/Support';
@@ -33,10 +35,12 @@ function Home() {
       <Navbar />
       <main>
         <HeroSection />
+        <Statistics />
         <AboutSection />
         <HowItWorksSection />
         <FeaturesSection />
         <PlatformSection />
+        <EnergyFlow />
         <UserRolesSection />
         <WhySolarGridSection />
         <CallToAction />
@@ -50,64 +54,29 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-navy-900 text-slate-50 font-sans antialiased selection:bg-teal-500/30 selection:text-white">
-          <Routes>
-            {/* Landing Page */}
-            <Route path="/" element={
-              <>
-                <Navbar />
-                <main>
-                  <HeroSection />
-                  <Statistics />
-                  <HowItWorks />
-                  <Features />
-                  <UserRoles />
-                  <EnergyFlow />
-                  <CallToAction />
-                </main>
-                <Footer />
-              </>
-            } />
-            
-            {/* Auth Pages */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            {/* Prosumer Routes */}
-            <Route path="/profile" element={
-              <ProtectedRoute requiredRole="Prosumer">
-                <Profile />
-              </ProtectedRoute>
-            } />
-            
-            {/* Backoffice Routes */}
-            <Route path="/admin/users" element={
-              <ProtectedRoute requiredRole="Backoffice">
-                <AdminUsers />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/prosumers" element={
-              <ProtectedRoute requiredRole="Backoffice">
-                <AdminProsumers />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/deactivation-requests" element={
-              <ProtectedRoute requiredRole="Backoffice">
-                <AdminDeactivationRequests />
-              </ProtectedRoute>
-            } />
-            
-            {/* Grid Operator Routes */}
-            <Route path="/operator/dashboard" element={
-              <ProtectedRoute requiredRole="GridOperator">
-                <OperatorDashboard />
-              </ProtectedRoute>
-            } />
-            
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
+          <Route element={<DashboardLayout />}>
+            <Route path="/profile" element={<ProtectedRoute requiredRole="Prosumer"><Profile /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminUsers /></ProtectedRoute>} />
+            <Route path="/admin/prosumers" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminProsumers /></ProtectedRoute>} />
+            <Route path="/admin/deactivation-requests" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminDeactivationRequests /></ProtectedRoute>} />
+            <Route path="/operator/dashboard" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice', 'Admin']}><OperatorDashboard /></ProtectedRoute>} />
+            <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
+            <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+
+            <Route path="/stations" element={<ProtectedRoute><StationList /></ProtectedRoute>} />
+            <Route path="/stations/create" element={<ProtectedRoute><CreateStation /></ProtectedRoute>} />
+            <Route path="/stations/:id" element={<ProtectedRoute><StationDetails /></ProtectedRoute>} />
+            <Route path="/stations/:id/edit" element={<ProtectedRoute><EditStation /></ProtectedRoute>} />
+          </Route>
+          
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </Router>
     </AuthProvider>
   );

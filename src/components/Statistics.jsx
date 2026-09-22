@@ -35,10 +35,3 @@ const Statistics = () => {
 };
 
 export default Statistics;
-        </div >
-      </div >
-    </section >
-  );
-};
-
-export default Statistics;
