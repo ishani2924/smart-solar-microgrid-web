@@ -16,6 +16,7 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import AdminUsers from './pages/AdminUsers';
 import AdminProsumers from './pages/AdminProsumers';
+import AdminDeactivationRequests from './pages/AdminDeactivationRequests';
 import OperatorDashboard from './pages/OperatorDashboard';
 
 // Microgrid Pages
@@ -46,20 +47,64 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/admin/users" element={<ProtectedRoute requiredRoles={['Admin']}><AdminUsers /></ProtectedRoute>} />
-          <Route path="/admin/prosumers" element={<ProtectedRoute requiredRoles={['Admin']}><AdminProsumers /></ProtectedRoute>} />
-          <Route path="/operator/dashboard" element={<ProtectedRoute requiredRoles={['GridOperator']}><OperatorDashboard /></ProtectedRoute>} />
-          
-          <Route path="/stations" element={<StationList />} />
-          <Route path="/stations/create" element={<CreateStation />} />
-          <Route path="/stations/:id" element={<StationDetails />} />
-          <Route path="/stations/:id/edit" element={<EditStation />} />
-        </Routes>
+        <div className="min-h-screen bg-navy-900 text-slate-50 font-sans antialiased selection:bg-teal-500/30 selection:text-white">
+          <Routes>
+            {/* Landing Page */}
+            <Route path="/" element={
+              <>
+                <Navbar />
+                <main>
+                  <HeroSection />
+                  <Statistics />
+                  <HowItWorks />
+                  <Features />
+                  <UserRoles />
+                  <EnergyFlow />
+                  <CallToAction />
+                </main>
+                <Footer />
+              </>
+            } />
+            
+            {/* Auth Pages */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Prosumer Routes */}
+            <Route path="/profile" element={
+              <ProtectedRoute requiredRole="Prosumer">
+                <Profile />
+              </ProtectedRoute>
+            } />
+            
+            {/* Backoffice Routes */}
+            <Route path="/admin/users" element={
+              <ProtectedRoute requiredRole="Backoffice">
+                <AdminUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/prosumers" element={
+              <ProtectedRoute requiredRole="Backoffice">
+                <AdminProsumers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/deactivation-requests" element={
+              <ProtectedRoute requiredRole="Backoffice">
+                <AdminDeactivationRequests />
+              </ProtectedRoute>
+            } />
+            
+            {/* Grid Operator Routes */}
+            <Route path="/operator/dashboard" element={
+              <ProtectedRoute requiredRole="GridOperator">
+                <OperatorDashboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
       </Router>
     </AuthProvider>
   );

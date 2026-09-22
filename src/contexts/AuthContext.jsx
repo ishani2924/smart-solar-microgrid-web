@@ -16,19 +16,23 @@ export const AuthProvider = ({ children }) => {
       
       if (storedToken && storedUser) {
         setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
         
-        // Verify token is still valid by fetching profile
-        try {
-          const response = await prosumerAPI.getProfile();
-          if (response.success) {
-            setUser(response.data);
-            localStorage.setItem('user', JSON.stringify(response.data));
+        // Verify token is still valid by fetching profile (only for Prosumers)
+        if (parsedUser.role === 'Prosumer') {
+          try {
+            const response = await prosumerAPI.getProfile();
+            if (response.success) {
+              setUser(response.data);
+              localStorage.setItem('user', JSON.stringify(response.data));
+            }
+          } catch (error) {
+            // Token is invalid, clear storage
+            logout();
           }
-        } catch (error) {
-          // Token is invalid, clear storage
-          logout();
         }
+        // For Backoffice and GridOperator, we trust the stored user data since they don't have a profile endpoint
       }
       setLoading(false);
     };
@@ -48,10 +52,22 @@ export const AuthProvider = ({ children }) => {
         
         // For prosumers, fetch profile data
         if (role === 'Prosumer') {
-          const profileResponse = await prosumerAPI.getProfile();
-          if (profileResponse.success) {
-            setUser(profileResponse.data);
-            localStorage.setItem('user', JSON.stringify(profileResponse.data));
+          try {
+            const profileResponse = await prosumerAPI.getProfile();
+            if (profileResponse.success) {
+              setUser(profileResponse.data);
+              localStorage.setItem('user', JSON.stringify(profileResponse.data));
+            } else {
+              // Fallback to basic user info if profile fetch fails
+              const basicUser = { id: userId, email, role };
+              setUser(basicUser);
+              localStorage.setItem('user', JSON.stringify(basicUser));
+            }
+          } catch (error) {
+            // Fallback to basic user info if profile fetch fails
+            const basicUser = { id: userId, email, role };
+            setUser(basicUser);
+            localStorage.setItem('user', JSON.stringify(basicUser));
           }
         } else {
           // For other roles, store basic user info
