@@ -15,6 +15,7 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import AdminUsers from './pages/AdminUsers';
 import AdminProsumers from './pages/AdminProsumers';
+import AdminDeactivationRequests from './pages/AdminDeactivationRequests';
 import OperatorDashboard from './pages/OperatorDashboard';
 
 function App() {
@@ -60,6 +61,11 @@ function App() {
             <Route path="/admin/prosumers" element={
               <ProtectedRoute requiredRole="Backoffice">
                 <AdminProsumers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/deactivation-requests" element={
+              <ProtectedRoute requiredRole="Backoffice">
+                <AdminDeactivationRequests />
               </ProtectedRoute>
             } />
             

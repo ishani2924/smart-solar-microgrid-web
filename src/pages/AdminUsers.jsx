@@ -150,6 +150,18 @@ const AdminUsers = () => {
           </div>
           <div className="flex items-center gap-4">
             <button
+              onClick={() => navigate('/admin/prosumers')}
+              className="bg-navy-700 hover:bg-navy-600 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Manage Prosumers
+            </button>
+            <button
+              onClick={() => navigate('/admin/deactivation-requests')}
+              className="bg-navy-700 hover:bg-navy-600 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              Deactivation Requests
+            </button>
+            <button
               onClick={() => setShowCreateModal(true)}
               className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors"
             >
