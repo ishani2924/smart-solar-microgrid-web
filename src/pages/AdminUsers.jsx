@@ -18,6 +18,7 @@ const AdminUsers = () => {
     email: '',
     password: '',
     role: 'Backoffice',
+    status: 'Active',
   });
 
   useEffect(() => {
@@ -32,12 +33,6 @@ const AdminUsers = () => {
     try {
       setLoading(true);
       const response = await userAPI.getAllUsers();
-      console.log('Full API response:', response);
-      console.log('Response success:', response.success);
-      console.log('Response data:', response.data);
-      console.log('Response data type:', typeof response.data);
-      console.log('Is array:', Array.isArray(response.data));
-      
       if (response.success) {
         // Handle both array and object with numeric keys
         let usersArray;
@@ -49,16 +44,12 @@ const AdminUsers = () => {
         } else {
           usersArray = [];
         }
-        
-        console.log('Setting users array:', usersArray);
-        console.log('Users array length:', usersArray.length);
         setUsers(usersArray);
       } else {
         setUsers([]);
         setMessage({ type: 'error', text: response.message || 'Failed to fetch users' });
       }
     } catch (error) {
-      console.error('Fetch error:', error);
       setUsers([]);
       setMessage({ type: 'error', text: 'Failed to fetch users' });
     } finally {
@@ -73,7 +64,7 @@ const AdminUsers = () => {
       if (response.success) {
         setMessage({ type: 'success', text: 'User created successfully!' });
         setShowCreateModal(false);
-        setFormData({ email: '', password: '', role: 'Backoffice' });
+        setFormData({ email: '', password: '', role: 'Backoffice', status: 'Active' });
         fetchUsers();
       } else {
         setMessage({ type: 'error', text: response.message || 'Failed to create user' });
@@ -100,12 +91,24 @@ const AdminUsers = () => {
   const handleEditUser = async (e) => {
     e.preventDefault();
     try {
-      const response = await userAPI.updateUser(selectedUser.id, { email: formData.email });
+      const updateData = {
+        email: formData.email,
+        role: formData.role,
+        status: formData.status,
+      };
+
+      const response = await userAPI.updateUser(selectedUser.id, updateData);
+      
       if (response.success) {
+        // If password is provided, reset it
+        if (formData.password) {
+          await userAPI.resetPassword(selectedUser.id, formData.password);
+        }
+
         setMessage({ type: 'success', text: 'User updated successfully!' });
         setShowEditModal(false);
         setSelectedUser(null);
-        setFormData({ email: '', password: '', role: 'Backoffice' });
+        setFormData({ email: '', password: '', role: 'Backoffice', status: 'Active' });
         fetchUsers();
       } else {
         setMessage({ type: 'error', text: response.message || 'Failed to update user' });
@@ -117,7 +120,12 @@ const AdminUsers = () => {
 
   const openEditModal = (user) => {
     setSelectedUser(user);
-    setFormData({ email: user.email, password: '', role: user.role });
+    setFormData({ 
+      email: user.email, 
+      password: '', 
+      role: user.role,
+      status: user.status 
+    });
     setShowEditModal(true);
   };
 
@@ -287,6 +295,18 @@ const AdminUsers = () => {
                   <option value="Prosumer">Prosumer</option>
                 </select>
               </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 transition-shadow cursor-pointer"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Deactivated">Deactivated</option>
+                </select>
+              </div>
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
@@ -320,6 +340,40 @@ const AdminUsers = () => {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 transition-shadow"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Role</label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 transition-shadow cursor-pointer"
+                >
+                  <option value="Backoffice">Backoffice</option>
+                  <option value="GridOperator">GridOperator</option>
+                  <option value="Prosumer">Prosumer</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 transition-shadow cursor-pointer"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Deactivated">Deactivated</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">New Password (optional)</label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="Leave blank to keep current password"
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 transition-shadow"
                 />
               </div>

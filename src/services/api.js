@@ -118,6 +118,11 @@ export const userAPI = {
     const response = await api.put(`/users/${id}`, data);
     return response.data;
   },
+
+  resetPassword: async (id, newPassword) => {
+    const response = await api.post(`/users/${id}/reset-password`, { newPassword });
+    return response.data;
+  },
   
   updateUserStatus: async (id, status) => {
     const response = await api.patch(`/users/${id}/status`, { status });
