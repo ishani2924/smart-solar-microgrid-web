@@ -1,35 +1,35 @@
 import { motion } from 'framer-motion';
+import { ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const CallToAction = () => {
   return (
-    <section className="py-24 relative overflow-hidden">
-      {/* Background Graphic */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-teal-900/20 z-0" />
-        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent" />
-      </div>
-
-      <div className="container mx-auto px-6 md:px-12 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+    <section className="py-20 md:py-32 bg-white">
+      <div className="container mx-auto px-6 md:px-12">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="glass-card rounded-3xl p-8 md:p-16 text-center max-w-4xl mx-auto border border-teal-500/20 shadow-[0_0_50px_rgba(20,184,166,0.1)]"
+          className="w-full bg-lime-400 rounded-[3rem] p-12 md:p-20 flex flex-col items-center text-center shadow-xl border border-lime-500 relative overflow-hidden"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-            Powering smarter solar <br className="hidden md:block" />
-            <span className="text-gradient">energy management</span>
+          {/* Decorative background circle */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+          
+          <h2 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-charcoal-900 mb-8 tracking-tighter leading-[1.1] max-w-4xl relative z-10">
+            Powering Smarter Solar Energy Management
           </h2>
           
-          <p className="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            Manage stations, reservations and energy transfers through one connected enterprise platform.
+          <p className="text-charcoal-900/70 text-sm md:text-lg lg:text-xl font-medium leading-relaxed max-w-2xl mb-12 relative z-10">
+            Manage microgrid stations, energy slots, reservations, and energy-transfer activities through one connected platform.
           </p>
+          
+          <Link to="/register" className="relative z-10 btn-primary !bg-charcoal-900 !text-white hover:!bg-charcoal-800 hover:scale-105 transition-all !px-6 !py-4 !gap-4 shadow-xl">
+            <span className="text-base font-bold">Join the Platform</span>
+            <span className="w-8 h-8 rounded-full bg-lime-400 text-charcoal-900 flex items-center justify-center">
+              <ArrowUpRight className="w-4 h-4 stroke-[3]" />
+            </span>
+          </Link>
 
-          <button className="bg-teal-500 hover:bg-teal-400 text-navy-900 px-10 py-5 rounded-xl font-bold transition-all hover:shadow-[0_0_25px_rgba(45,212,191,0.5)] text-lg inline-flex items-center gap-3">
-            Login to Dashboard
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-          </button>
         </motion.div>
       </div>
     </section>

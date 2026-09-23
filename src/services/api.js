@@ -31,11 +31,15 @@ api.interceptors.response.use(
     const normalizeObject = (obj) => {
       if (!obj || typeof obj !== 'object') return obj;
       
+      if (Array.isArray(obj)) {
+        return obj.map(item => normalizeObject(item));
+      }
+      
       const normalized = {};
       for (const key in obj) {
         const newKey = key.charAt(0).toLowerCase() + key.slice(1);
         // Recursively normalize nested objects
-        normalized[newKey] = typeof obj[key] === 'object' ? normalizeObject(obj[key]) : obj[key];
+        normalized[newKey] = normalizeObject(obj[key]);
       }
       return normalized;
     };
