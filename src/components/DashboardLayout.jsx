@@ -3,7 +3,8 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   Menu, X, User, Users, Activity, Settings, 
-  Zap, LogOut, Search, Bell, BarChart2, ShieldCheck, HelpCircle
+  Zap, LogOut, Search, Bell, BarChart2, ShieldCheck, HelpCircle,
+  Calendar, ClipboardList, Clock, History
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -32,15 +33,47 @@ const DashboardLayout = () => {
       { name: 'Admin Prosumers', path: '/admin/prosumers', icon: <ShieldCheck className="w-4 h-4" /> },
     ];
 
+    // Member 3: Reservation & Booking Management links
+    const reservationLinks = [
+      { name: 'Booking Dashboard', path: '/reservations/dashboard', icon: <Calendar className="w-4 h-4" /> },
+      { name: 'All Reservations',  path: '/reservations',           icon: <ClipboardList className="w-4 h-4" /> },
+      { name: 'Pending',           path: '/reservations/pending',   icon: <Clock className="w-4 h-4" /> },
+      { name: 'History',           path: '/reservations/history',   icon: <History className="w-4 h-4" /> },
+    ];
+
     const settingsLinks = [
       { name: 'My Account', path: '/profile', icon: <User className="w-4 h-4" /> },
       { name: 'Support', path: '/support', icon: <HelpCircle className="w-4 h-4" /> },
     ];
 
-    return { dashboardLinks, settingsLinks };
+    return { dashboardLinks, reservationLinks, settingsLinks };
   };
 
-  const { dashboardLinks, settingsLinks } = getNavLinks();
+  const { dashboardLinks, reservationLinks, settingsLinks } = getNavLinks();
+
+  // Shared NavLink renderer used by all sidebar groups
+  const renderNavLink = (link) => (
+    <NavLink
+      key={link.name}
+      to={link.path}
+      end={link.path === '/reservations'} // exact match for /reservations so /reservations/pending doesn't also highlight it
+      className={({ isActive }) =>
+        `flex items-center gap-3 px-8 py-2.5 text-sm font-semibold transition-all relative ${
+          isActive
+            ? 'bg-lime-50/50 text-lime-700'
+            : 'hover:bg-gray-50 text-gray-500 hover:text-charcoal-900'
+        }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-lime-500 rounded-r-md" />}
+          <div className={isActive ? 'text-lime-600' : 'text-gray-400'}>{link.icon}</div>
+          {link.name}
+        </>
+      )}
+    </NavLink>
+  );
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-white border-r border-gray-100 text-charcoal-500">
@@ -67,27 +100,15 @@ const DashboardLayout = () => {
         <div>
           <div className="px-8 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Dashboard</div>
           <div className="flex flex-col">
-            {dashboardLinks.map((link) => (
-              <NavLink
-                key={link.name}
-                to={link.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-8 py-2.5 text-sm font-semibold transition-all relative ${
-                    isActive
-                      ? 'bg-lime-50/50 text-lime-700'
-                      : 'hover:bg-gray-50 text-gray-500 hover:text-charcoal-900'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-lime-500 rounded-r-md"></div>}
-                    <div className={isActive ? 'text-lime-600' : 'text-gray-400'}>{link.icon}</div>
-                    {link.name}
-                  </>
-                )}
-              </NavLink>
-            ))}
+            {dashboardLinks.map(renderNavLink)}
+          </div>
+        </div>
+
+        {/* Reservations Group — Member 3 */}
+        <div>
+          <div className="px-8 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Reservations</div>
+          <div className="flex flex-col">
+            {reservationLinks.map(renderNavLink)}
           </div>
         </div>
 
@@ -95,27 +116,7 @@ const DashboardLayout = () => {
         <div>
           <div className="px-8 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Settings</div>
           <div className="flex flex-col">
-            {settingsLinks.map((link) => (
-              <NavLink
-                key={link.name}
-                to={link.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-8 py-2.5 text-sm font-semibold transition-all relative ${
-                    isActive
-                      ? 'bg-lime-50/50 text-lime-700'
-                      : 'hover:bg-gray-50 text-gray-500 hover:text-charcoal-900'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-lime-500 rounded-r-md"></div>}
-                    <div className={isActive ? 'text-lime-600' : 'text-gray-400'}>{link.icon}</div>
-                    {link.name}
-                  </>
-                )}
-              </NavLink>
-            ))}
+            {settingsLinks.map(renderNavLink)}
           </div>
         </div>
       </nav>
@@ -187,7 +188,11 @@ const DashboardLayout = () => {
               <Menu className="w-5 h-5" />
             </button>
             <h1 className="text-sm font-semibold text-gray-500 hidden sm:block">
-              {dashboardLinks.find(link => link.path === location.pathname)?.name || settingsLinks.find(link => link.path === location.pathname)?.name || 'Overview'}
+              {[
+                ...dashboardLinks,
+                ...reservationLinks,
+                ...settingsLinks,
+              ].find((link) => link.path === location.pathname)?.name || 'Overview'}
             </h1>
           </div>
           <div className="flex items-center gap-6">

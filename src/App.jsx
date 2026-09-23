@@ -28,6 +28,12 @@ import StationList from './pages/Microgrid/StationList';
 import CreateStation from './pages/Microgrid/CreateStation';
 import StationDetails from './pages/Microgrid/StationDetails';
 import EditStation from './pages/Microgrid/EditStation';
+// Reservation Pages (Member 3 - Booking & Reservation Management)
+import BookingDashboardPage from './pages/reservations/BookingDashboardPage';
+import ReservationsPage from './pages/reservations/ReservationsPage';
+import PendingReservationsPage from './pages/reservations/PendingReservationsPage';
+import ReservationDetailsPage from './pages/reservations/ReservationDetailsPage';
+import BookingHistoryPage from './pages/reservations/BookingHistoryPage';
 
 function Home() {
   return (
@@ -72,6 +78,14 @@ function App() {
             <Route path="/stations/create" element={<ProtectedRoute><CreateStation /></ProtectedRoute>} />
             <Route path="/stations/:id" element={<ProtectedRoute><StationDetails /></ProtectedRoute>} />
             <Route path="/stations/:id/edit" element={<ProtectedRoute><EditStation /></ProtectedRoute>} />
+
+            {/* Reservation Pages — Member 3 (Booking & Reservation Management) */}
+            {/* NOTE: /pending and /history must come BEFORE /:id to avoid being matched as an id param */}
+            <Route path="/reservations/dashboard" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice']}><BookingDashboardPage /></ProtectedRoute>} />
+            <Route path="/reservations/pending" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice']}><PendingReservationsPage /></ProtectedRoute>} />
+            <Route path="/reservations/history" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice']}><BookingHistoryPage /></ProtectedRoute>} />
+            <Route path="/reservations/:id" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice']}><ReservationDetailsPage /></ProtectedRoute>} />
+            <Route path="/reservations" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice']}><ReservationsPage /></ProtectedRoute>} />
           </Route>
           
           {/* Fallback */}
