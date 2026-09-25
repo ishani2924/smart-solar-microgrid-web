@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://localhost:7083/api';
+const API_BASE_URL = 'http://localhost:5059/api';
 
 export const fetchStations = async (status = '') => {
   const url = status ? `${API_BASE_URL}/stations?status=${status}` : `${API_BASE_URL}/stations`;
