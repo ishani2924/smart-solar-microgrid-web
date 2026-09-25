@@ -29,6 +29,8 @@ import StationList from './pages/Microgrid/StationList';
 import CreateStation from './pages/Microgrid/CreateStation';
 import StationDetails from './pages/Microgrid/StationDetails';
 import EditStation from './pages/Microgrid/EditStation';
+import BookingConfirmation from './pages/BookingConfirmation';
+import OperatorScan from './pages/OperatorScan';
 
 function Home() {
   return (
@@ -67,6 +69,8 @@ function App() {
             <Route path="/admin/deactivation-requests" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminDeactivationRequests /></ProtectedRoute>} />
             <Route path="/admin/tab-permissions" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><TabPermissions /></ProtectedRoute>} />
             <Route path="/operator/dashboard" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice', 'Admin']}><OperatorDashboard /></ProtectedRoute>} />
+            <Route path="/operator/scan" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice', 'Admin']}><OperatorScan /></ProtectedRoute>} />
+            <Route path="/booking/confirmation" element={<ProtectedRoute requiredRoles={['Prosumer', 'GridOperator', 'Backoffice', 'Admin']}><BookingConfirmation /></ProtectedRoute>} />
             <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
             <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
 
