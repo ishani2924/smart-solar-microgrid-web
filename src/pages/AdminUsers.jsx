@@ -170,6 +170,12 @@ const AdminUsers = () => {
             Deactivation Requests
           </button>
           <button
+            onClick={() => navigate('/admin/tab-permissions')}
+            className="bg-white border border-gray-200 hover:bg-gray-50 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm"
+          >
+            Tab Permissions
+          </button>
+          <button
             onClick={() => setShowCreateModal(true)}
             className="bg-lime-400 hover:bg-lime-500 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm"
           >
