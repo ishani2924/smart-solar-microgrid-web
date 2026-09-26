@@ -96,7 +96,10 @@ const DashboardLayout = () => {
       return filtered;
     };
 
-    const dashboardLinks = filterTabs(ALL_TABS.dashboard);
+    let dashboardLinks = filterTabs(ALL_TABS.dashboard);
+    if (user?.role === 'Prosumer') {
+      dashboardLinks = dashboardLinks.filter((tab) => tab.key !== 'scan-qr');
+    }
     if (user?.role === 'Backoffice') {
       dashboardLinks.push(...BACKOFFICE_ONLY_TABS);
     }
