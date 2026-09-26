@@ -23,6 +23,7 @@ import EnergyFlow from './components/EnergyFlow';
 import OperatorDashboard from './pages/OperatorDashboard';
 import Analysis from './pages/Analysis';
 import Support from './pages/Support';
+import TabPermissions from './pages/TabPermissions';
 // Microgrid Pages
 import StationList from './pages/Microgrid/StationList';
 import CreateStation from './pages/Microgrid/CreateStation';
@@ -64,6 +65,7 @@ function App() {
             <Route path="/admin/users" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminUsers /></ProtectedRoute>} />
             <Route path="/admin/prosumers" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminProsumers /></ProtectedRoute>} />
             <Route path="/admin/deactivation-requests" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminDeactivationRequests /></ProtectedRoute>} />
+            <Route path="/admin/tab-permissions" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><TabPermissions /></ProtectedRoute>} />
             <Route path="/operator/dashboard" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice', 'Admin']}><OperatorDashboard /></ProtectedRoute>} />
             <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
             <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
