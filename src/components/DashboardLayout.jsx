@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Menu, X, User, Users, Activity, Settings,
-  Zap, LogOut, Search, Bell, BarChart2, ShieldCheck, HelpCircle, LayoutDashboard
+  Zap, LogOut, Search, Bell, BarChart2, ShieldCheck, HelpCircle, LayoutDashboard, QrCode, MapPin
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { userAPI } from '../services/api';
@@ -12,7 +12,10 @@ import { userAPI } from '../services/api';
 export const ALL_TABS = {
   dashboard: [
     { key: 'overview', name: 'Overview', path: '/operator/dashboard', icon: <Activity className="w-4 h-4" /> },
+    { key: 'scan-qr', name: 'Scan QR', path: '/operator/scan', icon: <QrCode className="w-4 h-4" /> },
+    { key: 'booking-confirmation', name: 'Booking QR', path: '/booking/confirmation', icon: <QrCode className="w-4 h-4" /> },
     { key: 'stations', name: 'Stations', path: '/stations', icon: <Zap className="w-4 h-4" /> },
+    { key: 'station-map', name: 'Station Map', path: '/operator/map', icon: <MapPin className="w-4 h-4" /> },
     { key: 'analysis', name: 'Analysis', path: '/analysis', icon: <BarChart2 className="w-4 h-4" /> },
     { key: 'admin-users', name: 'Admin Users', path: '/admin/users', icon: <Users className="w-4 h-4" /> },
     { key: 'admin-prosumers', name: 'Admin Prosumers', path: '/admin/prosumers', icon: <ShieldCheck className="w-4 h-4" /> },
@@ -93,7 +96,10 @@ const DashboardLayout = () => {
       return filtered;
     };
 
-    const dashboardLinks = filterTabs(ALL_TABS.dashboard);
+    let dashboardLinks = filterTabs(ALL_TABS.dashboard);
+    if (user?.role === 'Prosumer') {
+      dashboardLinks = dashboardLinks.filter((tab) => tab.key !== 'scan-qr');
+    }
     if (user?.role === 'Backoffice') {
       dashboardLinks.push(...BACKOFFICE_ONLY_TABS);
     }

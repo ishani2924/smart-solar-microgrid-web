@@ -191,4 +191,26 @@ export const prosumerAdminAPI = {
   },
 };
 
+export const transferAPI = {
+  issueQr: async (reservationId) => {
+    const response = await api.post(`/transfers/reservations/${reservationId}/issue`);
+    return response.data;
+  },
+
+  getConfirmation: async (reservationId) => {
+    const response = await api.get(`/transfers/reservations/${reservationId}`);
+    return response.data;
+  },
+
+  verifyQr: async (qrPayload) => {
+    const response = await api.post('/transfers/verify', { qrPayload });
+    return response.data;
+  },
+
+  completeTransfer: async (reservationId) => {
+    const response = await api.post(`/transfers/reservations/${reservationId}/complete`);
+    return response.data;
+  },
+};
+
 export default api;
