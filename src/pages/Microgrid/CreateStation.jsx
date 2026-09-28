@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createStation } from '../../services/MicrogridService';
+import { userAPI } from '../../services/api';
 import { useNavigate, Link } from 'react-router-dom';
-import { MapPin, Zap, Clock, Battery, BatteryCharging, ArrowLeft } from 'lucide-react';
+import { MapPin, Zap, Clock, Battery, BatteryCharging, ArrowLeft, ChevronDown } from 'lucide-react';
 import LocationPickerMap from '../../components/LocationPickerMap';
 
 export default function CreateStation() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
+    gridOperatorName: '',
     address: '',
     latitude: '',
     longitude: '',
@@ -18,6 +20,22 @@ export default function CreateStation() {
     closingTime: '18:00'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [gridOperators, setGridOperators] = useState([]);
+
+  useEffect(() => {
+    const fetchOperators = async () => {
+      try {
+        const response = await userAPI.getAllUsers();
+        // Extract array if wrapped in standard response format
+        const users = Array.isArray(response) ? response : (response?.data || []);
+        const operators = users.filter(u => u.role === 'GridOperator' || u.role === 'Grid Operator');
+        setGridOperators(operators);
+      } catch (err) {
+        console.error('Failed to load grid operators:', err);
+      }
+    };
+    fetchOperators();
+  }, []);
 
   const handleLocationSelect = (lat, lng) => {
     setFormData(prev => ({
@@ -84,6 +102,25 @@ export default function CreateStation() {
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all" 
                   placeholder="e.g. Colombo South Solar Hub"
                 />
+              </div>
+              
+              <div className="md:col-span-2 relative">
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Grid Operator</label>
+                <div className="relative">
+                  <select 
+                    name="gridOperatorName" 
+                    required 
+                    value={formData.gridOperatorName} 
+                    onChange={handleChange} 
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all appearance-none" 
+                  >
+                    <option value="" disabled>Select a Grid Operator</option>
+                    {gridOperators.map(op => (
+                      <option key={op.id || op.email} value={op.email}>{op.email}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                </div>
               </div>
               
               <div className="md:col-span-2">

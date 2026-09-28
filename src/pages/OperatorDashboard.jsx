@@ -1,9 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Battery, Zap, Sun, Calendar, ChevronDown, MoreVertical } from 'lucide-react';
 import heroImg from '../assets/heroimg.jpg';
+import { useAuth } from '../contexts/AuthContext';
+import { fetchStations } from '../services/MicrogridService';
+import { Link } from 'react-router-dom';
 
 const OperatorDashboard = () => {
+  const { user } = useAuth();
+  const [myStations, setMyStations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadMyStations = async () => {
+      try {
+        const data = await fetchStations();
+        if (user) {
+          const filtered = data.filter(station => {
+            const opName = (station.gridOperatorName || '').toLowerCase().trim();
+            const userEmail = (user.email || '').toLowerCase().trim();
+            const userName = (user.name || '').toLowerCase().trim();
+            const userStationId = user.stationId;
+
+            return (
+              (userEmail && opName === userEmail) ||
+              (userName && opName === userName) ||
+              (userStationId && (station.stationId === userStationId || station.id === userStationId)) ||
+              (opName && userEmail && opName.includes(userEmail)) ||
+              (opName && userName && opName.includes(userName))
+            );
+          });
+          setMyStations(filtered);
+        } else {
+          setMyStations(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMyStations();
+  }, [user]);
   return (
     <div className="flex flex-col gap-6 h-full w-full pb-8">
       
@@ -216,45 +255,36 @@ const OperatorDashboard = () => {
         >
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-charcoal-900 font-bold text-lg">
-              Solar Panels Points <span className="text-lime-500 font-medium">(12)</span>
+              Assigned Stations <span className="text-lime-500 font-medium">({myStations.length})</span>
             </h2>
-            <MoreVertical className="w-5 h-5 text-gray-400 cursor-pointer" />
-          </div>
-
-          <div className="flex gap-2 mb-6">
-            <div className="w-8 h-8 rounded-full bg-lime-600 flex items-center justify-center text-white cursor-pointer">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16m-7 6h7"/></svg>
-            </div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-charcoal-900 border border-gray-200 rounded-full px-3 py-1 cursor-pointer hover:bg-gray-50">
-              Sort By <ChevronDown className="w-3 h-3" />
-            </div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-charcoal-900 border border-gray-200 rounded-full px-3 py-1 cursor-pointer hover:bg-gray-50">
-              Calendar <Calendar className="w-3 h-3" />
-            </div>
+            <Link to="/stations" className="text-xs font-semibold text-lime-600 hover:underline">View All</Link>
           </div>
 
           <div className="flex flex-col gap-3 flex-1 overflow-y-auto custom-scrollbar pr-2">
-            {[
-              { name: 'The Xavier SPanel', cap: '160 kWh', yield: '120.6 kWh' },
-              { name: 'Taman Dayu SPanel', cap: '600 kWh', yield: '430.8 kWh' },
-              { name: 'Garden SPanel', cap: '400 kWh', yield: '240.7 kWh' },
-            ].map((panel, i) => (
-              <div key={i} className="flex items-center justify-between p-4 bg-gray-50 hover:bg-lime-50/50 transition-colors rounded-2xl cursor-pointer border border-transparent hover:border-lime-100">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-                    <Sun className="w-5 h-5 text-lime-500" />
+            {loading ? (
+              <div className="text-gray-400 text-xs py-4 text-center">Loading stations...</div>
+            ) : myStations.length === 0 ? (
+              <div className="text-gray-400 text-xs py-4 text-center">No assigned stations found.</div>
+            ) : (
+              myStations.map((station, i) => (
+                <Link key={station.stationId || i} to={`/stations/${station.stationId}`} className="flex items-center justify-between p-4 bg-gray-50 hover:bg-lime-50/50 transition-colors rounded-2xl cursor-pointer border border-transparent hover:border-lime-100">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                      <Sun className="w-5 h-5 text-lime-500" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-sm text-charcoal-900">{station.name}</span>
+                      <span className="text-[10px] font-semibold text-gray-400">Cap: {station.capacity} kW • {station.address}</span>
+                    </div>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-sm text-charcoal-900">{panel.name}</span>
-                    <span className="text-[10px] font-semibold text-gray-400">Capacity {panel.cap}</span>
+                  <div className="flex items-center gap-1">
+                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${station.status === 'Active' ? 'bg-lime-100 text-lime-800' : 'bg-red-100 text-red-600'}`}>
+                      {station.status}
+                    </span>
                   </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
-                  <span className="font-bold text-sm text-charcoal-900">{panel.yield}</span>
-                </div>
-              </div>
-            ))}
+                </Link>
+              ))
+            )}
           </div>
 
         </motion.div>

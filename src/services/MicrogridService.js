@@ -1,7 +1,11 @@
 const API_BASE_URL = 'http://localhost:5059/api';
 
-export const fetchStations = async (status = '') => {
-  const url = status ? `${API_BASE_URL}/stations?status=${status}` : `${API_BASE_URL}/stations`;
+export const fetchStations = async (status = '', gridOperator = '') => {
+  const params = new URLSearchParams();
+  if (status) params.append('status', status);
+  if (gridOperator) params.append('gridOperator', gridOperator);
+  const queryString = params.toString();
+  const url = queryString ? `${API_BASE_URL}/stations?${queryString}` : `${API_BASE_URL}/stations`;
   const response = await fetch(url);
   if (!response.ok) throw new Error('Failed to fetch stations');
   return response.json();
@@ -44,8 +48,12 @@ export const updateStationStatus = async (id, status) => {
 };
 
 // Slots
-export const fetchSlots = async (stationId, date = '') => {
-  const url = date ? `${API_BASE_URL}/stations/${stationId}/slots?date=${date}` : `${API_BASE_URL}/stations/${stationId}/slots`;
+export const fetchSlots = async (stationId, date = '', status = '') => {
+  const params = new URLSearchParams();
+  if (date) params.append('date', date);
+  if (status) params.append('status', status);
+  const queryString = params.toString();
+  const url = queryString ? `${API_BASE_URL}/stations/${stationId}/slots?${queryString}` : `${API_BASE_URL}/stations/${stationId}/slots`;
   const response = await fetch(url);
   if (!response.ok) throw new Error('Failed to fetch slots');
   return response.json();
@@ -65,7 +73,7 @@ export const createSlot = async (stationId, data) => {
 };
 
 export const updateSlotStatus = async (slotId, status) => {
-  const response = await fetch(`${API_BASE_URL}/slots/${slotId}/status`, {
+  const response = await fetch(`${API_BASE_URL}/EnergySlots/${slotId}/status`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(status),

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { fetchStationById, fetchSlots, createSlot, updateStationStatus, updateSlotStatus } from '../../services/MicrogridService';
-import { MapPin, Battery, Zap, Clock, Calendar, Plus, X, ArrowLeft } from 'lucide-react';
+import { MapPin, Battery, Zap, Clock, Calendar, Plus, X, ArrowLeft, User, Activity } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function StationDetails() {
   const { id } = useParams();
@@ -9,6 +11,8 @@ export default function StationDetails() {
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [unauthorized, setUnauthorized] = useState(false);
+  const { user, isGridOperator, isProsumer } = useAuth();
 
   // New Slot Form State
   const [showAddSlot, setShowAddSlot] = useState(false);
@@ -21,11 +25,29 @@ export default function StationDetails() {
 
   useEffect(() => {
     loadData();
-  }, [id]);
+  }, [id, user]);
 
   const loadData = async () => {
     try {
       const stationData = await fetchStationById(id);
+      if (isGridOperator() && user && stationData) {
+        const opName = (stationData.gridOperatorName || '').toLowerCase().trim();
+        const userEmail = (user.email || '').toLowerCase().trim();
+        const userName = (user.name || '').toLowerCase().trim();
+        const userStationId = user.stationId;
+
+        const isMine =
+          (userEmail && opName === userEmail) ||
+          (userName && opName === userName) ||
+          (userStationId && (stationData.stationId === userStationId || stationData.id === userStationId)) ||
+          (opName && userEmail && opName.includes(userEmail)) ||
+          (opName && userName && opName.includes(userName));
+
+        if (!isMine) {
+          setUnauthorized(true);
+          return;
+        }
+      }
       setStation(stationData);
       
       const slotsData = await fetchSlots(id);
@@ -73,107 +95,139 @@ export default function StationDetails() {
   };
 
   if (loading) return <div className="py-24 flex justify-center text-gray-400 font-medium">Loading station details...</div>;
+  if (unauthorized) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <div className="text-red-500 font-bold text-lg">Access Denied</div>
+        <p className="text-gray-500 text-sm">Grid Operators can only view their own assigned station.</p>
+        <Link to="/stations" className="text-lime-600 font-semibold hover:underline text-sm flex items-center gap-1">
+          <ArrowLeft className="w-4 h-4" /> Back to Stations
+        </Link>
+      </div>
+    );
+  }
   if (!station) return <div className="py-24 flex justify-center text-gray-400 font-medium">Station not found</div>;
 
   return (
-    <div className="text-charcoal-900 w-full h-full flex flex-col pt-4 pb-12">
-      {/* Header Area */}
-      <div className="flex items-center justify-between mb-10 w-full max-w-6xl mx-auto">
-        <div className="flex flex-col gap-1">
-          <Link to="/stations" className="text-lime-600 hover:text-lime-700 transition-colors font-semibold text-sm flex items-center gap-2 mb-2 w-fit">
-            <ArrowLeft className="w-4 h-4" /> Back to Stations
-          </Link>
-          <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold text-charcoal-900 tracking-tight">{station.name}</h1>
-            <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-sm ${
-              station.status === 'Active' 
-                ? 'bg-[#E3F8B3] text-[#557711] border border-[#d2f38d]' 
-                : 'bg-red-50 text-red-600 border border-red-100'
-            }`}>
-              {station.status}
-            </span>
-          </div>
-          <p className="text-gray-500 text-sm font-medium flex items-center gap-2 mt-1">
-            <MapPin className="w-4 h-4" /> {station.address}
-          </p>
+    <div className="text-charcoal-900 w-full flex flex-col pb-12">
+      {/* Premium Hero Header */}
+      <div className="relative w-full bg-charcoal-900 overflow-hidden px-8 py-12 lg:px-16 lg:py-16 rounded-b-[3rem] shadow-2xl mb-10 border-b-4 border-lime-400 shrink-0">
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-lime-400/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-10 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl"></div>
+          {/* Subtle Grid Pattern overlay */}
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#a3e635 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
         </div>
-        <div className="flex items-center gap-4">
-          <Link 
-            to={`/stations/${station.stationId}/edit`}
-            className="bg-white border border-gray-200 hover:bg-gray-50 text-charcoal-900 px-6 py-3 rounded-xl font-semibold transition-colors shadow-sm"
-          >
-            Edit Configuration
-          </Link>
-          <button 
-            onClick={handleToggleStatus}
-            className={`px-6 py-3 rounded-xl font-semibold transition-colors shadow-sm border ${
-              station.status === 'Active' 
-                ? 'bg-white border-red-200 text-red-600 hover:bg-red-50' 
-                : 'bg-charcoal-900 text-white hover:bg-black border-transparent'
-            }`}
-          >
-            {station.status === 'Active' ? 'Deactivate Station' : 'Activate Station'}
-          </button>
+
+        <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+          <div className="flex flex-col gap-4">
+            <Link to="/stations" className="text-gray-400 hover:text-lime-400 transition-colors font-semibold text-sm flex items-center gap-2 w-fit mb-2">
+              <ArrowLeft className="w-4 h-4" /> Back to Stations
+            </Link>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-4 flex-wrap">
+                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">{station.name}</h1>
+                <span className={`px-4 py-1.5 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 ${
+                  station.status === 'Active' 
+                    ? 'bg-lime-400 text-charcoal-900 border border-lime-400' 
+                    : 'bg-red-500 text-white border border-red-500'
+                }`}>
+                  <Activity className="w-3 h-3" /> {station.status}
+                </span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mt-2">
+                <p className="text-gray-300 text-sm font-medium flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-lime-400" /> {station.address}
+                </p>
+                {station.gridOperatorName && (
+                  <p className="text-gray-300 text-sm font-medium flex items-center gap-2">
+                    <User className="w-4 h-4 text-lime-400" /> Operator: <span className="text-white font-bold">{station.gridOperatorName}</span>
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {!isProsumer() && (
+            <div className="flex items-center gap-3 shrink-0">
+              <Link 
+                to={`/stations/${station.stationId}/edit`}
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-xl"
+              >
+                Edit Config
+              </Link>
+              <button 
+                onClick={handleToggleStatus}
+                className={`px-6 py-3 rounded-2xl font-bold transition-all shadow-xl border ${
+                  station.status === 'Active' 
+                    ? 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500' 
+                    : 'bg-lime-400 border-lime-400 text-charcoal-900 hover:bg-lime-500 hover:border-lime-500'
+                }`}
+              >
+                {station.status === 'Active' ? 'Deactivate' : 'Activate'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="w-full max-w-6xl mx-auto flex-1 space-y-8">
-        {/* Station Details Card */}
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-8">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
-              <div className="flex items-center gap-2 mb-2 text-lime-600">
-                <MapPin className="w-4 h-4" />
-                <p className="text-xs font-bold uppercase tracking-wider">Coordinates</p>
-              </div>
-              <p className="font-bold text-charcoal-900">{station.latitude}<br/>{station.longitude}</p>
+      <div className="w-full max-w-6xl mx-auto flex-1 space-y-8 px-4 md:px-8">
+        {/* Premium Stat Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/40 border border-gray-100 hover:border-lime-200 hover:-translate-y-1 transition-all group">
+            <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-lime-50 transition-colors">
+              <MapPin className="w-5 h-5 text-gray-400 group-hover:text-lime-500" />
             </div>
-            
-            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
-              <div className="flex items-center gap-2 mb-2 text-lime-600">
-                <Zap className="w-4 h-4" />
-                <p className="text-xs font-bold uppercase tracking-wider">Capacity</p>
-              </div>
-              <p className="font-bold text-charcoal-900 text-xl">{station.capacity} <span className="text-sm text-gray-500 font-medium">kW</span></p>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Coordinates</p>
+            <p className="font-bold text-charcoal-900 leading-tight">{station.latitude.toFixed(4)}<br/>{station.longitude.toFixed(4)}</p>
+          </motion.div>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/40 border border-gray-100 hover:border-lime-200 hover:-translate-y-1 transition-all group">
+            <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-lime-50 transition-colors">
+              <Zap className="w-5 h-5 text-gray-400 group-hover:text-yellow-500" />
             </div>
-            
-            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
-              <div className="flex items-center gap-2 mb-2 text-lime-600">
-                <Battery className="w-4 h-4" />
-                <p className="text-xs font-bold uppercase tracking-wider">Battery</p>
-              </div>
-              <p className="font-bold text-charcoal-900 text-xl">{station.batteryCapacity} <span className="text-sm text-gray-500 font-medium">kWh</span></p>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Capacity</p>
+            <p className="font-black text-charcoal-900 text-3xl">{station.capacity}<span className="text-sm text-gray-500 font-bold ml-1">kW</span></p>
+          </motion.div>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/40 border border-gray-100 hover:border-lime-200 hover:-translate-y-1 transition-all group">
+            <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-lime-50 transition-colors">
+              <Battery className="w-5 h-5 text-gray-400 group-hover:text-lime-500" />
             </div>
-            
-            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
-              <div className="flex items-center gap-2 mb-2 text-lime-600">
-                <Battery className="w-4 h-4" />
-                <p className="text-xs font-bold uppercase tracking-wider">Storage</p>
-              </div>
-              <p className="font-bold text-charcoal-900 text-xl">{station.availableStorage} <span className="text-sm text-gray-500 font-medium">slots</span></p>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Battery Size</p>
+            <p className="font-black text-charcoal-900 text-3xl">{station.batteryCapacity}<span className="text-sm text-gray-500 font-bold ml-1">kWh</span></p>
+          </motion.div>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/40 border border-gray-100 hover:border-lime-200 hover:-translate-y-1 transition-all group">
+            <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-lime-50 transition-colors">
+              <Battery className="w-5 h-5 text-gray-400 group-hover:text-lime-500" />
             </div>
-            
-            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
-              <div className="flex items-center gap-2 mb-2 text-lime-600">
-                <Clock className="w-4 h-4" />
-                <p className="text-xs font-bold uppercase tracking-wider">Hours</p>
-              </div>
-              <p className="font-bold text-charcoal-900">{station.openingTime} - {station.closingTime}</p>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Storage</p>
+            <p className="font-black text-charcoal-900 text-3xl">{station.availableStorage}<span className="text-sm text-gray-500 font-bold ml-1">slots</span></p>
+          </motion.div>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/40 border border-gray-100 hover:border-lime-200 hover:-translate-y-1 transition-all group">
+            <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-lime-50 transition-colors">
+              <Clock className="w-5 h-5 text-gray-400 group-hover:text-blue-500" />
             </div>
-          </div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Hours</p>
+            <p className="font-bold text-charcoal-900">{station.openingTime}<br/><span className="text-gray-400 text-sm">to</span> {station.closingTime}</p>
+          </motion.div>
         </div>
 
         {/* Energy Slots Section */}
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
-          <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
+          <div className="p-8 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
             <div>
-              <h2 className="text-xl font-bold text-charcoal-900">Energy Slots</h2>
-              <p className="text-sm text-gray-500 mt-1">Manage energy transfer availability for this station</p>
+              <h2 className="text-2xl font-black text-charcoal-900 tracking-tight">Energy Slots</h2>
+              <p className="text-sm text-gray-500 font-medium mt-1">
+                {isProsumer() ? 'Available energy transfer slots for booking' : 'Manage energy transfer availability for this station'}
+              </p>
             </div>
-            {!showAddSlot && (
+            {!showAddSlot && !isProsumer() && (
               <button 
                 onClick={() => setShowAddSlot(true)}
-                className="bg-lime-400 hover:bg-lime-500 text-charcoal-900 px-6 py-3 rounded-xl font-bold transition-all shadow-sm shadow-lime-400/20 flex items-center gap-2"
+                className="bg-lime-400 hover:bg-lime-500 text-charcoal-900 px-6 py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-lime-400/30 flex items-center gap-2 hover:-translate-y-0.5"
               >
                 <Plus className="w-5 h-5" /> Add New Slot
               </button>
@@ -264,68 +318,73 @@ export default function StationDetails() {
             </div>
           )}
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto p-4">
+            <table className="w-full text-left border-separate" style={{ borderSpacing: '0 8px' }}>
               <thead>
-                <tr className="border-b border-gray-100 bg-white">
-                  <th className="px-8 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest">DATE</th>
-                  <th className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest">TIME (24H)</th>
-                  <th className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest">CAPACITY REMAINING</th>
-                  <th className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest">STATUS</th>
-                  <th className="px-8 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest text-right">ACTIONS</th>
+                <tr>
+                  <th className="px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest pl-8">Date</th>
+                  <th className="px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Time Window</th>
+                  <th className="px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Capacity</th>
+                  <th className="px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                  <th className="px-6 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right pr-8">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody>
                 {slots.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="px-8 py-16 text-center text-gray-400 font-medium">
+                    <td colSpan="5" className="px-8 py-20 text-center text-gray-400 font-medium bg-gray-50 rounded-2xl">
                       No energy slots have been configured for this station yet.
                     </td>
                   </tr>
                 ) : (
                   slots.map(slot => (
-                    <tr key={slot.slotId} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-8 py-5 whitespace-nowrap">
-                        <div className="text-sm font-bold text-charcoal-900 flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-400" />
+                    <tr key={slot.slotId} className="bg-white hover:bg-gray-50 transition-colors shadow-sm border border-gray-100 rounded-2xl group">
+                      <td className="px-6 py-5 whitespace-nowrap pl-8 rounded-l-2xl border-y border-l border-gray-100 group-hover:border-lime-200 transition-colors">
+                        <div className="text-sm font-black text-charcoal-900 flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-lime-100 transition-colors">
+                            <Calendar className="w-4 h-4 text-gray-500 group-hover:text-lime-600" />
+                          </div>
                           {new Date(slot.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                         </div>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap text-[13px] font-bold text-charcoal-700 flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-gray-400" />
-                        {slot.startTime} &rarr; {slot.endTime}
+                      <td className="px-6 py-5 whitespace-nowrap border-y border-gray-100 group-hover:border-y-lime-200 transition-colors">
+                        <div className="text-[13px] font-bold text-charcoal-700 flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg w-fit">
+                          <Clock className="w-3.5 h-3.5 text-gray-400" />
+                          {slot.startTime} &rarr; {slot.endTime}
+                        </div>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-full max-w-[120px] h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <td className="px-6 py-5 whitespace-nowrap border-y border-gray-100 group-hover:border-y-lime-200 transition-colors">
+                        <div className="flex flex-col gap-1.5 w-full max-w-[140px]">
+                          <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                            <span className="text-gray-400">Available</span>
+                            <span className="text-charcoal-900">{slot.availableCapacity}/{slot.capacity} kW</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                             <div 
-                              className="h-full bg-lime-400" 
+                              className="h-full bg-lime-400 rounded-full" 
                               style={{ width: `${(slot.availableCapacity / slot.capacity) * 100}%` }}
                             ></div>
                           </div>
-                          <span className="text-[13px] font-bold text-charcoal-900">
-                            {slot.availableCapacity}<span className="text-gray-400 font-medium">/{slot.capacity} kW</span>
-                          </span>
                         </div>
                       </td>
-                      <td className="px-6 py-5 whitespace-nowrap">
-                        <span className={`px-3 py-1 text-[11px] font-bold rounded-full border ${
+                      <td className="px-6 py-5 whitespace-nowrap border-y border-gray-100 group-hover:border-y-lime-200 transition-colors">
+                        <span className={`px-3 py-1.5 text-[11px] font-black tracking-wide rounded-lg uppercase ${
                           slot.status === 'Available' 
-                            ? 'bg-[#E3F8B3] text-[#557711] border-[#d2f38d]' 
+                            ? 'bg-lime-100 text-lime-700' 
                             : slot.status === 'Full' 
-                              ? 'bg-orange-50 text-orange-700 border-orange-200' 
-                              : 'bg-gray-50 text-gray-700 border-gray-200'
+                              ? 'bg-orange-100 text-orange-700' 
+                              : 'bg-gray-100 text-gray-700'
                         }`}>
                           {slot.status}
                         </span>
                       </td>
-                      <td className="px-8 py-5 whitespace-nowrap text-right">
+                      <td className="px-6 py-5 whitespace-nowrap text-right pr-8 rounded-r-2xl border-y border-r border-gray-100 group-hover:border-lime-200 transition-colors">
                         <button 
                           onClick={() => handleToggleSlotStatus(slot.slotId, slot.status)}
-                          className={`text-xs font-bold px-4 py-2 rounded-lg border transition-all ${
+                          className={`text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-sm ${
                             slot.status === 'Available'
-                              ? 'bg-white border-orange-200 text-orange-600 hover:bg-orange-50'
-                              : 'bg-white border-lime-200 text-lime-700 hover:bg-[#F2FBE0]'
+                              ? 'bg-white border border-gray-200 text-charcoal-900 hover:bg-gray-50'
+                              : 'bg-lime-50 border border-lime-200 text-lime-700 hover:bg-lime-100'
                           }`}
                         >
                           {slot.status === 'Available' ? 'Mark as Full' : 'Mark Available'}
@@ -337,7 +396,7 @@ export default function StationDetails() {
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

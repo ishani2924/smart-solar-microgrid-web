@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Menu, X, User, Users, Activity, Settings,
-  Zap, LogOut, Search, Bell, BarChart2, ShieldCheck, HelpCircle, LayoutDashboard
+  Zap, LogOut, Search, Bell, BarChart2, ShieldCheck, HelpCircle, LayoutDashboard, Calendar, MapPin
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { userAPI } from '../services/api';
@@ -11,8 +11,12 @@ import { userAPI } from '../services/api';
 // Master list of all available sidebar tabs with stable keys
 export const ALL_TABS = {
   dashboard: [
+    { key: 'prosumer-dashboard', name: 'My Dashboard', path: '/prosumer/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+    { key: 'prosumer-bookings', name: 'My Bookings', path: '/prosumer/bookings', icon: <Calendar className="w-4 h-4" /> },
+    { key: 'prosumer-stations', name: 'Stations', path: '/prosumer/stations', icon: <MapPin className="w-4 h-4" /> },
     { key: 'overview', name: 'Overview', path: '/operator/dashboard', icon: <Activity className="w-4 h-4" /> },
     { key: 'stations', name: 'Stations', path: '/stations', icon: <Zap className="w-4 h-4" /> },
+    { key: 'admin-bookings', name: 'Bookings', path: '/admin/bookings', icon: <Calendar className="w-4 h-4" /> },
     { key: 'analysis', name: 'Analysis', path: '/analysis', icon: <BarChart2 className="w-4 h-4" /> },
     { key: 'admin-users', name: 'Admin Users', path: '/admin/users', icon: <Users className="w-4 h-4" /> },
     { key: 'admin-prosumers', name: 'Admin Prosumers', path: '/admin/prosumers', icon: <ShieldCheck className="w-4 h-4" /> },
@@ -82,15 +86,23 @@ const DashboardLayout = () => {
   const getNavLinks = () => {
     const filterTabs = (tabs) => {
       console.log('DashboardLayout: filterTabs called with visibleTabs:', visibleTabs, 'user role:', user?.role);
-      // Always return a copy so we never mutate the exported ALL_TABS arrays
-      // If visibleTabs is null (role has no configuration = unrestricted) or user is Backoffice, show all tabs
-      if (!visibleTabs || user?.role === 'Backoffice') {
-        console.log('DashboardLayout: Showing all tabs (visibleTabs is null or user is Backoffice)');
-        return [...tabs];
+      
+      const roleStr = (user?.role || '').toLowerCase().trim();
+      const isProsumerRole = roleStr === 'prosumer';
+      const isBackofficeRole = roleStr === 'backoffice' || roleStr === 'admin';
+
+      // Always restrict Prosumer to specific tabs, ignoring the backend visibleTabs array
+      if (isProsumerRole) {
+        return tabs.filter(t => t.key.startsWith('prosumer-') || t.key === 'my-account' || t.key === 'support');
       }
-      const filtered = tabs.filter(t => visibleTabs.includes(t.key));
-      console.log('DashboardLayout: Filtered tabs from', tabs.length, 'to', filtered.length);
-      return filtered;
+
+      // If visibleTabs is null (role has no configuration) or user is Backoffice, show all non-prosumer tabs
+      if (!visibleTabs || isBackofficeRole) {
+        return tabs.filter(t => !t.key.startsWith('prosumer-'));
+      }
+      
+      // Filter for other roles (e.g. GridOperator) based on backend visibleTabs, excluding prosumer tabs
+      return tabs.filter(t => visibleTabs.includes(t.key) && !t.key.startsWith('prosumer-'));
     };
 
     const dashboardLinks = filterTabs(ALL_TABS.dashboard);
