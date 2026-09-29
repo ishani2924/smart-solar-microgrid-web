@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import AdminUsers from './pages/AdminUsers';
 import AdminProsumers from './pages/AdminProsumers';
 import AdminDeactivationRequests from './pages/AdminDeactivationRequests';
+import AdminBookings from './pages/AdminBookings';
 import AboutSection from './components/AboutSection';
 import HowItWorksSection from './components/HowItWorksSection';
 import FeaturesSection from './components/FeaturesSection';
@@ -29,6 +30,9 @@ import StationList from './pages/Microgrid/StationList';
 import CreateStation from './pages/Microgrid/CreateStation';
 import StationDetails from './pages/Microgrid/StationDetails';
 import EditStation from './pages/Microgrid/EditStation';
+import ProsumerDashboard from './pages/ProsumerDashboard';
+import ProsumerBookings from './pages/ProsumerBookings';
+import ProsumerStations from './pages/ProsumerStations';
 import BookingConfirmation from './pages/BookingConfirmation';
 import OperatorScan from './pages/OperatorScan';
 import OperatorStationMap from './pages/OperatorStationMap';
@@ -64,11 +68,15 @@ function App() {
           <Route path="/register" element={<Register />} />
           
           <Route element={<DashboardLayout />}>
+            <Route path="/prosumer/dashboard" element={<ProtectedRoute requiredRole="Prosumer"><ProsumerDashboard /></ProtectedRoute>} />
+            <Route path="/prosumer/bookings" element={<ProtectedRoute requiredRole="Prosumer"><ProsumerBookings /></ProtectedRoute>} />
+            <Route path="/prosumer/stations" element={<ProtectedRoute requiredRole="Prosumer"><ProsumerStations /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute requiredRole="Prosumer"><Profile /></ProtectedRoute>} />
             <Route path="/admin/users" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminUsers /></ProtectedRoute>} />
             <Route path="/admin/prosumers" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminProsumers /></ProtectedRoute>} />
             <Route path="/admin/deactivation-requests" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminDeactivationRequests /></ProtectedRoute>} />
             <Route path="/admin/tab-permissions" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><TabPermissions /></ProtectedRoute>} />
+            <Route path="/admin/bookings" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice', 'GridOperator']}><AdminBookings /></ProtectedRoute>} />
             <Route path="/operator/dashboard" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice', 'Admin']}><OperatorDashboard /></ProtectedRoute>} />
             <Route path="/operator/scan" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice', 'Admin']}><OperatorScan /></ProtectedRoute>} />
             <Route path="/operator/map" element={<ProtectedRoute requiredRoles={['Prosumer', 'GridOperator', 'Backoffice', 'Admin']}><OperatorStationMap /></ProtectedRoute>} />
@@ -77,9 +85,9 @@ function App() {
             <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
 
             <Route path="/stations" element={<ProtectedRoute><StationList /></ProtectedRoute>} />
-            <Route path="/stations/create" element={<ProtectedRoute><CreateStation /></ProtectedRoute>} />
+            <Route path="/stations/create" element={<ProtectedRoute requiredRoles={['Backoffice', 'GridOperator', 'Admin']}><CreateStation /></ProtectedRoute>} />
             <Route path="/stations/:id" element={<ProtectedRoute><StationDetails /></ProtectedRoute>} />
-            <Route path="/stations/:id/edit" element={<ProtectedRoute><EditStation /></ProtectedRoute>} />
+            <Route path="/stations/:id/edit" element={<ProtectedRoute requiredRoles={['Backoffice', 'GridOperator', 'Admin']}><EditStation /></ProtectedRoute>} />
           </Route>
           
           {/* Fallback */}

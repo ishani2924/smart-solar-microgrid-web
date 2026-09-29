@@ -1,11 +1,108 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Battery, Zap, Sun, Calendar, ChevronDown, MoreVertical } from 'lucide-react';
 import StationMap from '../components/StationMap';
 import heroImg from '../assets/heroimg.jpg';
+import { useAuth } from '../contexts/AuthContext';
+import { fetchStations } from '../services/MicrogridService';
+import { reservationAPI } from '../services/api';
+import { Link } from 'react-router-dom';
 
 const OperatorDashboard = () => {
+  const { user } = useAuth();
+  const [myStations, setMyStations] = useState([]);
+  const [metrics, setMetrics] = useState({
+    totalCapacity: 0,
+    totalBookedEnergy: 0,
+    activeChargingEnergy: 0,
+    bookingsByStatus: { Pending: 0, Approved: 0, Completed: 0, Cancelled: 0 },
+    monthlyEnergy: []
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [stationsData, reservationsData] = await Promise.all([
+          fetchStations(),
+          reservationAPI.getAllReservations().catch(() => [])
+        ]);
+
+        let filteredStations = stationsData;
+        if (user) {
+          filteredStations = stationsData.filter(station => {
+            const opName = (station.gridOperatorName || '').toLowerCase().trim();
+            const userEmail = (user.email || '').toLowerCase().trim();
+            const userName = (user.name || '').toLowerCase().trim();
+            const userStationId = user.stationId;
+
+            return (
+              (userEmail && opName === userEmail) ||
+              (userName && opName === userName) ||
+              (userStationId && (station.stationId === userStationId || station.id === userStationId)) ||
+              (opName && userEmail && opName.includes(userEmail)) ||
+              (opName && userName && opName.includes(userName))
+            );
+          });
+        }
+        setMyStations(filteredStations);
+
+        const stationIds = filteredStations.map(s => s.stationId || s.id);
+        const myReservations = Array.isArray(reservationsData) 
+          ? reservationsData.filter(r => stationIds.includes(r.stationId))
+          : [];
+
+        let totalCapacity = 0;
+        filteredStations.forEach(s => totalCapacity += (s.capacity || 0));
+
+        let totalBookedEnergy = 0;
+        let activeChargingEnergy = 0;
+        const bookingsByStatus = { Pending: 0, Approved: 0, Completed: 0, Cancelled: 0 };
+        const monthlyEnergyMap = {};
+
+        myReservations.forEach(r => {
+          const size = r.bookingSize || 0;
+          const status = r.status || 'Pending';
+          if (bookingsByStatus[status] !== undefined) {
+             bookingsByStatus[status]++;
+          }
+          if (status === 'Completed') {
+            totalBookedEnergy += size;
+          } else if (status === 'Approved' || status === 'Pending') {
+            activeChargingEnergy += size;
+          }
+
+          if (r.bookingDate) {
+            const date = new Date(r.bookingDate);
+            const month = date.toLocaleString('default', { month: 'short' });
+            if (!monthlyEnergyMap[month]) monthlyEnergyMap[month] = 0;
+            monthlyEnergyMap[month] += size;
+          }
+        });
+
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        let monthlyEnergy = months.map(m => ({ month: m, value: monthlyEnergyMap[m] || 0 })).filter(m => m.value > 0);
+        if (monthlyEnergy.length === 0) {
+          monthlyEnergy = [{ month: 'No Data', value: 0 }];
+        }
+
+        setMetrics({
+          totalCapacity,
+          totalBookedEnergy,
+          activeChargingEnergy,
+          bookingsByStatus,
+          monthlyEnergy
+        });
+        
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [user]);
   return (
     <div className="flex flex-col gap-6 h-full w-full pb-8">
       
@@ -33,15 +130,14 @@ const OperatorDashboard = () => {
               <div className="flex flex-col">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-lime-400"></div>
-                  <span className="text-gray-400 text-xs font-medium">Total Charging</span>
+                  <span className="text-gray-400 text-xs font-medium">Total Completed Energy</span>
                 </div>
                 <div className="flex items-baseline gap-2 mb-3">
-                  <span className="text-white text-4xl md:text-5xl font-semibold tracking-tight">80.88</span>
+                  <span className="text-white text-4xl md:text-5xl font-semibold tracking-tight">{metrics.totalBookedEnergy.toFixed(2)}</span>
                   <span className="text-gray-500 text-xs font-bold">KWH</span>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-semibold text-gray-400">
-                  <span>Min <span className="text-red-400">3.0 ▼</span></span>
-                  <span>Max <span className="text-lime-400">10.0 ▲</span></span>
+                  <span>Based on <span className="text-lime-400">{metrics.bookingsByStatus.Completed} Completed</span> Bookings</span>
                 </div>
               </div>
 
@@ -50,14 +146,14 @@ const OperatorDashboard = () => {
               <div className="flex flex-col">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
-                  <span className="text-gray-400 text-xs font-medium">Power Usage</span>
+                  <span className="text-gray-400 text-xs font-medium">Active Pending/Approved</span>
                 </div>
                 <div className="flex items-baseline gap-2 mb-1">
-                  <span className="text-white text-4xl md:text-5xl font-semibold tracking-tight">17.05</span>
+                  <span className="text-white text-4xl md:text-5xl font-semibold tracking-tight">{metrics.activeChargingEnergy.toFixed(2)}</span>
                   <span className="text-gray-500 text-xs font-bold">KWH</span>
                 </div>
                 <div className="text-gray-400 text-xs font-medium">
-                  1 hour usage <span className="text-white">6.8</span> kWh
+                  Total pending energy to be completed
                 </div>
               </div>
             </div>
@@ -73,14 +169,14 @@ const OperatorDashboard = () => {
                   <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
                     <Battery className="w-4 h-4 text-lime-400" /> Capacity
                   </div>
-                  <span className="text-white font-bold text-lg">220.0 <span className="text-gray-500 text-xs">kWh</span></span>
+                  <span className="text-white font-bold text-lg">{metrics.totalCapacity.toFixed(1)} <span className="text-gray-500 text-xs">kW</span></span>
                 </div>
                 <div className="w-px bg-[#3A3C3E]"></div>
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
                     <Zap className="w-4 h-4 text-lime-400" /> Total yield
                   </div>
-                  <span className="text-white font-bold text-lg">175.0 <span className="text-gray-500 text-xs">kWh</span></span>
+                  <span className="text-white font-bold text-lg">{metrics.totalBookedEnergy.toFixed(1)} <span className="text-gray-500 text-xs">kWh</span></span>
                 </div>
               </div>
             </div>
@@ -96,10 +192,10 @@ const OperatorDashboard = () => {
           className="bg-white rounded-3xl p-6 md:p-8 flex flex-col shadow-sm border border-gray-100"
         >
           <div className="flex justify-between items-center mb-1">
-            <h2 className="text-charcoal-900 font-bold text-lg">Energy Generation</h2>
-            <div className="text-xs font-semibold text-charcoal-900 border border-gray-200 rounded-full px-3 py-1">Today</div>
+            <h2 className="text-charcoal-900 font-bold text-lg">Booking Statuses</h2>
+            <div className="text-xs font-semibold text-charcoal-900 border border-gray-200 rounded-full px-3 py-1">All Time</div>
           </div>
-          <span className="text-gray-400 text-xs font-medium mb-8">kWh</span>
+          <span className="text-gray-400 text-xs font-medium mb-8">Bookings count</span>
 
           {/* CSS Bar Chart */}
           <div className="flex-1 flex items-end justify-between gap-2 mt-auto pt-4 relative h-48">
@@ -110,23 +206,19 @@ const OperatorDashboard = () => {
               <div className="w-full border-t border-dashed border-gray-100"></div>
             </div>
             
-            {[
-              { time: '9 AM', val: 10, h: '40%' },
-              { time: '10 AM', val: 14, h: '60%' },
-              { time: '11 AM', val: 18, h: '80%' },
-              { time: '12 AM', val: 20, h: '90%' },
-              { time: '01 PM', val: 16, h: '70%' },
-              { time: '02 PM', val: 18, h: '80%' }
-            ].map((bar, i) => (
+            {Object.entries(metrics.bookingsByStatus).map(([status, count], i) => {
+              const maxCount = Math.max(1, ...Object.values(metrics.bookingsByStatus));
+              const height = `${(count / maxCount) * 100}%`;
+              return (
               <div key={i} className="flex flex-col items-center gap-2 z-10 group cursor-pointer w-full">
-                <span className="text-gray-500 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity mb-1">{bar.val}</span>
+                <span className="text-gray-500 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity mb-1">{count}</span>
                 <div 
                   className="w-full max-w-[2rem] bg-lime-100 group-hover:bg-lime-200 rounded-t-sm transition-colors"
-                  style={{ height: bar.h }}
+                  style={{ height }}
                 ></div>
-                <span className="text-gray-400 text-[10px] font-semibold mt-2">{bar.time}</span>
+                <span className="text-gray-400 text-[10px] font-semibold mt-2">{status}</span>
               </div>
-            ))}
+            )})}
           </div>
         </motion.div>
 
@@ -144,10 +236,10 @@ const OperatorDashboard = () => {
         >
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-4">
-              <h2 className="text-charcoal-900 font-bold text-lg">Energy Production</h2>
+              <h2 className="text-charcoal-900 font-bold text-lg">Energy Output</h2>
               <div className="flex items-center gap-1">
                 <Zap className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                <span className="text-gray-400 text-xs font-semibold">100 kWh</span>
+                <span className="text-gray-400 text-xs font-semibold">{metrics.totalBookedEnergy.toFixed(1)} kWh</span>
               </div>
             </div>
             <div className="flex items-center gap-2 text-xs font-semibold text-charcoal-900 border border-gray-200 rounded-full px-3 py-1 cursor-pointer">
@@ -155,17 +247,17 @@ const OperatorDashboard = () => {
             </div>
           </div>
 
-          {/* Candlestick-style chart mock */}
+          {/* Bar chart replacement */}
           <div className="flex-1 flex items-end relative min-h-[250px] pl-8 pb-6">
             
             {/* Y-axis labels */}
             <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] font-bold text-gray-400">
-              <span>200</span>
-              <span>160</span>
-              <span>120</span>
-              <span>80</span>
-              <span>40</span>
-              <span>0</span>
+              {(() => {
+                const max = Math.max(10, ...metrics.monthlyEnergy.map(m => m.value));
+                return [...Array(6)].map((_, i) => (
+                  <span key={i}>{Math.round(max - (max / 5) * i)}</span>
+                ));
+              })()}
             </div>
 
             {/* Grid lines */}
@@ -178,17 +270,17 @@ const OperatorDashboard = () => {
             </div>
 
             {/* Bars */}
-            <div className="w-full h-full flex justify-between items-end z-10 px-2 pb-1">
-              {/* Generating a bunch of random looking candlestick bars that match the color scheme */}
-              {[...Array(24)].map((_, i) => {
-                const height = 20 + Math.sin(i / 3) * 30 + Math.cos(i) * 20 + 30;
-                const offset = Math.abs(Math.cos(i * 2)) * 20;
+            <div className="w-full h-full flex justify-around items-end z-10 px-2 pb-1">
+              {metrics.monthlyEnergy.map((data, i) => {
+                const max = Math.max(10, ...metrics.monthlyEnergy.map(m => m.value));
+                const height = Math.max(5, (data.value / max) * 100);
                 const isGreen = i % 2 === 0;
                 return (
-                  <div key={i} className="flex flex-col justify-end w-2 md:w-3" style={{ height: '100%' }}>
+                  <div key={i} className="flex flex-col items-center justify-end w-8 group" style={{ height: '100%' }}>
+                    <span className="text-gray-500 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity mb-1">{data.value.toFixed(1)}</span>
                     <div 
-                      className={`w-full rounded-full ${isGreen ? 'bg-lime-500' : 'bg-yellow-400'}`}
-                      style={{ height: `${height}%`, marginBottom: `${offset}%` }}
+                      className={`w-full rounded-t-sm transition-all ${isGreen ? 'bg-lime-500 hover:bg-lime-400' : 'bg-yellow-400 hover:bg-yellow-300'}`}
+                      style={{ height: `${height}%` }}
                     ></div>
                   </div>
                 )
@@ -196,14 +288,10 @@ const OperatorDashboard = () => {
             </div>
 
             {/* X-axis labels */}
-            <div className="absolute left-8 right-0 -bottom-2 flex justify-between text-[10px] font-bold text-gray-400 px-4">
-              <span>March</span>
-              <span>April</span>
-              <span>May</span>
-              <span>June</span>
-              <span>July</span>
-              <span>August</span>
-              <span>August</span>
+            <div className="absolute left-8 right-0 -bottom-2 flex justify-around text-[10px] font-bold text-gray-400 px-4">
+              {metrics.monthlyEnergy.map((data, i) => (
+                <span key={i} className="w-8 text-center">{data.month}</span>
+              ))}
             </div>
 
           </div>
@@ -218,45 +306,36 @@ const OperatorDashboard = () => {
         >
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-charcoal-900 font-bold text-lg">
-              Solar Panels Points <span className="text-lime-500 font-medium">(12)</span>
+              Assigned Stations <span className="text-lime-500 font-medium">({myStations.length})</span>
             </h2>
-            <MoreVertical className="w-5 h-5 text-gray-400 cursor-pointer" />
-          </div>
-
-          <div className="flex gap-2 mb-6">
-            <div className="w-8 h-8 rounded-full bg-lime-600 flex items-center justify-center text-white cursor-pointer">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16m-7 6h7"/></svg>
-            </div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-charcoal-900 border border-gray-200 rounded-full px-3 py-1 cursor-pointer hover:bg-gray-50">
-              Sort By <ChevronDown className="w-3 h-3" />
-            </div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-charcoal-900 border border-gray-200 rounded-full px-3 py-1 cursor-pointer hover:bg-gray-50">
-              Calendar <Calendar className="w-3 h-3" />
-            </div>
+            <Link to="/stations" className="text-xs font-semibold text-lime-600 hover:underline">View All</Link>
           </div>
 
           <div className="flex flex-col gap-3 flex-1 overflow-y-auto custom-scrollbar pr-2">
-            {[
-              { name: 'The Xavier SPanel', cap: '160 kWh', yield: '120.6 kWh' },
-              { name: 'Taman Dayu SPanel', cap: '600 kWh', yield: '430.8 kWh' },
-              { name: 'Garden SPanel', cap: '400 kWh', yield: '240.7 kWh' },
-            ].map((panel, i) => (
-              <div key={i} className="flex items-center justify-between p-4 bg-gray-50 hover:bg-lime-50/50 transition-colors rounded-2xl cursor-pointer border border-transparent hover:border-lime-100">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-                    <Sun className="w-5 h-5 text-lime-500" />
+            {loading ? (
+              <div className="text-gray-400 text-xs py-4 text-center">Loading stations...</div>
+            ) : myStations.length === 0 ? (
+              <div className="text-gray-400 text-xs py-4 text-center">No assigned stations found.</div>
+            ) : (
+              myStations.map((station, i) => (
+                <Link key={station.stationId || i} to={`/stations/${station.stationId}`} className="flex items-center justify-between p-4 bg-gray-50 hover:bg-lime-50/50 transition-colors rounded-2xl cursor-pointer border border-transparent hover:border-lime-100">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                      <Sun className="w-5 h-5 text-lime-500" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-sm text-charcoal-900">{station.name}</span>
+                      <span className="text-[10px] font-semibold text-gray-400">Cap: {station.capacity} kW • {station.address}</span>
+                    </div>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-sm text-charcoal-900">{panel.name}</span>
-                    <span className="text-[10px] font-semibold text-gray-400">Capacity {panel.cap}</span>
+                  <div className="flex items-center gap-1">
+                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${station.status === 'Active' ? 'bg-lime-100 text-lime-800' : 'bg-red-100 text-red-600'}`}>
+                      {station.status}
+                    </span>
                   </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
-                  <span className="font-bold text-sm text-charcoal-900">{panel.yield}</span>
-                </div>
-              </div>
-            ))}
+                </Link>
+              ))
+            )}
           </div>
 
         </motion.div>

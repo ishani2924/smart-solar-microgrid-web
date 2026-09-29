@@ -75,6 +75,7 @@ const TabPermissions = () => {
       return;
     }
     fetchAllRolePermissions();
+    selectRole(ROLES[0]);
   }, [user, navigate]);
 
   const fetchAllRolePermissions = async () => {
@@ -92,13 +93,16 @@ const TabPermissions = () => {
   };
 
   const selectRole = async (role) => {
+    setSelectedRole(role);
+    setMessage({ type: '', text: '' });
+
     if (!role.configurable) {
+      setIsUnrestricted(true);
+      setSelectedTabs(ALL_TAB_FLAT.map(t => t.key));
       setMessage({ type: 'info', text: 'Backoffice role always sees all tabs and cannot be configured.' });
       return;
     }
 
-    setSelectedRole(role);
-    setMessage({ type: '', text: '' });
     setLoadingTabs(true);
     try {
       const response = await userAPI.getRoleTabPermissions(role.key);
@@ -121,6 +125,7 @@ const TabPermissions = () => {
   };
 
   const toggleTab = (key) => {
+    if (!selectedRole?.configurable) return;
     if (isUnrestricted) {
       // Switching from unrestricted → restricted mode
       const allKeys = ALL_TAB_FLAT.map(t => t.key);
@@ -134,11 +139,13 @@ const TabPermissions = () => {
   };
 
   const setAllVisible = () => {
+    if (!selectedRole?.configurable) return;
     setIsUnrestricted(true);
     setSelectedTabs(ALL_TAB_FLAT.map(t => t.key));
   };
 
   const setNoneVisible = () => {
+    if (!selectedRole?.configurable) return;
     setIsUnrestricted(false);
     setSelectedTabs([]);
   };
@@ -190,7 +197,7 @@ const TabPermissions = () => {
   };
 
   return (
-    <div className="text-charcoal-900 w-full h-full flex flex-col pt-4 pb-8">
+    <div className="text-charcoal-900 w-full flex flex-col pt-4 pb-12">
 
       {/* Header */}
       <div className="flex items-center justify-between mb-10 w-full max-w-6xl mx-auto">
@@ -225,7 +232,7 @@ const TabPermissions = () => {
         </div>
       )}
 
-      <div className="w-full max-w-6xl mx-auto flex gap-6 flex-1 min-h-0">
+      <div className="w-full max-w-6xl mx-auto flex gap-6">
 
         {/* Left panel – role list */}
         <div className="w-80 flex flex-col gap-3 shrink-0">
@@ -245,9 +252,8 @@ const TabPermissions = () => {
                     <button
                       key={role.key}
                       onClick={() => selectRole(role)}
-                      disabled={!role.configurable}
                       className={`w-full text-left px-5 py-4 flex items-center gap-3 hover:bg-gray-50 transition-colors ${selectedRole?.key === role.key ? 'bg-lime-50/60' : ''
-                        } ${!role.configurable ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        }`}
                     >
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${selectedRole?.key === role.key
                           ? 'bg-lime-400 text-charcoal-900'
@@ -338,7 +344,7 @@ const TabPermissions = () => {
                   Loading permissions...
                 </div>
               ) : (
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex-1">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
                   {/* Toolbar */}
                   <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Sidebar Tabs</p>
@@ -361,7 +367,7 @@ const TabPermissions = () => {
                   </div>
 
                   {/* Tab groups */}
-                  <div className="divide-y divide-gray-50">
+                  <div className="divide-y divide-gray-50 overflow-y-auto max-h-[500px]">
                     {Object.entries(ALL_TABS).map(([group, tabs]) => (
                       <div key={group} className="px-6 py-5">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">

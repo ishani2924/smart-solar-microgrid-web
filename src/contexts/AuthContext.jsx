@@ -104,9 +104,18 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const isProsumer = () => user?.role === 'Prosumer';
-  const isBackoffice = () => user?.role === 'Backoffice';
-  const isGridOperator = () => user?.role === 'GridOperator';
+  const isProsumer = () => {
+    const role = (user?.role || '').toLowerCase().replace(/[\s_]+/g, '');
+    return role === 'prosumer';
+  };
+  const isBackoffice = () => {
+    const role = (user?.role || '').toLowerCase().replace(/[\s_]+/g, '');
+    return role === 'backoffice' || role === 'admin';
+  };
+  const isGridOperator = () => {
+    const role = (user?.role || '').toLowerCase().replace(/[\s_]+/g, '');
+    return role === 'gridoperator' || role === 'operator';
+  };
 
   const value = {
     user,
