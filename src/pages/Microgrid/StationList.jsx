@@ -51,6 +51,14 @@ export default function StationList() {
       alert(err.message);
     }
   };
+  const handleSetStatus = async (id, newStatus) => {
+    try {
+      await updateStationStatus(id, newStatus);
+      loadStations();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   return (
     <div className="text-charcoal-900 w-full h-full flex flex-col pt-4 pb-8">
@@ -151,20 +159,8 @@ export default function StationList() {
                         {isBackoffice() && (
                           station.status === 'Pending' ? (
                             <>
-                              <button 
-                                onClick={() => handleSetStatus(station.stationId, 'Active')}
-                                className="px-3 py-1.5 flex items-center gap-1.5 bg-lime-100 text-lime-700 hover:bg-lime-200 text-xs font-bold rounded-lg transition-colors"
-                                title="Approve Station"
-                              >
-                                <CheckCircle className="w-3.5 h-3.5" /> Approve
-                              </button>
-                              <button 
-                                onClick={() => handleSetStatus(station.stationId, 'Rejected')}
-                                className="px-3 py-1.5 flex items-center gap-1.5 bg-red-100 text-red-700 hover:bg-red-200 text-xs font-bold rounded-lg transition-colors"
-                                title="Reject Station"
-                              >
-                                <XCircle className="w-3.5 h-3.5" /> Reject
-                              </button>
+                              <button onClick={() => handleSetStatus(station.stationId, 'Active')} className="p-2 text-lime-600 hover:bg-lime-50 rounded-lg transition-colors" title="Approve Station"><CheckCircle className="w-4 h-4" /></button>
+                              <button onClick={() => handleSetStatus(station.stationId, 'Rejected')} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Reject Station"><XCircle className="w-4 h-4" /></button>
                             </>
                           ) : (
                             <button 
