@@ -5,33 +5,45 @@ import { useAuth } from '../contexts/AuthContext';
 import heroImg from '../assets/heroimg.jpg';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { fetchStations } from '../services/MicrogridService';
 
 const ProsumerDashboard = () => {
   const { user, token } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stationsMap, setStationsMap] = useState({});
 
   useEffect(() => {
-    const fetchBookings = async () => {
+    const fetchData = async () => {
       const nic = user?.nic || user?.nIC || user?.NIC;
       if (!nic) {
          setLoading(false);
          return;
       }
       try {
-        const response = await axios.get(`http://localhost:5059/api/reservations/prosumer/${nic}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (response.data && response.data.success) {
-          setBookings(response.data.data || []);
+        const [bookingsRes, stationsData] = await Promise.all([
+          axios.get(`http://localhost:5059/api/reservations/prosumer/${nic}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }).catch(err => { console.error(err); return { data: { data: [] } }; }),
+          fetchStations().catch(err => { console.error(err); return []; })
+        ]);
+        
+        if (stationsData && stationsData.length > 0) {
+          const map = {};
+          stationsData.forEach(s => { map[s.stationId] = s.name; });
+          setStationsMap(map);
+        }
+
+        if (bookingsRes.data && bookingsRes.data.success !== false) {
+          setBookings(bookingsRes.data.data || []);
         }
       } catch (err) {
-        console.error('Error fetching dashboard bookings:', err);
+        console.error('Error fetching dashboard data:', err);
       } finally {
         setLoading(false);
       }
     };
-    fetchBookings();
+    fetchData();
   }, [user, token]);
 
   const totalBookings = bookings.length;
@@ -168,7 +180,9 @@ const ProsumerDashboard = () => {
                   <Battery className="w-5 h-5 text-lime-600" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-sm font-bold text-charcoal-900 truncate max-w-[120px]">{booking.stationName || `Station ${booking.stationId.substring(0,6)}`}</h4>
+                  <h4 className="text-sm font-bold text-charcoal-900 truncate max-w-[120px]">
+                    {stationsMap[booking.stationId] || booking.stationName || `Station ${booking.stationId.substring(0,6)}`}
+                  </h4>
                   <p className="text-[10px] font-semibold text-gray-400">{new Date(booking.reservationDate).toLocaleDateString()} {new Date(booking.reservationDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                 </div>
                 <div className={`px-2 py-1 text-[10px] font-bold rounded-lg uppercase tracking-wider ${
