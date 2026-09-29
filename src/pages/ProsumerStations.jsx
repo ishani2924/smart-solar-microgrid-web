@@ -53,7 +53,7 @@ const ProsumerStations = () => {
   useEffect(() => {
     const loadStations = async () => {
       try {
-        const response = await fetchStations('active');
+        const response = await fetchStations();
         const data = Array.isArray(response) ? response : (response.data || []);
 
         const formattedData = data.filter(s => s.latitude !== 0 && s.longitude !== 0).map(s => ({

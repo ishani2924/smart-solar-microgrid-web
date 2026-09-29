@@ -52,15 +52,6 @@ export default function StationList() {
     }
   };
 
-  const handleSetStatus = async (id, newStatus) => {
-    try {
-      await updateStationStatus(id, newStatus);
-      loadStations();
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
   return (
     <div className="text-charcoal-900 w-full h-full flex flex-col pt-4 pb-8">
       {/* Header Area */}
@@ -71,13 +62,13 @@ export default function StationList() {
             {isProsumer()
               ? 'Browse available microgrid stations and reserve energy transfer slots'
               : isGridOperator()
-              ? 'Manage your assigned microgrid stations'
-              : 'Manage station capacities and status'}
+                ? 'Manage your assigned microgrid stations'
+                : 'Manage station capacities and status'}
           </p>
         </div>
         {!isProsumer() && (
-          <Link 
-            to="/stations/create" 
+          <Link
+            to="/stations/create"
             className="bg-lime-400 hover:bg-lime-500 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm inline-block"
           >
             Add Station
@@ -107,7 +98,7 @@ export default function StationList() {
             <div className="flex flex-col gap-3">
               {stations.map(station => (
                 <div key={station.stationId} className="flex items-center px-6 py-5 bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:border-lime-200 hover:shadow-md transition-all">
-                  
+
                   {/* Station Name */}
                   <div className="w-[25%] flex items-center gap-4 pr-4">
                     <div className="w-10 h-10 rounded-xl bg-lime-50 border border-lime-100 flex items-center justify-center shrink-0">
@@ -116,7 +107,7 @@ export default function StationList() {
                     <div className="min-w-0">
                       <div className="text-[13px] font-bold text-charcoal-900 truncate">{station.name}</div>
                       <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5 truncate">
-                         ID: {station.stationId.substring(0,8)}
+                        ID: {station.stationId.substring(0, 8)}
                       </div>
                     </div>
                   </div>
@@ -139,11 +130,10 @@ export default function StationList() {
                   {/* Slots */}
                   <div className="w-[10%] flex flex-col items-center justify-center gap-1">
                     <span className="text-[13px] font-bold text-charcoal-900">{station.availableStorage}</span>
-                    <span className={`px-2 py-0.5 text-[8px] font-black rounded uppercase tracking-wider ${
-                      station.status === 'Active' 
-                        ? 'bg-[#E3F8B3] text-[#557711]' 
+                    <span className={`px-2 py-0.5 text-[8px] font-black rounded uppercase tracking-wider ${station.status === 'Active'
+                        ? 'bg-[#E3F8B3] text-[#557711]'
                         : 'bg-red-100 text-red-600'
-                    }`}>
+                      }`}>
                       {station.status}
                     </span>
                   </div>
