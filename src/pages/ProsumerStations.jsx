@@ -159,7 +159,7 @@ const ProsumerStations = () => {
       const response = await fetchSlots(stationId, '', 'available'); // fetch all available slots
       const slots = response.data || response || [];
       
-      const uniqueDates = [...new Set(slots.map(s => s.date.split('T')[0]))].sort();
+      const uniqueDates = [...new Set(slots.map(s => new Date(s.date).toLocaleDateString('en-CA')))].sort();
       
       setAllAvailableSlots(slots);
       setAvailableDates(uniqueDates);
@@ -466,7 +466,7 @@ const ProsumerStations = () => {
                 ) : (
                   <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-2">
                     {availableDates.map(date => {
-                      const dateObj = new Date(date);
+                      const dateObj = new Date(date + 'T00:00:00');
                       const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
                       const dayNum = dateObj.getDate();
                       const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
@@ -498,7 +498,7 @@ const ProsumerStations = () => {
                   disabled={slotsLoading || availableDates.length === 0}
                 >
                   <option value="">Select a time slot</option>
-                  {allAvailableSlots.filter(s => s.date.split('T')[0] === bookingDate).map(slot => (
+                  {allAvailableSlots.filter(s => new Date(s.date).toLocaleDateString('en-CA') === bookingDate).map(slot => (
                     <option key={slot.slotId || slot.id} value={slot.slotId || slot.id}>
                       {slot.startTime} - {slot.endTime} (Max: {slot.availableCapacity} kW)
                     </option>
