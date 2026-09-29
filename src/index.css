@@ -126,3 +126,5 @@ html, body {
   background: #C5F849;
   color: #101010;
 }
+.gm-style img { max-width: none; }
+

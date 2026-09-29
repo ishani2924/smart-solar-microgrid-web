@@ -1,52 +1,125 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  Menu, X, User, Users, Activity, Settings, 
-  Zap, LogOut, Search, Bell, BarChart2, ShieldCheck, HelpCircle,
-  Calendar, ClipboardList, Clock, History
+import {
+  Menu, X, User, Users, Activity, Settings,
+  Zap, LogOut, Search, Bell, BarChart2, ShieldCheck, HelpCircle, LayoutDashboard, Calendar, QrCode, MapPin
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { userAPI } from '../services/api';
+
+// Master list of all available sidebar tabs with stable keys
+export const ALL_TABS = {
+  dashboard: [
+    { key: 'prosumer-dashboard', name: 'My Dashboard', path: '/prosumer/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+    { key: 'prosumer-bookings', name: 'My Bookings', path: '/prosumer/bookings', icon: <Calendar className="w-4 h-4" /> },
+    { key: 'prosumer-stations', name: 'Stations', path: '/prosumer/stations', icon: <MapPin className="w-4 h-4" /> },
+    { key: 'overview', name: 'Overview', path: '/operator/dashboard', icon: <Activity className="w-4 h-4" /> },
+    { key: 'scan-qr', name: 'Scan QR', path: '/operator/scan', icon: <QrCode className="w-4 h-4" /> },
+    { key: 'booking-confirmation', name: 'Booking QR', path: '/booking/confirmation', icon: <QrCode className="w-4 h-4" /> },
+    { key: 'stations', name: 'Stations', path: '/stations', icon: <Zap className="w-4 h-4" /> },
+    { key: 'admin-bookings', name: 'Bookings', path: '/admin/bookings', icon: <Calendar className="w-4 h-4" /> },
+    { key: 'station-map', name: 'Station Map', path: '/operator/map', icon: <MapPin className="w-4 h-4" /> },
+    { key: 'analysis', name: 'Analysis', path: '/analysis', icon: <BarChart2 className="w-4 h-4" /> },
+    { key: 'admin-users', name: 'Admin Users', path: '/admin/users', icon: <Users className="w-4 h-4" /> },
+    { key: 'admin-prosumers', name: 'Admin Prosumers', path: '/admin/prosumers', icon: <ShieldCheck className="w-4 h-4" /> },
+  ],
+  settings: [
+    { key: 'my-account', name: 'My Account', path: '/profile', icon: <User className="w-4 h-4" /> },
+    { key: 'support', name: 'Support', path: '/support', icon: <HelpCircle className="w-4 h-4" /> },
+  ],
+};
+
+// Extra tabs only shown to Backoffice (never permission-controlled)
+const BACKOFFICE_ONLY_TABS = [
+  { key: 'tab-permissions', name: 'Tab Permissions', path: '/admin/tab-permissions', icon: <LayoutDashboard className="w-4 h-4" /> },
+];
 
 const DashboardLayout = () => {
   const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [visibleTabs, setVisibleTabs] = useState(null); // null = all visible
   const location = useLocation();
+
+  console.log('DashboardLayout: Component rendered, user:', user);
 
   // Close sidebar on route change for mobile
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
+  // Fetch tab permissions for the current user's role (non-Backoffice only)
+  useEffect(() => {
+    const fetchTabPermissions = async () => {
+      console.log('DashboardLayout: Checking user object:', user);
+      console.log('DashboardLayout: User role:', user?.role);
+
+      if (!user?.role) {
+        console.log('DashboardLayout: No user role, skipping permission fetch');
+        return;
+      }
+
+      // Backoffice always sees everything – no need to fetch
+      if (user.role === 'Backoffice') {
+        console.log('DashboardLayout: User is Backoffice, skipping permission fetch');
+        return;
+      }
+
+      try {
+        console.log('DashboardLayout: Fetching tab permissions for role:', user.role);
+        const response = await userAPI.getRoleTabPermissions(user.role);
+        console.log('DashboardLayout: Tab permissions response:', response);
+        if (response.success && response.data) {
+          console.log('DashboardLayout: Setting visibleTabs to:', response.data.visibleTabs);
+          setVisibleTabs(response.data.visibleTabs); // null or string[]
+        }
+      } catch (error) {
+        console.error('DashboardLayout: Error fetching tab permissions:', error);
+        // If the endpoint fails, leave as null (show all tabs by default)
+        setVisibleTabs(null);
+      }
+    };
+    fetchTabPermissions();
+  }, [user?.role]);
+
   const handleLogout = () => {
     logout();
   };
 
   const getNavLinks = () => {
-    // Determine which links to show based on role
-    // For now, combining them to match the Sopanel look
-    const dashboardLinks = [
-      { name: 'Overview', path: '/operator/dashboard', icon: <Activity className="w-4 h-4" /> },
-      { name: 'Stations', path: '/stations', icon: <Zap className="w-4 h-4" /> },
-      { name: 'Analysis', path: '/analysis', icon: <BarChart2 className="w-4 h-4" /> },
-      { name: 'Admin Users', path: '/admin/users', icon: <Users className="w-4 h-4" /> },
-      { name: 'Admin Prosumers', path: '/admin/prosumers', icon: <ShieldCheck className="w-4 h-4" /> },
-    ];
+    const filterTabs = (tabs) => {
+      console.log('DashboardLayout: filterTabs called with visibleTabs:', visibleTabs, 'user role:', user?.role);
 
-    // Member 3: Reservation & Booking Management links
-    const reservationLinks = [
-      { name: 'Booking Dashboard', path: '/reservations/dashboard', icon: <Calendar className="w-4 h-4" /> },
-      { name: 'All Reservations',  path: '/reservations',           icon: <ClipboardList className="w-4 h-4" /> },
-      { name: 'Pending',           path: '/reservations/pending',   icon: <Clock className="w-4 h-4" /> },
-      { name: 'History',           path: '/reservations/history',   icon: <History className="w-4 h-4" /> },
-    ];
+      const roleStr = (user?.role || '').toLowerCase().trim();
+      const isProsumerRole = roleStr === 'prosumer';
+      const isBackofficeRole = roleStr === 'backoffice' || roleStr === 'admin';
 
-    const settingsLinks = [
-      { name: 'My Account', path: '/profile', icon: <User className="w-4 h-4" /> },
-      { name: 'Support', path: '/support', icon: <HelpCircle className="w-4 h-4" /> },
-    ];
+      // Always restrict Prosumer to specific tabs, ignoring the backend visibleTabs array
+      if (isProsumerRole) {
+        return tabs.filter(t => t.key.startsWith('prosumer-') || t.key === 'my-account' || t.key === 'support');
+      }
 
-    return { dashboardLinks, reservationLinks, settingsLinks };
+      // If visibleTabs is null (role has no configuration) or user is Backoffice, show all non-prosumer tabs
+      if (!visibleTabs || isBackofficeRole) {
+        return tabs.filter(t => !t.key.startsWith('prosumer-'));
+      }
+
+      // Filter for other roles (e.g. GridOperator) based on backend visibleTabs, excluding prosumer tabs
+      return tabs.filter(t => visibleTabs.includes(t.key) && !t.key.startsWith('prosumer-'));
+    };
+
+    let dashboardLinks = filterTabs(ALL_TABS.dashboard);
+    if (user?.role === 'Prosumer') {
+      dashboardLinks = dashboardLinks.filter((tab) => tab.key !== 'scan-qr');
+    }
+    if (user?.role === 'Backoffice') {
+      dashboardLinks.push(...BACKOFFICE_ONLY_TABS);
+    }
+
+    return {
+      dashboardLinks,
+      settingsLinks: filterTabs(ALL_TABS.settings),
+    };
   };
 
   const { dashboardLinks, reservationLinks, settingsLinks } = getNavLinks();
@@ -58,10 +131,9 @@ const DashboardLayout = () => {
       to={link.path}
       end={link.path === '/reservations'} // exact match for /reservations so /reservations/pending doesn't also highlight it
       className={({ isActive }) =>
-        `flex items-center gap-3 px-8 py-2.5 text-sm font-semibold transition-all relative ${
-          isActive
-            ? 'bg-lime-50/50 text-lime-700'
-            : 'hover:bg-gray-50 text-gray-500 hover:text-charcoal-900'
+        `flex items-center gap-3 px-8 py-2.5 text-sm font-semibold transition-all relative ${isActive
+          ? 'bg-lime-50/50 text-lime-700'
+          : 'hover:bg-gray-50 text-gray-500 hover:text-charcoal-900'
         }`
       }
     >
@@ -86,7 +158,7 @@ const DashboardLayout = () => {
           SolarGrid
         </NavLink>
         {/* Mobile close button */}
-        <button 
+        <button
           className="md:hidden text-gray-400 hover:text-charcoal-900"
           onClick={() => setIsSidebarOpen(false)}
         >
@@ -95,30 +167,64 @@ const DashboardLayout = () => {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-2 flex flex-col gap-6">
-        
-        {/* Dashboard Group */}
-        <div>
-          <div className="px-8 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Dashboard</div>
-          <div className="flex flex-col">
-            {dashboardLinks.map(renderNavLink)}
-          </div>
-        </div>
 
-        {/* Reservations Group — Member 3 */}
-        <div>
-          <div className="px-8 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Reservations</div>
-          <div className="flex flex-col">
-            {reservationLinks.map(renderNavLink)}
+        {/* Dashboard Group */}
+        {dashboardLinks.length > 0 && (
+          <div>
+            <div className="px-8 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Dashboard</div>
+            <div className="flex flex-col">
+              {dashboardLinks.map((link) => (
+                <NavLink
+                  key={link.name}
+                  to={link.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-8 py-2.5 text-sm font-semibold transition-all relative ${isActive
+                      ? 'bg-lime-50/50 text-lime-700'
+                      : 'hover:bg-gray-50 text-gray-500 hover:text-charcoal-900'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-lime-500 rounded-r-md"></div>}
+                      <div className={isActive ? 'text-lime-600' : 'text-gray-400'}>{link.icon}</div>
+                      {link.name}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Settings Group */}
-        <div>
-          <div className="px-8 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Settings</div>
-          <div className="flex flex-col">
-            {settingsLinks.map(renderNavLink)}
+        {settingsLinks.length > 0 && (
+          <div>
+            <div className="px-8 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Settings</div>
+            <div className="flex flex-col">
+              {settingsLinks.map((link) => (
+                <NavLink
+                  key={link.name}
+                  to={link.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-8 py-2.5 text-sm font-semibold transition-all relative ${isActive
+                      ? 'bg-lime-50/50 text-lime-700'
+                      : 'hover:bg-gray-50 text-gray-500 hover:text-charcoal-900'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-lime-500 rounded-r-md"></div>}
+                      <div className={isActive ? 'text-lime-600' : 'text-gray-400'}>{link.icon}</div>
+                      {link.name}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </nav>
 
       {/* User Profile at bottom */}
@@ -188,11 +294,7 @@ const DashboardLayout = () => {
               <Menu className="w-5 h-5" />
             </button>
             <h1 className="text-sm font-semibold text-gray-500 hidden sm:block">
-              {[
-                ...dashboardLinks,
-                ...reservationLinks,
-                ...settingsLinks,
-              ].find((link) => link.path === location.pathname)?.name || 'Overview'}
+              {[...dashboardLinks, ...settingsLinks].find(link => link.path === location.pathname)?.name || 'Overview'}
             </h1>
           </div>
           <div className="flex items-center gap-6">

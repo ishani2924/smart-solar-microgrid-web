@@ -1,19 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { fetchStations, updateStationStatus } from '../../services/MicrogridService';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function StationList() {
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user, isGridOperator, isProsumer } = useAuth();
 
   useEffect(() => {
     loadStations();
-  }, []);
+  }, [user]);
 
   const loadStations = async () => {
     try {
       const data = await fetchStations();
-      setStations(data);
+      if (isGridOperator() && user) {
+        const filtered = data.filter(station => {
+          const opName = (station.gridOperatorName || '').toLowerCase().trim();
+          const userEmail = (user.email || '').toLowerCase().trim();
+          const userName = (user.name || '').toLowerCase().trim();
+          const userStationId = user.stationId;
+
+          return (
+            (userEmail && opName === userEmail) ||
+            (userName && opName === userName) ||
+            (userStationId && (station.stationId === userStationId || station.id === userStationId)) ||
+            (opName && userEmail && opName.includes(userEmail)) ||
+            (opName && userName && opName.includes(userName))
+          );
+        });
+        setStations(filtered);
+      } else {
+        setStations(data);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -37,14 +57,22 @@ export default function StationList() {
       <div className="flex items-center justify-between mb-10 w-full max-w-6xl mx-auto">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-charcoal-900 tracking-tight">Microgrid Stations</h1>
-          <p className="text-gray-500 text-sm font-medium">Manage station capacities and status</p>
+          <p className="text-gray-500 text-sm font-medium">
+            {isProsumer()
+              ? 'Browse available microgrid stations and reserve energy transfer slots'
+              : isGridOperator()
+              ? 'Manage your assigned microgrid stations'
+              : 'Manage station capacities and status'}
+          </p>
         </div>
-        <Link 
-          to="/stations/create" 
-          className="bg-lime-400 hover:bg-lime-500 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm inline-block"
-        >
-          Add Station
-        </Link>
+        {!isProsumer() && (
+          <Link 
+            to="/stations/create" 
+            className="bg-lime-400 hover:bg-lime-500 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm inline-block"
+          >
+            Add Station
+          </Link>
+        )}
       </div>
 
       {/* Content Area */}
@@ -61,6 +89,7 @@ export default function StationList() {
                   <th className="px-8 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">STATION NAME</th>
                   <th className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">LOCATION</th>
                   <th className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">CAPACITY</th>
+                  <th className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">OPERATOR</th>
                   <th className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">SLOTS</th>
                   <th className="px-6 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">STATUS</th>
                   <th className="px-8 py-5 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">ACTIONS</th>
@@ -80,6 +109,9 @@ export default function StationList() {
                       {station.capacity} kW
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap text-[13px] font-medium text-gray-500">
+                      {station.gridOperatorName || 'Unassigned'}
+                    </td>
+                    <td className="px-6 py-5 whitespace-nowrap text-[13px] font-medium text-gray-500">
                       {station.availableStorage}
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">
@@ -96,17 +128,21 @@ export default function StationList() {
                         <Link to={`/stations/${station.stationId}`} className="text-gray-500 font-semibold hover:text-charcoal-900 text-[13px] transition-colors">
                           View
                         </Link>
-                        <Link to={`/stations/${station.stationId}/edit`} className="text-lime-600 font-semibold hover:text-lime-700 text-[13px] transition-colors">
-                          Edit
-                        </Link>
-                        <button 
-                          onClick={() => handleToggleStatus(station.stationId, station.status)}
-                          className={`text-[13px] font-semibold transition-colors ${
-                            station.status === 'Active' ? 'text-red-500 hover:text-red-700' : 'text-lime-600 hover:text-lime-700'
-                          }`}
-                        >
-                          {station.status === 'Active' ? 'Deactivate' : 'Activate'}
-                        </button>
+                        {!isProsumer() && (
+                          <>
+                            <Link to={`/stations/${station.stationId}/edit`} className="text-lime-600 font-semibold hover:text-lime-700 text-[13px] transition-colors">
+                              Edit
+                            </Link>
+                            <button 
+                              onClick={() => handleToggleStatus(station.stationId, station.status)}
+                              className={`text-[13px] font-semibold transition-colors ${
+                                station.status === 'Active' ? 'text-red-500 hover:text-red-700' : 'text-lime-600 hover:text-lime-700'
+                              }`}
+                            >
+                              {station.status === 'Active' ? 'Deactivate' : 'Activate'}
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

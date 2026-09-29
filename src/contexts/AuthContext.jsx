@@ -24,8 +24,10 @@ export const AuthProvider = ({ children }) => {
           try {
             const response = await prosumerAPI.getProfile();
             if (response.success) {
-              setUser(response.data);
-              localStorage.setItem('user', JSON.stringify(response.data));
+              // Merge profile data with role to preserve role information
+              const userWithRole = { ...response.data, role: parsedUser.role };
+              setUser(userWithRole);
+              localStorage.setItem('user', JSON.stringify(userWithRole));
             }
           } catch (error) {
             // Token is invalid, clear storage
@@ -55,8 +57,10 @@ export const AuthProvider = ({ children }) => {
           try {
             const profileResponse = await prosumerAPI.getProfile();
             if (profileResponse.success) {
-              setUser(profileResponse.data);
-              localStorage.setItem('user', JSON.stringify(profileResponse.data));
+              // Merge profile data with role to preserve role information
+              const userWithRole = { ...profileResponse.data, role };
+              setUser(userWithRole);
+              localStorage.setItem('user', JSON.stringify(userWithRole));
             } else {
               // Fallback to basic user info if profile fetch fails
               const basicUser = { id: userId, email, role };
@@ -100,9 +104,18 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const isProsumer = () => user?.role === 'Prosumer';
-  const isBackoffice = () => user?.role === 'Backoffice';
-  const isGridOperator = () => user?.role === 'GridOperator';
+  const isProsumer = () => {
+    const role = (user?.role || '').toLowerCase().replace(/[\s_]+/g, '');
+    return role === 'prosumer';
+  };
+  const isBackoffice = () => {
+    const role = (user?.role || '').toLowerCase().replace(/[\s_]+/g, '');
+    return role === 'backoffice' || role === 'admin';
+  };
+  const isGridOperator = () => {
+    const role = (user?.role || '').toLowerCase().replace(/[\s_]+/g, '');
+    return role === 'gridoperator' || role === 'operator';
+  };
 
   const value = {
     user,
