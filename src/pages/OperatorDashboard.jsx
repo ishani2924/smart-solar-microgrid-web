@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Battery, Zap, Sun, Calendar, ChevronDown, MoreVertical } from 'lucide-react';
+import StationMap from '../components/StationMap';
 import heroImg from '../assets/heroimg.jpg';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchStations } from '../services/MicrogridService';
@@ -340,6 +341,19 @@ const OperatorDashboard = () => {
         </motion.div>
 
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-charcoal-900 font-bold text-lg">Station locations</h2>
+          <Link to="/operator/map" className="text-sm font-semibold text-lime-700">Open full map</Link>
+        </div>
+        <StationMap heightClass="h-[360px]" />
+      </motion.div>
 
     </div>
   );
