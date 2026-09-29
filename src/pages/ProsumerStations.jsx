@@ -44,7 +44,7 @@ const ProsumerStations = () => {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyDklY0JyrNjpdq8ZxVrO6_HV5_fyJ5wapY",
+    googleMapsApiKey: "",
     libraries: ["geometry", "places"]
   });
 
