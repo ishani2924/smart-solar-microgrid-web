@@ -236,7 +236,9 @@ const DashboardLayout = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-gray-400 font-medium">Hi,</span>
-              <span className="text-sm font-bold text-charcoal-900 leading-none">{user.firstName} {user.lastName}</span>
+              <span className="text-sm font-bold text-charcoal-900 leading-none truncate max-w-[120px]" title={user.name || user.email || 'User'}>
+                {user.firstName || user.name ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.name : (user.email ? user.email.split('@')[0] : 'Operator')}
+              </span>
             </div>
           </div>
         )}

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { GoogleMap, useJsApiLoader, Marker, OverlayView, Circle } from '@react-google-maps/api';
-import { Search, Navigation2, Zap, Clock, Battery, MapPin, Crosshair, CalendarCheck, X, Loader2 } from 'lucide-react';
+import { Search, Navigation2, Zap, Clock, Battery, MapPin, Crosshair, CalendarCheck, X, Loader2, AlertCircle, XCircle, CheckCircle2 } from 'lucide-react';
 import { fetchStations, fetchSlots } from '../services/MicrogridService';
 import { reservationAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -429,47 +429,45 @@ const ProsumerStations = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="rounded-3xl shadow-2xl w-full max-w-md relative overflow-hidden flex flex-col max-h-[90vh] my-auto"
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl relative overflow-hidden flex flex-col max-h-[90vh] my-auto"
           >
-            {/* Blurry Background Image for the Form */}
-            <div
-              className="absolute inset-0 z-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${bgImage})` }}
-            >
-              {/* Overlay to ensure text readability - reduced blur/opacity so image is much more visible */}
-              <div className="absolute inset-0 bg-white/30 backdrop-blur-sm"></div>
-            </div>
-
             {/* Modal Content - Scrollable */}
-            <div className="relative z-10 p-6 overflow-y-auto custom-scrollbar flex-1">
+            <div className="relative z-10 p-8 overflow-y-auto custom-scrollbar flex-1">
               <button
                 onClick={() => setShowBookingModal(false)}
-                className="absolute top-4 right-4 text-gray-500 hover:bg-white/50 p-2 rounded-full transition-colors"
+                className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <h2 className="text-xl font-bold text-charcoal-900 mb-1">Book Energy Transfer</h2>
-              <p className="text-sm font-medium text-gray-600 mb-4">{bookingStation?.name}</p>
+              <div className="mb-6">
+                <h2 className="text-2xl font-black text-charcoal-900 tracking-tight mb-1">Book Energy Transfer</h2>
+                <p className="text-sm font-semibold text-gray-500">{bookingStation?.name}</p>
+              </div>
 
-              <div className="bg-red-50/90 backdrop-blur-sm text-red-600 text-[11px] p-3 rounded-xl mb-4 border border-red-200 font-bold flex gap-2 items-start">
-                <span className="shrink-0 mt-0.5">⚠️</span>
+              <div className="bg-amber-50 text-amber-700 text-xs p-4 rounded-2xl mb-6 border border-amber-100 font-bold flex gap-3 items-start shadow-sm">
+                <span className="shrink-0 mt-0.5"><AlertCircle className="w-4 h-4 text-amber-500" /></span>
                 <p>Please note: A 12-hour rule applies to all bookings. You cannot modify or cancel your booking if there are less than 12 hours remaining before the reserved time slot.</p>
               </div>
 
               {bookingError && (
-                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl mb-4 border border-red-100 font-medium">
+                <div className="bg-red-50 text-red-600 text-sm p-4 rounded-2xl mb-6 border border-red-100 font-bold flex gap-3 items-start shadow-sm">
+                  <XCircle className="w-5 h-5 shrink-0" />
                   {bookingError}
                 </div>
               )}
 
               {bookingSuccess && (
-                <div className="bg-green-50 text-green-700 text-sm p-3 rounded-xl mb-4 border border-green-100 font-medium text-center">
+                <div className="bg-lime-50 text-lime-700 text-sm p-4 rounded-2xl mb-6 border border-lime-100 font-bold flex gap-3 items-start shadow-sm">
+                  <CheckCircle2 className="w-5 h-5 shrink-0" />
                   {bookingSuccess}
                 </div>
               )}
 
-              <form onSubmit={handleCreateBooking} className="flex flex-col gap-4">
+              <form onSubmit={handleCreateBooking} className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Left Column */}
+                  <div className="flex flex-col gap-6">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Select Date</label>
                   {slotsLoading ? (
@@ -523,8 +521,12 @@ const ProsumerStations = () => {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Energy Amount (kWh)</label>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="flex flex-col gap-6">
+                    <div>
+                      <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider mb-2">Energy Amount (kWh)</label>
                   <div className="relative">
                     <input
                       type="number"
@@ -550,17 +552,22 @@ const ProsumerStations = () => {
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={bookingLoading || availableDates.length === 0 || !selectedSlot}
-                  className="w-full mt-2 bg-charcoal-900 text-white font-bold text-sm py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-charcoal-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-100 pt-6 mt-2">
+                  <button
+                    type="submit"
+                    disabled={bookingLoading || availableDates.length === 0 || !selectedSlot}
+                    className="w-full bg-lime-400 text-charcoal-900 font-bold text-sm py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-lime-500 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                   {bookingLoading ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
                   ) : (
                     <><CalendarCheck className="w-4 h-4" /> Confirm Booking</>
                   )}
-                </button>
+                  </button>
+                </div>
               </form>
             </div>
           </motion.div>

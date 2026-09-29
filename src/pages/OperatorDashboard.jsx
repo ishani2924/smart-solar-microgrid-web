@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 const OperatorDashboard = () => {
   const { user } = useAuth();
   const [myStations, setMyStations] = useState([]);
+  const [recentBookings, setRecentBookings] = useState([]);
   const [metrics, setMetrics] = useState({
     totalCapacity: 0,
     totalBookedEnergy: 0,
@@ -61,7 +62,7 @@ const OperatorDashboard = () => {
         const monthlyEnergyMap = {};
 
         myReservations.forEach(r => {
-          const size = r.bookingSize || 0;
+          const size = r.energyAmountKwh || r.bookingSize || 0;
           const status = r.status || 'Pending';
           if (bookingsByStatus[status] !== undefined) {
              bookingsByStatus[status]++;
@@ -72,8 +73,8 @@ const OperatorDashboard = () => {
             activeChargingEnergy += size;
           }
 
-          if (r.bookingDate) {
-            const date = new Date(r.bookingDate);
+          if (r.reservationDate || r.bookingDate) {
+            const date = new Date(r.reservationDate || r.bookingDate);
             const month = date.toLocaleString('default', { month: 'short' });
             if (!monthlyEnergyMap[month]) monthlyEnergyMap[month] = 0;
             monthlyEnergyMap[month] += size;
@@ -85,6 +86,12 @@ const OperatorDashboard = () => {
         if (monthlyEnergy.length === 0) {
           monthlyEnergy = [{ month: 'No Data', value: 0 }];
         }
+
+        setRecentBookings(
+          myReservations
+            .sort((a, b) => new Date(b.reservationDate || b.bookingDate || 0) - new Date(a.reservationDate || a.bookingDate || 0))
+            .slice(0, 4)
+        );
 
         setMetrics({
           totalCapacity,
@@ -184,7 +191,7 @@ const OperatorDashboard = () => {
           </div>
         </motion.div>
 
-        {/* Energy Generation (Span 1) */}
+        {/* Recent Bookings (Span 1) */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -192,33 +199,36 @@ const OperatorDashboard = () => {
           className="bg-white rounded-3xl p-6 md:p-8 flex flex-col shadow-sm border border-gray-100"
         >
           <div className="flex justify-between items-center mb-1">
-            <h2 className="text-charcoal-900 font-bold text-lg">Booking Statuses</h2>
-            <div className="text-xs font-semibold text-charcoal-900 border border-gray-200 rounded-full px-3 py-1">All Time</div>
+            <h2 className="text-charcoal-900 font-bold text-lg">Recent Bookings</h2>
+            <Link to="/operator/bookings" className="text-xs font-semibold text-lime-600 border border-gray-200 rounded-full px-3 py-1 hover:bg-gray-50">View All</Link>
           </div>
-          <span className="text-gray-400 text-xs font-medium mb-8">Bookings count</span>
+          <span className="text-gray-400 text-xs font-medium mb-6">Latest reservations across your stations</span>
 
-          {/* CSS Bar Chart */}
-          <div className="flex-1 flex items-end justify-between gap-2 mt-auto pt-4 relative h-48">
-            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-              <div className="w-full border-t border-dashed border-gray-100"></div>
-              <div className="w-full border-t border-dashed border-gray-100"></div>
-              <div className="w-full border-t border-dashed border-gray-100"></div>
-              <div className="w-full border-t border-dashed border-gray-100"></div>
-            </div>
-            
-            {Object.entries(metrics.bookingsByStatus).map(([status, count], i) => {
-              const maxCount = Math.max(1, ...Object.values(metrics.bookingsByStatus));
-              const height = `${(count / maxCount) * 100}%`;
-              return (
-              <div key={i} className="flex flex-col items-center gap-2 z-10 group cursor-pointer w-full">
-                <span className="text-gray-500 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity mb-1">{count}</span>
-                <div 
-                  className="w-full max-w-[2rem] bg-lime-100 group-hover:bg-lime-200 rounded-t-sm transition-colors"
-                  style={{ height }}
-                ></div>
-                <span className="text-gray-400 text-[10px] font-semibold mt-2">{status}</span>
+          <div className="flex flex-col gap-3 flex-1 overflow-y-auto custom-scrollbar">
+            {recentBookings.length === 0 && !loading && (
+              <div className="text-gray-400 text-xs font-medium text-center mt-10">No recent bookings found.</div>
+            )}
+            {recentBookings.map((booking, i) => (
+              <div key={booking.id || i} className="flex items-center gap-4 p-3 rounded-2xl bg-gray-50 hover:bg-lime-50/50 transition-colors border border-transparent hover:border-lime-100">
+                <div className="flex-1 min-w-0 flex flex-col">
+                  <p className="text-sm font-bold text-charcoal-900 truncate">
+                    {booking.station?.name || booking.stationId || `Station ${booking.stationId.substring(0,6)}`}
+                  </p>
+                  <p className="text-[10px] font-semibold text-gray-400">{new Date(booking.reservationDate || booking.bookingDate).toLocaleDateString()} {booking.slot?.startTime}</p>
+                </div>
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full uppercase tracking-wider ${
+                    booking.status === 'Approved' ? 'bg-blue-100 text-blue-700' :
+                    booking.status === 'Completed' ? 'bg-lime-100 text-lime-700' :
+                    booking.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                    'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {booking.status}
+                  </span>
+                  <span className="text-xs font-black text-charcoal-900">{booking.energyAmountKwh || booking.bookingSize} kWh</span>
+                </div>
               </div>
-            )})}
+            ))}
           </div>
         </motion.div>
 
@@ -339,21 +349,7 @@ const OperatorDashboard = () => {
           </div>
 
         </motion.div>
-
       </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35 }}
-        className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-charcoal-900 font-bold text-lg">Station locations</h2>
-          <Link to="/operator/map" className="text-sm font-semibold text-lime-700">Open full map</Link>
-        </div>
-        <StationMap heightClass="h-[360px]" />
-      </motion.div>
 
     </div>
   );
