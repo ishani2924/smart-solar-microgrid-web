@@ -46,14 +46,14 @@ const ProsumerStations = () => {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyDklY0JyrNjpdq8ZxVrO6_HV5_fyJ5wapY",
+    googleMapsApiKey: "",
     libraries: ["geometry", "places"]
   });
 
   useEffect(() => {
     const loadStations = async () => {
       try {
-        const response = await fetchStations();
+        const response = await fetchStations('active');
         const data = Array.isArray(response) ? response : (response.data || []);
 
         const formattedData = data.filter(s => s.latitude !== 0 && s.longitude !== 0).map(s => ({
@@ -380,8 +380,8 @@ const ProsumerStations = () => {
                   key={station.stationId || station.id}
                   onClick={() => handleStationClick(station)}
                   className={`rounded-2xl p-4 cursor-pointer transition-all flex flex-col gap-3 shadow-md backdrop-blur-md ${selectedStation && (selectedStation.stationId === station.stationId)
-                      ? 'border-2 border-lime-400 bg-lime-50/95 transform scale-[1.02]'
-                      : 'border-2 border-transparent hover:border-lime-200 hover:shadow-lg bg-white/95'
+                    ? 'border-2 border-lime-400 bg-lime-50/95 transform scale-[1.02]'
+                    : 'border-2 border-transparent hover:border-lime-200 hover:shadow-lg bg-white/95'
                     }`}
                 >
                   <div className="flex justify-between items-start">

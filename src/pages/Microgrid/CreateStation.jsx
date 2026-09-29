@@ -1,42 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { createStation } from '../../services/MicrogridService';
 import { userAPI } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { MapPin, Zap, Clock, Battery, BatteryCharging, ArrowLeft, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LocationPickerMap from '../../components/LocationPickerMap';
 
 export default function CreateStation() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
-    gridOperatorName: '',
+    gridOperatorName: user?.email || user?.name || '',
     address: '',
     latitude: '',
     longitude: '',
     capacity: '',
-    batteryCapacity: '',
+    batteryCapacity: 0,
     availableStorage: '',
     openingTime: '08:00',
     closingTime: '18:00'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [gridOperators, setGridOperators] = useState([]);
-
-  useEffect(() => {
-    const fetchOperators = async () => {
-      try {
-        const response = await userAPI.getAllUsers();
-        // Extract array if wrapped in standard response format
-        const users = Array.isArray(response) ? response : (response?.data || []);
-        const operators = users.filter(u => u.role === 'GridOperator' || u.role === 'Grid Operator');
-        setGridOperators(operators);
-      } catch (err) {
-        console.error('Failed to load grid operators:', err);
-      }
-    };
-    fetchOperators();
-  }, []);
 
   const handleLocationSelect = (lat, lng) => {
     setFormData(prev => ({
@@ -135,24 +121,6 @@ export default function CreateStation() {
                   />
                 </div>
                 
-                <div className="relative">
-                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Grid Operator</label>
-                  <div className="relative">
-                    <select 
-                      name="gridOperatorName" 
-                      required 
-                      value={formData.gridOperatorName} 
-                      onChange={handleChange} 
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-medium focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all appearance-none shadow-sm" 
-                    >
-                      <option value="" disabled>Select a Grid Operator</option>
-                      {gridOperators.map(op => (
-                        <option key={op.id || op.email} value={op.email}>{op.email}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
               </div>
             </motion.div>
 
@@ -180,22 +148,7 @@ export default function CreateStation() {
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all font-bold shadow-sm" 
                   />
                 </div>
-                <div>
-                  <label className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                    <Battery className="w-3.5 h-3.5" /> Battery (kWh)
-                  </label>
-                  <input 
-                    type="number" 
-                    min="0"
-                    step="any" 
-                    name="batteryCapacity" 
-                    required 
-                    value={formData.batteryCapacity} 
-                    onChange={handleChange} 
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all font-bold shadow-sm" 
-                  />
-                </div>
-                <div>
+                <div className="col-span-2 md:col-span-1">
                   <label className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
                     <BatteryCharging className="w-3.5 h-3.5" /> Slots
                   </label>

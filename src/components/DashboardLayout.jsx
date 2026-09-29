@@ -231,8 +231,8 @@ const DashboardLayout = () => {
       <div className="p-6 mt-auto">
         {user && (
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-charcoal-900 font-bold overflow-hidden border border-gray-200 shadow-sm">
-              <img src="/heroimg.jpg" className="w-full h-full object-cover" alt="User" />
+            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-charcoal-900 font-bold border border-gray-200 shadow-sm shrink-0">
+              <User className="w-5 h-5 text-charcoal-900" />
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-gray-400 font-medium">Hi,</span>
@@ -242,7 +242,7 @@ const DashboardLayout = () => {
         )}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-charcoal-900 transition-colors"
+          className="flex items-center gap-3 text-sm font-bold text-red-500 hover:text-red-600 hover:bg-red-50 w-full p-3 rounded-xl transition-all"
         >
           <LogOut className="w-4 h-4" />
           Log Out
@@ -298,9 +298,14 @@ const DashboardLayout = () => {
             </h1>
           </div>
           <div className="flex items-center gap-6">
-            <button className="text-gray-400 hover:text-charcoal-900 transition-colors">
-              <Search className="w-5 h-5" />
-            </button>
+            <div className="relative">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className="pl-9 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all w-40 lg:w-64"
+              />
+            </div>
             <button className="text-gray-400 hover:text-charcoal-900 transition-colors relative">
               <Bell className="w-5 h-5" />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-lime-500 rounded-full border-2 border-white flex items-center justify-center text-[8px] text-white font-bold">8</div>

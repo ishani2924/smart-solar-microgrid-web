@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Calendar, Search, MapPin, Battery, Clock, Filter, CheckCircle, XCircle, Zap, Edit2, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-
+import { fetchStations } from '../services/MicrogridService';
 const ProsumerBookings = () => {
   const { user, token } = useAuth();
   const [bookings, setBookings] = useState([]);
@@ -11,31 +11,42 @@ const ProsumerBookings = () => {
   const [filter, setFilter] = useState('All');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
+  const [stationsMap, setStationsMap] = useState({});
 
   useEffect(() => {
-    const fetchBookings = async () => {
+    const fetchData = async () => {
       const nic = user?.nic || user?.nIC || user?.NIC;
       if (!nic) {
         setLoading(false);
         return;
       }
       try {
-        const response = await axios.get(`http://localhost:5059/api/reservations/prosumer/${nic}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (response.data && response.data.success) {
-          setBookings(response.data.data || []);
+        const [bookingsRes, stationsData] = await Promise.all([
+          axios.get(`http://localhost:5059/api/reservations/prosumer/${nic}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }).catch(err => { console.error(err); return { data: { data: [] } }; }),
+          fetchStations().catch(err => { console.error(err); return []; })
+        ]);
+        
+        if (stationsData && stationsData.length > 0) {
+          const map = {};
+          stationsData.forEach(s => { map[s.stationId] = s.name; });
+          setStationsMap(map);
+        }
+
+        if (bookingsRes.data && bookingsRes.data.success !== false) {
+          setBookings(bookingsRes.data.data || []);
         } else {
           setBookings([]);
         }
       } catch (err) {
-        console.error('Error fetching bookings:', err);
+        console.error('Error fetching data:', err);
         setBookings([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchBookings();
+    fetchData();
   }, [user, token]);
 
   const handleCancelBooking = async (id) => {
@@ -254,8 +265,9 @@ const ProsumerBookings = () => {
                         <Battery className="w-4 h-4 text-lime-600" />
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-[13px] font-bold text-charcoal-900 truncate">{booking.stationName || `Station ${booking.stationId.substring(0, 6)}`}</h3>
-                        <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">{booking.id.substring(0, 8)}</span>
+                        <h3 className="text-[13px] font-bold text-charcoal-900 truncate">
+                          {stationsMap[booking.stationId] || booking.stationName || `Station ${booking.stationId.substring(0, 6)}`}
+                        </h3>
                       </div>
                     </div>
 
