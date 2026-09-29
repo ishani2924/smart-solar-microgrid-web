@@ -438,7 +438,12 @@ const ProsumerStations = () => {
             </button>
             
             <h2 className="text-xl font-bold text-charcoal-900 mb-1">Book Energy Transfer</h2>
-            <p className="text-sm font-medium text-gray-500 mb-6">{bookingStation?.name}</p>
+            <p className="text-sm font-medium text-gray-500 mb-4">{bookingStation?.name}</p>
+
+            <div className="bg-red-50 text-red-600 text-[11px] p-3 rounded-xl mb-4 border border-red-100 font-bold flex gap-2 items-start">
+              <span className="shrink-0 mt-0.5">⚠️</span>
+              <p>Please note: A 12-hour rule applies to all bookings. You cannot modify or cancel your booking if there are less than 12 hours remaining before the reserved time slot.</p>
+            </div>
 
             {bookingError && (
               <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl mb-4 border border-red-100 font-medium">

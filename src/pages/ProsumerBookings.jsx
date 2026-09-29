@@ -36,6 +36,34 @@ const ProsumerBookings = () => {
     fetchBookings();
   }, [user, token]);
 
+  const handleCancelBooking = async (id) => {
+    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+    try {
+      const response = await axios.put(`http://localhost:5059/api/reservations/${id}/cancel`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data && response.data.success) {
+         setBookings(bookings.map(b => b.id === id ? { ...b, status: 'Cancelled' } : b));
+         alert("Booking cancelled successfully.");
+      }
+    } catch (err) {
+      console.error('Error cancelling booking:', err);
+      alert(err.response?.data?.message || "Failed to cancel booking. The 12-hour rule might apply.");
+    }
+  };
+
+  const isModifiable = (booking) => {
+    if (booking.status !== 'Pending' && booking.status !== 'Approved') return false;
+    try {
+      const bookingDateTime = new Date(booking.reservationDate);
+      const differenceInHours = (bookingDateTime - new Date()) / (1000 * 60 * 60);
+      return differenceInHours >= 12;
+    } catch (e) {
+      return false;
+    }
+  };
+
+
   const filteredBookings = filter === 'All' ? bookings : bookings.filter(b => b.status === filter);
 
   return (
@@ -128,17 +156,24 @@ const ProsumerBookings = () => {
                       <div className="flex items-center gap-2 col-span-2">
                          <Zap className="w-4 h-4 text-gray-400" />
                          <span className="text-xs font-semibold text-charcoal-900">
-                           {booking.energyAmount} kWh requested
+                           {booking.energyAmountKwh} kWh requested
                          </span>
                       </div>
                    </div>
                    
-                   {booking.status === 'Pending' && (
+                   {(booking.status === 'Pending' || booking.status === 'Approved') && (
                      <div className="mt-2 flex gap-2 z-10">
-                        <button className="flex-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-xs font-bold py-2.5 rounded-xl transition-colors">
+                        <button 
+                           onClick={() => handleCancelBooking(booking.id)}
+                           disabled={!isModifiable(booking)}
+                           title={!isModifiable(booking) ? "Cannot cancel within 12 hours of the booking slot." : ""}
+                           className="flex-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-xs font-bold py-2.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                            Cancel Booking
                         </button>
-                        <button className="flex-1 bg-lime-400 hover:bg-lime-500 text-charcoal-900 text-xs font-bold py-2.5 rounded-xl transition-colors">
+                        <button 
+                           disabled={!isModifiable(booking)}
+                           title={!isModifiable(booking) ? "Cannot modify within 12 hours of the booking slot." : "Modify booking"}
+                           className="flex-1 bg-lime-400 hover:bg-lime-500 text-charcoal-900 text-xs font-bold py-2.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                            Modify
                         </button>
                      </div>
