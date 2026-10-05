@@ -4,6 +4,9 @@ import { Calendar, Search, MapPin, Battery, Clock, Filter, CheckCircle, XCircle,
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { fetchStations } from '../services/MicrogridService';
+import { transferAPI } from '../services/api';
+import BookingQrModal from '../components/BookingQrModal';
+import TransferStatusBar, { fetchTransferStatuses } from '../components/TransferStatusBar';
 const ProsumerBookings = () => {
   const { user, token } = useAuth();
   const [bookings, setBookings] = useState([]);
@@ -12,6 +15,8 @@ const ProsumerBookings = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [stationsMap, setStationsMap] = useState({});
+  const [qr, setQr] = useState(null);
+  const [transferStatus, setTransferStatus] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,7 +40,9 @@ const ProsumerBookings = () => {
         }
 
         if (bookingsRes.data && bookingsRes.data.success !== false) {
-          setBookings(bookingsRes.data.data || []);
+          const list = bookingsRes.data.data || [];
+          setBookings(list);
+          setTransferStatus(await fetchTransferStatuses(list));
         } else {
           setBookings([]);
         }
@@ -62,6 +69,15 @@ const ProsumerBookings = () => {
     } catch (err) {
       console.error('Error cancelling booking:', err);
       alert(err.response?.data?.message || "Failed to cancel booking. The 12-hour rule might apply.");
+    }
+  };
+
+  const showQr = async (id) => {
+    try {
+      const response = await transferAPI.getConfirmation(id);
+      setQr(response.data);
+    } catch (err) {
+      alert(err.response?.data?.message || 'The QR is not ready yet. It appears after the grid operator approves the booking.');
     }
   };
 
@@ -209,6 +225,7 @@ const ProsumerBookings = () => {
       </div>
 
       {/* ── Right Column: Booking List ── */}
+      {qr && <BookingQrModal qr={qr} onClose={() => setQr(null)} />}
       <div className="w-full xl:w-2/3 flex flex-col gap-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -258,7 +275,8 @@ const ProsumerBookings = () => {
             ) : (
               <div className="flex flex-col gap-3">
                 {filteredBookings.map((booking, idx) => (
-                  <div key={booking.id || idx} className="border border-gray-100 rounded-2xl p-4 hover:border-lime-200 hover:shadow-sm transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white relative">
+                  <div key={booking.id || idx} className="border border-gray-100 rounded-2xl p-4 hover:border-lime-200 hover:shadow-sm transition-all flex flex-col gap-4 bg-white relative">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     {/* Station */}
                     <div className="flex items-center gap-3 w-full md:w-1/4 md:min-w-[140px]">
                       <div className="w-8 h-8 rounded-lg bg-lime-50 border border-lime-100 flex items-center justify-center shrink-0">
@@ -294,6 +312,16 @@ const ProsumerBookings = () => {
                         {booking.status}
                       </span>
 
+                      {booking.status === 'Approved' && (
+                        <button
+                          type="button"
+                          onClick={() => showQr(booking.id)}
+                          className="px-3 py-1.5 bg-lime-100 text-lime-700 text-[10px] font-bold rounded-lg"
+                        >
+                          View QR
+                        </button>
+                      )}
+
                       {(booking.status === 'Pending' || booking.status === 'Approved') && (
                         <div className="flex items-center gap-1 shrink-0 ml-auto md:ml-2">
                            <button 
@@ -313,6 +341,10 @@ const ProsumerBookings = () => {
                            </button>
                         </div>
                       )}
+                    </div>
+                    </div>
+                    <div className="border-t border-gray-100 pt-4">
+                      <TransferStatusBar status={booking.status} transferStatus={transferStatus[booking.id]} />
                     </div>
                   </div>
                 ))}

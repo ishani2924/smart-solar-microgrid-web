@@ -6,12 +6,14 @@ import heroImg from '../assets/heroimg.jpg';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { fetchStations } from '../services/MicrogridService';
+import TransferStatusBar, { fetchTransferStatuses } from '../components/TransferStatusBar';
 
 const ProsumerDashboard = () => {
   const { user, token } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stationsMap, setStationsMap] = useState({});
+  const [transferStatus, setTransferStatus] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,7 +37,9 @@ const ProsumerDashboard = () => {
         }
 
         if (bookingsRes.data && bookingsRes.data.success !== false) {
-          setBookings(bookingsRes.data.data || []);
+          const list = bookingsRes.data.data || [];
+          setBookings(list);
+          setTransferStatus(await fetchTransferStatuses(list));
         }
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -118,6 +122,51 @@ const ProsumerDashboard = () => {
           </motion.div>
         ))}
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100"
+      >
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-charcoal-900">Energy transfer</h2>
+          </div>
+          <Link to="/prosumer/bookings" className="text-sm font-bold text-lime-600">All bookings</Link>
+        </div>
+        {loading && <p className="text-sm text-gray-400">Loading bookings...</p>}
+        {!loading && bookings.length === 0 && (
+          <p className="text-sm text-gray-400">No bookings yet. A transfer starts after you reserve a slot.</p>
+        )}
+        <div className="flex flex-col gap-4">
+          {[...bookings]
+            .sort((a, b) => new Date(b.reservationDate) - new Date(a.reservationDate))
+            .map((booking) => (
+              <div key={booking.id} className="rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-bold text-charcoal-900">
+                      {stationsMap[booking.stationId] || booking.stationName || 'Station'}
+                    </h3>
+                    <p className="text-xs font-semibold text-gray-400">
+                      {new Date(booking.reservationDate).toLocaleDateString()} · {booking.energyAmountKwh || booking.energyAmount || 0} kWh
+                    </p>
+                  </div>
+                  <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                    booking.status === 'Approved' ? 'bg-lime-100 text-lime-700' :
+                    booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                    booking.status === 'Completed' ? 'bg-blue-100 text-blue-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {booking.status}
+                  </span>
+                </div>
+                <TransferStatusBar status={booking.status} transferStatus={transferStatus[booking.id]} />
+              </div>
+            ))}
+        </div>
+      </motion.div>
 
       {/* Usage Chart & Recent Bookings */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
