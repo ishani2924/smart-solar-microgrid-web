@@ -124,6 +124,7 @@ VITE_API_URL=http://localhost:5000/api
 
 This application connects to the Smart Solar Microgrid API. Ensure the API server is running and update the `VITE_API_URL` environment variable accordingly.
 
-## License
-
-[Your License Here]
+Youtube Video Link : https://youtu.be/Bd7gDFGmAKw
+Repo Link Web : https://github.com/ishani2924/smart-solar-microgrid-web.git
+Repo Link Mobile : https://github.com/Daniru12/smart-solar-microgrid-mobile.git
+Repo Link Backend : https://github.com/Daniru12/smart-solar-microgrid-api.git
