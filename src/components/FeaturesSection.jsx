@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { 
-  Building2, Zap, CalendarCheck, QrCode, 
-  BookOpen, Users, Smartphone, Server 
+import {
+  Building2, Zap, CalendarCheck, QrCode,
+  BookOpen, Users, Smartphone, Server
 } from 'lucide-react';
 
 const features = [
@@ -20,8 +20,7 @@ const FeaturesSection = () => {
     <section id="features" className="py-10 md:py-16 bg-white">
       <div className="container mx-auto px-6 md:px-12">
         <div className="w-full bg-charcoal-900 rounded-[2.5rem] p-8 md:p-12 lg:p-16 flex flex-col relative overflow-hidden shadow-xl">
-          
-          {/* Header */}
+
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
             <div className="flex flex-col gap-6">
               <div className="pill-badge !bg-charcoal-800 !border-charcoal-700 !text-white w-fit">
@@ -37,10 +36,9 @@ const FeaturesSection = () => {
             </div>
           </div>
 
-          {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}

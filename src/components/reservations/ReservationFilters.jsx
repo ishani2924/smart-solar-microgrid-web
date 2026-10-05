@@ -1,11 +1,4 @@
-/**
- * ReservationFilters.jsx
- * Search and filter panel for reservation pages.
- * Emits onSearch(params) callback on Submit; onClear() on Clear.
- * Props:
- *   onSearch(params: { nic, stationId, status, from, to }) → void
- *   loading: boolean
- */
+
 
 import React, { useState } from 'react';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
@@ -62,7 +55,7 @@ const ReservationFilters = ({ onSearch, loading = false }) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        {/* Prosumer NIC */}
+
         <div className="flex flex-col gap-1">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             Prosumer NIC
@@ -77,7 +70,6 @@ const ReservationFilters = ({ onSearch, loading = false }) => {
           />
         </div>
 
-        {/* Station ID */}
         <div className="flex flex-col gap-1">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             Station ID
@@ -92,7 +84,6 @@ const ReservationFilters = ({ onSearch, loading = false }) => {
           />
         </div>
 
-        {/* Status */}
         <div className="flex flex-col gap-1">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             Status
@@ -111,7 +102,6 @@ const ReservationFilters = ({ onSearch, loading = false }) => {
           </select>
         </div>
 
-        {/* From Date */}
         <div className="flex flex-col gap-1">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             From Date
@@ -125,7 +115,6 @@ const ReservationFilters = ({ onSearch, loading = false }) => {
           />
         </div>
 
-        {/* To Date */}
         <div className="flex flex-col gap-1">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
             To Date

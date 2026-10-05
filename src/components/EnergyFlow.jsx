@@ -14,7 +14,7 @@ const EnergyFlow = () => {
       className="py-24 relative border-t border-b border-yellow-400/10 overflow-hidden"
       style={{ background: 'linear-gradient(180deg, #141B18 0%, #1C2523 100%)' }}
     >
-      {/* Background glow */}
+
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-64 bg-yellow-400/4 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
@@ -50,7 +50,7 @@ const EnergyFlow = () => {
                   }}
                 >
                   <step.icon className="w-10 h-10 relative z-10" style={{ color: step.accent }} />
-                  {/* Pulse */}
+
                   <div
                     className="absolute inset-0 rounded-2xl border-2 animate-ping opacity-15"
                     style={{ borderColor: step.accent, animationDuration: '2.5s', animationDelay: `${step.delay}s` }}
@@ -59,7 +59,6 @@ const EnergyFlow = () => {
                 <h4 className="text-white font-semibold text-sm text-center">{step.name}</h4>
               </motion.div>
 
-              {/* Arrow Connector */}
               {index < flowSteps.length - 1 && (
                 <>
                   <div className="hidden md:flex items-center justify-center relative w-16">

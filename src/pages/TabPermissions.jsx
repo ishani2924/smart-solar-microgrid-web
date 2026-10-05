@@ -10,7 +10,6 @@ import {
   RotateCcw, Sparkles, Info, UserCog, Wrench, Home
 } from 'lucide-react';
 
-// Flat list of all tab metadata keyed by key string
 const ALL_TAB_FLAT = [...ALL_TABS.dashboard, ...ALL_TABS.settings];
 
 const TAB_GROUP_LABELS = {
@@ -28,7 +27,6 @@ const TAB_ICONS = {
   support: <HelpCircle className="w-4 h-4" />,
 };
 
-// Role definitions
 const ROLES = [
   {
     key: 'GridOperator',
@@ -52,7 +50,7 @@ const ROLES = [
     icon: UserCog,
     subtitle: 'System Administration',
     description: 'Responsible for system administration and management.',
-    configurable: false // Backoffice always sees all tabs
+    configurable: false
   }
 ];
 
@@ -61,7 +59,7 @@ const TabPermissions = () => {
   const navigate = useNavigate();
 
   const [selectedRole, setSelectedRole] = useState(null);
-  const [selectedTabs, setSelectedTabs] = useState(null); // null = unrestricted
+  const [selectedTabs, setSelectedTabs] = useState(null);
   const [isUnrestricted, setIsUnrestricted] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -127,7 +125,7 @@ const TabPermissions = () => {
   const toggleTab = (key) => {
     if (!selectedRole?.configurable) return;
     if (isUnrestricted) {
-      // Switching from unrestricted → restricted mode
+
       const allKeys = ALL_TAB_FLAT.map(t => t.key);
       setIsUnrestricted(false);
       setSelectedTabs(allKeys.filter(k => k !== key));
@@ -155,12 +153,12 @@ const TabPermissions = () => {
     setSaving(true);
     setMessage({ type: '', text: '' });
     try {
-      // If unrestricted, send null to remove restrictions
+
       const payload = isUnrestricted ? null : selectedTabs;
       const response = await userAPI.updateRoleTabPermissions(selectedRole.key, payload);
       if (response.success) {
         setMessage({ type: 'success', text: `Tab permissions updated for ${selectedRole.name}` });
-        // Refresh all role permissions
+
         await fetchAllRolePermissions();
       } else {
         setMessage({ type: 'error', text: response.message || 'Failed to update permissions.' });
@@ -199,7 +197,6 @@ const TabPermissions = () => {
   return (
     <div className="text-charcoal-900 w-full flex flex-col pt-4 pb-12">
 
-      {/* Header */}
       <div className="flex items-center justify-between mb-10 w-full max-w-6xl mx-auto">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2 mb-1">
@@ -220,7 +217,6 @@ const TabPermissions = () => {
         </div>
       </div>
 
-      {/* Message banner */}
       {message.text && (
         <div className={`mb-6 w-full max-w-6xl mx-auto px-4 py-3 rounded-lg text-sm font-medium shadow-sm ${message.type === 'success'
             ? 'bg-lime-50 text-lime-700 border border-lime-200'
@@ -234,7 +230,6 @@ const TabPermissions = () => {
 
       <div className="w-full max-w-6xl mx-auto flex gap-6">
 
-        {/* Left panel – role list */}
         <div className="w-80 flex flex-col gap-3 shrink-0">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full">
             <div className="px-5 py-4 border-b border-gray-100">
@@ -285,7 +280,6 @@ const TabPermissions = () => {
           </div>
         </div>
 
-        {/* Right panel – tab permission editor */}
         <div className="flex-1 flex flex-col gap-4 min-w-0">
           {!selectedRole ? (
             <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-4 py-24">
@@ -299,7 +293,7 @@ const TabPermissions = () => {
             </div>
           ) : (
             <>
-              {/* Role info card */}
+
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex items-center gap-4">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${selectedRole.key === 'Backoffice' ? 'bg-purple-100 text-purple-600' : 'bg-lime-400 text-charcoal-900'}`}>
                   <selectedRole.icon className="w-5 h-5" />
@@ -313,7 +307,7 @@ const TabPermissions = () => {
                     <span className="text-gray-400 text-xs">{selectedRole.description}</span>
                   </div>
                 </div>
-                {/* Summary chip */}
+
                 <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border shrink-0 ${isUnrestricted
                     ? 'bg-lime-50 text-lime-700 border-lime-200'
                     : visibleCount === 0
@@ -328,7 +322,6 @@ const TabPermissions = () => {
                 </div>
               </div>
 
-              {/* Notice banner */}
               <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
                 <Info className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
                 <p className="text-xs text-blue-600 font-medium leading-relaxed">
@@ -338,14 +331,13 @@ const TabPermissions = () => {
                 </p>
               </div>
 
-              {/* Tab editor */}
               {loadingTabs ? (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center py-20 text-gray-400 text-sm font-medium">
                   Loading permissions...
                 </div>
               ) : (
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                  {/* Toolbar */}
+
                   <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Sidebar Tabs</p>
                     <div className="flex items-center gap-2">
@@ -366,7 +358,6 @@ const TabPermissions = () => {
                     </div>
                   </div>
 
-                  {/* Tab groups */}
                   <div className="divide-y divide-gray-50 overflow-y-auto max-h-[500px]">
                     {Object.entries(ALL_TABS).map(([group, tabs]) => (
                       <div key={group} className="px-6 py-5">
@@ -416,7 +407,6 @@ const TabPermissions = () => {
                 </div>
               )}
 
-              {/* Action buttons */}
               <div className="flex items-center gap-3 justify-end">
                 <button
                   onClick={setAllVisible}

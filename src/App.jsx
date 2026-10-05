@@ -25,7 +25,7 @@ import OperatorDashboard from './pages/OperatorDashboard';
 import Analysis from './pages/Analysis';
 import Support from './pages/Support';
 import TabPermissions from './pages/TabPermissions';
-// Microgrid Pages
+
 import StationList from './pages/Microgrid/StationList';
 import CreateStation from './pages/Microgrid/CreateStation';
 import StationDetails from './pages/Microgrid/StationDetails';
@@ -92,7 +92,6 @@ function App() {
             <Route path="/stations/:id/edit" element={<ProtectedRoute requiredRoles={['Backoffice', 'GridOperator', 'Admin']}><EditStation /></ProtectedRoute>} />
           </Route>
 
-          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

@@ -54,13 +54,13 @@ const UserRolesSection = () => {
   return (
     <section id="roles" className="py-20 md:py-32 bg-white">
       <div className="container mx-auto px-6 md:px-12 flex flex-col items-center">
-        
+
         <div className="pill-badge mb-6">
           <span className="dot"></span>
           USER ROLES
         </div>
 
-        <motion.h2 
+        <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -71,7 +71,7 @@ const UserRolesSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
           {roles.map((role, i) => (
-            <motion.div 
+            <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -88,7 +88,7 @@ const UserRolesSection = () => {
                   <span className="text-xs font-bold text-lime-600 uppercase tracking-wider">{role.subtitle}</span>
                 </div>
               </div>
-              
+
               <p className="text-sm text-charcoal-500 mb-6 leading-relaxed">
                 {role.desc}
               </p>

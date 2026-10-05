@@ -7,7 +7,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -18,9 +18,9 @@ const Login = () => {
 
     try {
       const result = await login(email, password);
-      
+
       if (result.success) {
-        // Redirect based on role
+
         if (result.role === 'Prosumer') {
           navigate('/prosumer/dashboard');
         } else if (result.role === 'Backoffice') {

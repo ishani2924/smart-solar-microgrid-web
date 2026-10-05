@@ -1,18 +1,4 @@
-/**
- * ReservationDetailsPage.jsx
- * Route: /reservations/:id
- * Role: GridOperator, Backoffice
- *
- * Full detail view for a single reservation.
- * Actions shown by status:
- *   Pending   → [Approve] [Cancel]
- *   Approved  → [Cancel]
- *   Completed → read-only
- *   Cancelled → read-only
- *
- * Cancel includes a confirmation step.
- * Backend enforces 12-hour rule — errors are shown in the UI.
- */
+
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -66,7 +52,6 @@ const ReservationDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Action states
   const [approving, setApproving] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -179,7 +164,7 @@ const ReservationDetailsPage = () => {
 
   return (
     <div className="flex flex-col gap-6 pb-8">
-      {/* Back navigation */}
+
       <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
         <button
           onClick={() => navigate(-1)}
@@ -190,7 +175,6 @@ const ReservationDetailsPage = () => {
         </button>
       </motion.div>
 
-      {/* Page title row */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -205,7 +189,6 @@ const ReservationDetailsPage = () => {
         </div>
       </motion.div>
 
-      {/* Action error */}
       {actionError && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -217,14 +200,14 @@ const ReservationDetailsPage = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main detail card */}
+
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
         >
-          {/* Status stripe */}
+
           <div
             className={`h-1 ${
               reservation.status === 'Pending'
@@ -276,7 +259,6 @@ const ReservationDetailsPage = () => {
             )}
           </div>
 
-          {/* Timestamps section */}
           <div className="px-8 pb-8">
             <div className="h-px bg-gray-100 mb-6" />
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -295,14 +277,13 @@ const ReservationDetailsPage = () => {
           </div>
         </motion.div>
 
-        {/* Actions sidebar */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="flex flex-col gap-4"
         >
-          {/* Actions card */}
+
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
               Actions
@@ -365,7 +346,6 @@ const ReservationDetailsPage = () => {
             )}
           </div>
 
-          {/* Backoffice hard-delete */}
           {isBackoffice && (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">

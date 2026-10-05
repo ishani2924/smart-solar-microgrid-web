@@ -1,20 +1,17 @@
 @import "tailwindcss";
 
-/* ══════════════════════════════════════════
-   SolarGrid — Creaenergy Theme
-   Clean white base, Lime Green accent (#C5F849), Dark Charcoal
-══════════════════════════════════════════ */
+
 @theme {
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Space Grotesk', sans-serif;
 
-  /* Primary Accent: Lime Green */
+  
   --color-lime-300: #D8F982;
   --color-lime-400: #C5F849;
   --color-lime-500: #B1E137;
   --color-lime-600: #8CAE22;
 
-  /* Dark Charcoal Text / Backgrounds */
+  
   --color-charcoal-900: #101010;
   --color-charcoal-800: #1C1C1C;
   --color-charcoal-700: #2C2C2C;
@@ -23,7 +20,7 @@
   --color-charcoal-100: #F3F3F3;
   --color-charcoal-50:  #F9F9F9;
 
-  /* Legacy aliases for Dashboard pages */
+  
   --color-navy-900: #101010;
   --color-navy-800: #1C1C1C;
   --color-navy-700: #2C2C2C;
@@ -33,7 +30,7 @@
   --color-green-500: #B1E137;
 }
 
-/* ── Base ── */
+
 html, body {
   background-color: #FFFFFF;
   color: #101010;
@@ -44,7 +41,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Utilities ── */
+
 .font-display {
   font-family: 'Space Grotesk', sans-serif;
 }
@@ -115,13 +112,13 @@ html, body {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Scrollbar */
+
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #FFFFFF; }
 ::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #C5F849; }
 
-/* Selection */
+
 ::selection {
   background: #C5F849;
   color: #101010;

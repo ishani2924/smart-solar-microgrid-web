@@ -14,10 +14,8 @@ export default function StationDetails() {
   const [unauthorized, setUnauthorized] = useState(false);
   const { user, isGridOperator, isProsumer } = useAuth();
 
-  // Tab state: 'active' | 'history'
   const [activeTab, setActiveTab] = useState('active');
 
-  // New Slot Form State
   const [showAddSlot, setShowAddSlot] = useState(false);
   const [slotData, setSlotData] = useState({
     date: '',
@@ -26,8 +24,7 @@ export default function StationDetails() {
     capacity: ''
   });
 
-  // Delete confirmation modal state
-  const [deleteTarget, setDeleteTarget] = useState(null); // slot object to delete
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
@@ -56,7 +53,7 @@ export default function StationDetails() {
         }
       }
       setStation(stationData);
-      
+
       const slotsData = await fetchSlots(id);
       setSlots(Array.isArray(slotsData) ? slotsData : []);
     } catch (err) {
@@ -66,7 +63,6 @@ export default function StationDetails() {
     }
   };
 
-  // Derived: split slots by status
   const activeSlots = slots.filter(s => s.status !== 'Deleted');
   const deletedSlots = slots.filter(s => s.status === 'Deleted');
 
@@ -105,12 +101,10 @@ export default function StationDetails() {
     }
   };
 
-  // Open confirmation dialog
   const handleDeleteClick = (slot) => {
     setDeleteTarget(slot);
   };
 
-  // Confirmed: perform soft delete
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
@@ -142,7 +136,6 @@ export default function StationDetails() {
   return (
     <div className="text-charcoal-900 w-full flex flex-col pb-12">
 
-      {/* ── Delete Confirmation Modal ── */}
       <AnimatePresence>
         {deleteTarget && (
           <motion.div
@@ -158,7 +151,7 @@ export default function StationDetails() {
               transition={{ type: 'spring', stiffness: 300, damping: 28 }}
               className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm relative"
             >
-              {/* Icon */}
+
               <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto mb-5">
                 <AlertTriangle className="w-7 h-7 text-red-500" />
               </div>
@@ -167,7 +160,7 @@ export default function StationDetails() {
               <p className="text-sm text-gray-500 text-center mb-2">
                 Are you sure you want to delete this time slot?
               </p>
-              {/* Slot summary */}
+
               <div className="bg-gray-50 rounded-xl p-3 mb-6 text-center">
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Slot Details</p>
                 <p className="text-sm font-black text-charcoal-900">
@@ -207,7 +200,6 @@ export default function StationDetails() {
         )}
       </AnimatePresence>
 
-      {/* ── Premium Hero Header ── */}
       <div className="relative w-full bg-charcoal-900 overflow-hidden px-8 py-12 lg:px-16 lg:py-16 rounded-b-[3rem] shadow-2xl mb-10 border-b-4 border-lime-400 shrink-0">
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-lime-400/10 rounded-full blur-3xl"></div>
@@ -224,8 +216,8 @@ export default function StationDetails() {
               <div className="flex items-center gap-4 flex-wrap">
                 <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">{station.name}</h1>
                 <span className={`px-4 py-1.5 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 ${
-                  station.status === 'Active' 
-                    ? 'bg-lime-400 text-charcoal-900 border border-lime-400' 
+                  station.status === 'Active'
+                    ? 'bg-lime-400 text-charcoal-900 border border-lime-400'
                     : 'bg-red-500 text-white border border-red-500'
                 }`}>
                   <Activity className="w-3 h-3" /> {station.status}
@@ -246,17 +238,17 @@ export default function StationDetails() {
 
           {!isProsumer() && (
             <div className="flex items-center gap-3 shrink-0">
-              <Link 
+              <Link
                 to={`/stations/${station.stationId}/edit`}
                 className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-xl"
               >
                 Edit Config
               </Link>
-              <button 
+              <button
                 onClick={handleToggleStatus}
                 className={`px-6 py-3 rounded-2xl font-bold transition-all shadow-xl border ${
-                  station.status === 'Active' 
-                    ? 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500' 
+                  station.status === 'Active'
+                    ? 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500'
                     : 'bg-lime-400 border-lime-400 text-charcoal-900 hover:bg-lime-500 hover:border-lime-500'
                 }`}
               >
@@ -268,7 +260,7 @@ export default function StationDetails() {
       </div>
 
       <div className="w-full max-w-6xl mx-auto flex-1 space-y-8 px-4 md:px-8">
-        {/* ── Stat Cards ── */}
+
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/40 border border-gray-100 hover:border-lime-200 hover:-translate-y-1 transition-all group">
             <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-lime-50 transition-colors">
@@ -277,7 +269,7 @@ export default function StationDetails() {
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Coordinates</p>
             <p className="font-bold text-charcoal-900 leading-tight">{station.latitude.toFixed(4)}<br/>{station.longitude.toFixed(4)}</p>
           </motion.div>
-          
+
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/40 border border-gray-100 hover:border-lime-200 hover:-translate-y-1 transition-all group">
             <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-lime-50 transition-colors">
               <Zap className="w-5 h-5 text-gray-400 group-hover:text-yellow-500" />
@@ -285,7 +277,7 @@ export default function StationDetails() {
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Capacity</p>
             <p className="font-black text-charcoal-900 text-3xl">{station.capacity}<span className="text-sm text-gray-500 font-bold ml-1">kW</span></p>
           </motion.div>
-          
+
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/40 border border-gray-100 hover:border-lime-200 hover:-translate-y-1 transition-all group">
             <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-lime-50 transition-colors">
               <Battery className="w-5 h-5 text-gray-400 group-hover:text-lime-500" />
@@ -293,7 +285,7 @@ export default function StationDetails() {
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Battery Size</p>
             <p className="font-black text-charcoal-900 text-3xl">{station.batteryCapacity}<span className="text-sm text-gray-500 font-bold ml-1">kWh</span></p>
           </motion.div>
-          
+
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/40 border border-gray-100 hover:border-lime-200 hover:-translate-y-1 transition-all group">
             <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-lime-50 transition-colors">
               <Battery className="w-5 h-5 text-gray-400 group-hover:text-lime-500" />
@@ -301,7 +293,7 @@ export default function StationDetails() {
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Storage</p>
             <p className="font-black text-charcoal-900 text-3xl">{station.availableStorage}<span className="text-sm text-gray-500 font-bold ml-1">slots</span></p>
           </motion.div>
-          
+
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-white rounded-3xl p-6 shadow-xl shadow-gray-200/40 border border-gray-100 hover:border-lime-200 hover:-translate-y-1 transition-all group">
             <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center mb-4 group-hover:bg-lime-50 transition-colors">
               <Clock className="w-5 h-5 text-gray-400 group-hover:text-blue-500" />
@@ -311,9 +303,8 @@ export default function StationDetails() {
           </motion.div>
         </div>
 
-        {/* ── Energy Slots Section ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/40 overflow-hidden">
-          {/* Header */}
+
           <div className="p-8 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/30">
             <div>
               <h2 className="text-2xl font-black text-charcoal-900 tracking-tight">Energy Slots</h2>
@@ -322,7 +313,7 @@ export default function StationDetails() {
               </p>
             </div>
             {!showAddSlot && !isProsumer() && activeTab === 'active' && (
-              <button 
+              <button
                 onClick={() => setShowAddSlot(true)}
                 className="bg-lime-400 hover:bg-lime-500 text-charcoal-900 px-6 py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-lime-400/30 flex items-center gap-2 hover:-translate-y-0.5"
               >
@@ -331,7 +322,6 @@ export default function StationDetails() {
             )}
           </div>
 
-          {/* Tabs */}
           <div className="px-8 pt-5 flex items-center gap-1 border-b border-gray-100">
             <button
               onClick={() => { setActiveTab('active'); setShowAddSlot(false); }}
@@ -367,16 +357,15 @@ export default function StationDetails() {
             </button>
           </div>
 
-          {/* ── Add Slot Form ── */}
           {showAddSlot && activeTab === 'active' && (
             <div className="bg-charcoal-900 p-8 border-b border-charcoal-800 text-white relative">
-              <button 
+              <button
                 onClick={() => setShowAddSlot(false)}
                 className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-charcoal-800 hover:bg-charcoal-700 transition-colors text-gray-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
-              
+
               <div className="mb-6">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-lime-400" /> Create Availability Slot
@@ -388,20 +377,20 @@ export default function StationDetails() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                   <div>
                     <label className="block text-xs font-bold text-charcoal-400 uppercase tracking-wider mb-2">Date</label>
-                    <input 
-                      type="date" required value={slotData.date} 
-                      onChange={e => setSlotData({...slotData, date: e.target.value})} 
-                      className="w-full px-4 py-3 bg-charcoal-800 border border-charcoal-700 rounded-xl text-white focus:outline-none focus:border-lime-400 transition-colors" 
+                    <input
+                      type="date" required value={slotData.date}
+                      onChange={e => setSlotData({...slotData, date: e.target.value})}
+                      className="w-full px-4 py-3 bg-charcoal-800 border border-charcoal-700 rounded-xl text-white focus:outline-none focus:border-lime-400 transition-colors"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-charcoal-400 uppercase tracking-wider mb-2">Start Time</label>
                     <div className="relative">
                       <Clock className="w-4 h-4 text-charcoal-500 absolute left-4 top-1/2 -translate-y-1/2" />
-                      <input 
-                        type="time" required value={slotData.startTime} 
-                        onChange={e => setSlotData({...slotData, startTime: e.target.value})} 
-                        className="w-full pl-10 pr-4 py-3 bg-charcoal-800 border border-charcoal-700 rounded-xl text-white focus:outline-none focus:border-lime-400 transition-colors" 
+                      <input
+                        type="time" required value={slotData.startTime}
+                        onChange={e => setSlotData({...slotData, startTime: e.target.value})}
+                        className="w-full pl-10 pr-4 py-3 bg-charcoal-800 border border-charcoal-700 rounded-xl text-white focus:outline-none focus:border-lime-400 transition-colors"
                       />
                     </div>
                   </div>
@@ -409,10 +398,10 @@ export default function StationDetails() {
                     <label className="block text-xs font-bold text-charcoal-400 uppercase tracking-wider mb-2">End Time</label>
                     <div className="relative">
                       <Clock className="w-4 h-4 text-charcoal-500 absolute left-4 top-1/2 -translate-y-1/2" />
-                      <input 
-                        type="time" required value={slotData.endTime} 
-                        onChange={e => setSlotData({...slotData, endTime: e.target.value})} 
-                        className="w-full pl-10 pr-4 py-3 bg-charcoal-800 border border-charcoal-700 rounded-xl text-white focus:outline-none focus:border-lime-400 transition-colors" 
+                      <input
+                        type="time" required value={slotData.endTime}
+                        onChange={e => setSlotData({...slotData, endTime: e.target.value})}
+                        className="w-full pl-10 pr-4 py-3 bg-charcoal-800 border border-charcoal-700 rounded-xl text-white focus:outline-none focus:border-lime-400 transition-colors"
                       />
                     </div>
                   </div>
@@ -420,17 +409,17 @@ export default function StationDetails() {
                     <label className="block text-xs font-bold text-charcoal-400 uppercase tracking-wider mb-2">Capacity (kW)</label>
                     <div className="relative">
                       <Zap className="w-4 h-4 text-charcoal-500 absolute left-4 top-1/2 -translate-y-1/2" />
-                      <input 
-                        type="number" min="0.1" step="any" required value={slotData.capacity} 
-                        onChange={e => setSlotData({...slotData, capacity: Number(e.target.value)})} 
-                        className="w-full pl-10 pr-4 py-3 bg-charcoal-800 border border-charcoal-700 rounded-xl text-white focus:outline-none focus:border-lime-400 transition-colors" 
+                      <input
+                        type="number" min="0.1" step="any" required value={slotData.capacity}
+                        onChange={e => setSlotData({...slotData, capacity: Number(e.target.value)})}
+                        className="w-full pl-10 pr-4 py-3 bg-charcoal-800 border border-charcoal-700 rounded-xl text-white focus:outline-none focus:border-lime-400 transition-colors"
                         placeholder="e.g. 50"
                       />
                     </div>
                   </div>
                 </div>
                 <div className="mt-8 flex justify-end">
-                  <button 
+                  <button
                     type="submit" disabled={isSubmitting}
                     className="bg-lime-400 hover:bg-lime-500 disabled:opacity-50 text-charcoal-900 px-8 py-3 rounded-xl font-bold transition-colors shadow-lg shadow-lime-400/10"
                   >
@@ -441,7 +430,6 @@ export default function StationDetails() {
             </div>
           )}
 
-          {/* ── Active Slots Tab ── */}
           {activeTab === 'active' && (
             <div className="overflow-x-auto p-4">
               <table className="w-full text-left border-separate" style={{ borderSpacing: '0 8px' }}>
@@ -485,8 +473,8 @@ export default function StationDetails() {
                               <span className="text-charcoal-900">{slot.availableCapacity}/{slot.capacity} kW</span>
                             </div>
                             <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-lime-400 rounded-full" 
+                              <div
+                                className="h-full bg-lime-400 rounded-full"
                                 style={{ width: `${(slot.availableCapacity / slot.capacity) * 100}%` }}
                               ></div>
                             </div>
@@ -494,10 +482,10 @@ export default function StationDetails() {
                         </td>
                         <td className="px-6 py-5 whitespace-nowrap border-y border-gray-100 group-hover:border-y-lime-200 transition-colors">
                           <span className={`px-3 py-1.5 text-[11px] font-black tracking-wide rounded-lg uppercase ${
-                            slot.status === 'Available' 
-                              ? 'bg-lime-100 text-lime-700' 
-                              : slot.status === 'Full' 
-                                ? 'bg-orange-100 text-orange-700' 
+                            slot.status === 'Available'
+                              ? 'bg-lime-100 text-lime-700'
+                              : slot.status === 'Full'
+                                ? 'bg-orange-100 text-orange-700'
                                 : 'bg-gray-100 text-gray-700'
                           }`}>
                             {slot.status}
@@ -505,9 +493,9 @@ export default function StationDetails() {
                         </td>
                         <td className="px-6 py-5 whitespace-nowrap text-right pr-8 rounded-r-2xl border-y border-r border-gray-100 group-hover:border-lime-200 transition-colors">
                           <div className="flex items-center justify-end gap-2">
-                            {/* Toggle Available/Full */}
+
                             {!isProsumer() && (
-                              <button 
+                              <button
                                 onClick={() => handleToggleSlotStatus(slot.slotId, slot.status)}
                                 className={`text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm ${
                                   slot.status === 'Available'
@@ -518,7 +506,7 @@ export default function StationDetails() {
                                 {slot.status === 'Available' ? 'Mark Full' : 'Mark Available'}
                               </button>
                             )}
-                            {/* Delete button — grid operator only */}
+
                             {!isProsumer() && (
                               <button
                                 onClick={() => handleDeleteClick(slot)}
@@ -538,7 +526,6 @@ export default function StationDetails() {
             </div>
           )}
 
-          {/* ── History Tab ── */}
           {activeTab === 'history' && (
             <div className="overflow-x-auto p-4">
               {deletedSlots.length === 0 ? (

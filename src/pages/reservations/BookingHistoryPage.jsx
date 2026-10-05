@@ -1,12 +1,4 @@
-/**
- * BookingHistoryPage.jsx
- * Route: /reservations/history
- * Role: GridOperator, Backoffice
- *
- * Shows past reservations (Completed, Cancelled, or All past).
- * Tab interface: Completed | Cancelled | All
- * Read-only — no approve/cancel actions.
- */
+
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
@@ -38,7 +30,6 @@ const BookingHistoryPage = () => {
         ...(tab?.statusFilter ? { status: tab.statusFilter } : {}),
       };
 
-      // For "All Past" with no status filter, fetch completed + cancelled
       if (!tab?.statusFilter && !extra.status) {
         const [completedRes, cancelledRes] = await Promise.all([
           searchReservations({ ...extra, status: 'Completed' }),
@@ -62,7 +53,7 @@ const BookingHistoryPage = () => {
 
   useEffect(() => {
     fetchData(activeTab, extraFilters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [activeTab]);
 
   const handleTabChange = (tabId) => {
@@ -77,7 +68,7 @@ const BookingHistoryPage = () => {
 
   return (
     <div className="flex flex-col gap-6 pb-8">
-      {/* Page Header */}
+
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -103,7 +94,6 @@ const BookingHistoryPage = () => {
         </button>
       </motion.div>
 
-      {/* Tab bar */}
       <motion.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
@@ -140,7 +130,6 @@ const BookingHistoryPage = () => {
         })}
       </motion.div>
 
-      {/* Filters */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -149,7 +138,6 @@ const BookingHistoryPage = () => {
         <ReservationFilters onSearch={handleSearch} loading={loading} />
       </motion.div>
 
-      {/* Summary line */}
       {!loading && (
         <div className="text-sm font-medium text-gray-400">
           Showing{' '}
@@ -159,7 +147,6 @@ const BookingHistoryPage = () => {
         </div>
       )}
 
-      {/* Read-only table */}
       <motion.div
         key={activeTab}
         initial={{ opacity: 0, y: 8 }}

@@ -6,7 +6,7 @@ import { prosumerAdminAPI } from '../services/api';
 const AdminProsumers = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
+
   const [prosumers, setProsumers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchNic, setSearchNic] = useState('');
@@ -27,12 +27,12 @@ const AdminProsumers = () => {
       setLoading(true);
       const response = await prosumerAdminAPI.getAllProsumers();
       if (response.success) {
-        // Handle both array and object with numeric keys
+
         let prosumersArray;
         if (Array.isArray(response.data)) {
           prosumersArray = response.data;
         } else if (response.data && typeof response.data === 'object') {
-          // Convert object with numeric keys to array
+
           prosumersArray = Object.values(response.data);
         } else {
           prosumersArray = [];
@@ -99,7 +99,7 @@ const AdminProsumers = () => {
 
   return (
     <div className="text-charcoal-900 w-full h-full flex flex-col pt-4 pb-8">
-      {/* Header Area */}
+
       <div className="flex items-center justify-between mb-10 w-full max-w-6xl mx-auto">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-charcoal-900 tracking-tight">Prosumer Management</h1>
@@ -121,7 +121,6 @@ const AdminProsumers = () => {
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="w-full max-w-6xl mx-auto flex-1">
         {message.text && (
           <div className={`mb-6 px-4 py-3 rounded-lg text-sm font-medium shadow-sm ${
@@ -131,7 +130,6 @@ const AdminProsumers = () => {
           </div>
         )}
 
-        {/* Search */}
         <div className="mb-8">
           <form onSubmit={handleSearchByNic} className="flex gap-4 max-w-2xl">
             <input
@@ -236,7 +234,6 @@ const AdminProsumers = () => {
         )}
       </div>
 
-      {/* Prosumer Details Modal */}
       {showDetailsModal && selectedProsumer && (
         <div className="fixed inset-0 bg-charcoal-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-8 max-w-lg w-full shadow-2xl border border-gray-100">

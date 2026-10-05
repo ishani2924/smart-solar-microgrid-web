@@ -1,13 +1,4 @@
-/**
- * ReservationsPage.jsx
- * Route: /reservations
- * Role: GridOperator, Backoffice
- *
- * Shows all reservations in a searchable/filterable table.
- * - Default: GET /api/reservations (all reservations)
- * - After filter submit: GET /api/reservations/search?params
- * - Cancel action triggers PUT /api/reservations/{id}/cancel with confirmation modal
- */
+
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
@@ -21,8 +12,7 @@ const ReservationsPage = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [isFiltered, setIsFiltered] = useState(false);
 
-  // Cancel confirmation state
-  const [cancelTarget, setCancelTarget] = useState(null); // id string
+  const [cancelTarget, setCancelTarget] = useState(null);
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState(null);
 
@@ -33,7 +23,7 @@ const ReservationsPage = () => {
       const res = await getAllReservations();
       if (res.success) setReservations(res.data || []);
     } catch {
-      // handled silently; table shows empty state
+
     } finally {
       setLoading(false);
     }
@@ -74,9 +64,9 @@ const ReservationsPage = () => {
       const res = await cancelReservation(cancelTarget);
       if (res.success) {
         setCancelTarget(null);
-        // Refresh list
+
         if (isFiltered) {
-          // Just update in-place to keep current filters
+
           setReservations((prev) =>
             prev.map((r) =>
               r.id === cancelTarget ? { ...r, status: 'Cancelled' } : r
@@ -98,7 +88,7 @@ const ReservationsPage = () => {
 
   return (
     <div className="flex flex-col gap-6 pb-8">
-      {/* Page Header */}
+
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -109,7 +99,6 @@ const ReservationsPage = () => {
         </p>
       </motion.div>
 
-      {/* Filters */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -118,7 +107,6 @@ const ReservationsPage = () => {
         <ReservationFilters onSearch={handleSearch} loading={searchLoading} />
       </motion.div>
 
-      {/* Table */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -138,7 +126,6 @@ const ReservationsPage = () => {
         />
       </motion.div>
 
-      {/* Cancel Confirmation Modal */}
       {cancelTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div

@@ -1,13 +1,4 @@
-/**
- * ReservationDetailsModal.jsx
- * Slide-over panel that shows full reservation details.
- * Props:
- *   reservationId: string | null  — null = closed
- *   onClose(): void
- *   onApprove(id): void (optional)
- *   onCancel(id): void (optional)
- *   userRole: string — 'GridOperator' | 'Backoffice'
- */
+
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -106,7 +97,7 @@ const ReservationDetailsModal = ({
     <AnimatePresence>
       {reservationId && (
         <>
-          {/* Backdrop */}
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -115,7 +106,6 @@ const ReservationDetailsModal = ({
             className="fixed inset-0 bg-charcoal-900/40 backdrop-blur-sm z-40"
           />
 
-          {/* Slide-over panel */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -123,7 +113,7 @@ const ReservationDetailsModal = ({
             transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
             className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white shadow-2xl z-50 flex flex-col"
           >
-            {/* Header */}
+
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
               <div>
                 <h2 className="text-base font-bold text-charcoal-900">Reservation Details</h2>
@@ -139,7 +129,6 @@ const ReservationDetailsModal = ({
               </button>
             </div>
 
-            {/* Body */}
             <div className="flex-1 overflow-y-auto px-6 py-6">
               {loading && (
                 <div className="flex flex-col gap-4 animate-pulse">
@@ -160,7 +149,7 @@ const ReservationDetailsModal = ({
 
               {reservation && !loading && (
                 <div className="flex flex-col gap-6">
-                  {/* Status badge */}
+
                   <div className="flex items-center gap-3">
                     <ReservationStatusBadge status={reservation.status} size="lg" />
                     {reservation.approvedAt && (
@@ -172,7 +161,6 @@ const ReservationDetailsModal = ({
 
                   <div className="h-px bg-gray-100" />
 
-                  {/* Core fields */}
                   <div className="grid grid-cols-2 gap-5">
                     <Field label="Prosumer NIC" value={reservation.prosumerNic} icon={User} />
                     <Field label="Station" value={reservation.stationName || reservation.stationId} icon={MapPin} />
@@ -202,7 +190,6 @@ const ReservationDetailsModal = ({
 
                   <div className="h-px bg-gray-100" />
 
-                  {/* Timestamps */}
                   <div className="grid grid-cols-2 gap-4">
                     <Field label="Created" value={formatDateTime(reservation.createdAt)} />
                     <Field label="Last Updated" value={formatDateTime(reservation.updatedAt)} />
@@ -214,7 +201,6 @@ const ReservationDetailsModal = ({
                     )}
                   </div>
 
-                  {/* Completed message */}
                   {reservation.status === 'Completed' && (
                     <div className="p-4 bg-sky-50 border border-sky-100 rounded-xl text-sky-700 text-sm font-medium">
                       ✓ Energy transfer completed. This reservation is read-only.
@@ -229,10 +215,9 @@ const ReservationDetailsModal = ({
               )}
             </div>
 
-            {/* Footer Actions */}
             {reservation && !loading && (canApprove || canCancel) && (
               <div className="px-6 py-5 border-t border-gray-100 flex flex-col gap-3">
-                {/* Cancel confirmation inline */}
+
                 {showCancelConfirm ? (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
                     <p className="text-sm font-semibold text-red-700 mb-3">
