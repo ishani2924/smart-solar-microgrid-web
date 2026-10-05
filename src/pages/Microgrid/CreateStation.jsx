@@ -102,17 +102,17 @@ export default function CreateStation() {
 
       {/* Content Area */}
       <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-8">
-        <motion.form 
-          variants={containerVariants} 
-          initial="hidden" 
-          animate="show" 
-          onSubmit={handleSubmit} 
+        <motion.form
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          onSubmit={handleSubmit}
           className="grid grid-cols-1 lg:grid-cols-12 gap-8"
         >
-          
+
           {/* Left Side: Station Details */}
           <div className="lg:col-span-5 flex flex-col gap-8">
-            
+
             {/* Identity Card */}
             <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
               <div className="bg-gray-50/50 px-6 py-5 border-b border-gray-100 flex items-center gap-4">
@@ -124,26 +124,26 @@ export default function CreateStation() {
               <div className="p-6 flex flex-col gap-5">
                 <div>
                   <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Station Name</label>
-                  <input 
-                    type="text" 
-                    name="name" 
-                    required 
-                    value={formData.name} 
-                    onChange={handleChange} 
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-bold focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm" 
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-bold focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm"
                     placeholder="e.g. Colombo South Solar Hub"
                   />
                 </div>
-                
+
                 <div className="relative">
                   <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Grid Operator</label>
                   <div className="relative">
-                    <select 
-                      name="gridOperatorName" 
-                      required 
-                      value={formData.gridOperatorName} 
-                      onChange={handleChange} 
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-medium focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all appearance-none shadow-sm" 
+                    <select
+                      name="gridOperatorName"
+                      required
+                      value={formData.gridOperatorName}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-medium focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all appearance-none shadow-sm"
                     >
                       <option value="" disabled>Select a Grid Operator</option>
                       {gridOperators.map(op => (
@@ -169,44 +169,44 @@ export default function CreateStation() {
                   <label className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
                     <Zap className="w-3.5 h-3.5" /> Total Capacity (kW)
                   </label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     min="0"
-                    step="any" 
-                    name="capacity" 
-                    required 
-                    value={formData.capacity} 
-                    onChange={handleChange} 
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all font-bold shadow-sm" 
+                    step="any"
+                    name="capacity"
+                    required
+                    value={formData.capacity}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all font-bold shadow-sm"
                   />
                 </div>
                 <div>
                   <label className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
                     <Battery className="w-3.5 h-3.5" /> Battery (kWh)
                   </label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     min="0"
-                    step="any" 
-                    name="batteryCapacity" 
-                    required 
-                    value={formData.batteryCapacity} 
-                    onChange={handleChange} 
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all font-bold shadow-sm" 
+                    step="any"
+                    name="batteryCapacity"
+                    required
+                    value={formData.batteryCapacity}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all font-bold shadow-sm"
                   />
                 </div>
                 <div>
                   <label className="flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
                     <BatteryCharging className="w-3.5 h-3.5" /> Slots
                   </label>
-                  <input 
-                    type="number" 
-                    min="0" 
-                    name="availableStorage" 
-                    required 
-                    value={formData.availableStorage} 
-                    onChange={handleChange} 
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all font-bold shadow-sm" 
+                  <input
+                    type="number"
+                    min="0"
+                    name="availableStorage"
+                    required
+                    value={formData.availableStorage}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all font-bold shadow-sm"
                   />
                 </div>
               </div>
@@ -223,24 +223,24 @@ export default function CreateStation() {
               <div className="p-6 flex gap-5">
                 <div className="flex-1">
                   <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Opening</label>
-                  <input 
-                    type="time" 
-                    name="openingTime" 
-                    required 
-                    value={formData.openingTime} 
-                    onChange={handleChange} 
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-bold focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm" 
+                  <input
+                    type="time"
+                    name="openingTime"
+                    required
+                    value={formData.openingTime}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-bold focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm"
                   />
                 </div>
                 <div className="flex-1">
                   <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Closing</label>
-                  <input 
-                    type="time" 
-                    name="closingTime" 
-                    required 
-                    value={formData.closingTime} 
-                    onChange={handleChange} 
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-bold focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm" 
+                  <input
+                    type="time"
+                    name="closingTime"
+                    required
+                    value={formData.closingTime}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-bold focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm"
                   />
                 </div>
               </div>
@@ -256,44 +256,44 @@ export default function CreateStation() {
                 </div>
                 <h2 className="text-lg font-bold text-charcoal-900">Location & Coordinates</h2>
               </div>
-              
+
               <div className="p-8 flex flex-col gap-6 flex-1">
                 <div>
                   <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Physical Address</label>
-                  <input 
-                    type="text" 
-                    name="address" 
-                    required 
-                    value={formData.address} 
-                    onChange={handleChange} 
-                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-medium focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm" 
+                  <input
+                    type="text"
+                    name="address"
+                    required
+                    value={formData.address}
+                    onChange={handleChange}
+                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-medium focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm"
                     placeholder="Full physical address"
                   />
                 </div>
-                
+
                 <div className="flex gap-6">
                   <div className="flex-1">
                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Latitude</label>
-                    <input 
-                      type="number" 
-                      step="any" 
-                      name="latitude" 
-                      required 
-                      value={formData.latitude} 
-                      onChange={handleChange} 
-                      className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-medium focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm" 
+                    <input
+                      type="number"
+                      step="any"
+                      name="latitude"
+                      required
+                      value={formData.latitude}
+                      onChange={handleChange}
+                      className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-medium focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm"
                     />
                   </div>
                   <div className="flex-1">
                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Longitude</label>
-                    <input 
-                      type="number" 
-                      step="any" 
-                      name="longitude" 
-                      required 
-                      value={formData.longitude} 
-                      onChange={handleChange} 
-                      className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-medium focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm" 
+                    <input
+                      type="number"
+                      step="any"
+                      name="longitude"
+                      required
+                      value={formData.longitude}
+                      onChange={handleChange}
+                      className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-charcoal-900 font-medium focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all shadow-sm"
                     />
                   </div>
                 </div>
@@ -301,10 +301,10 @@ export default function CreateStation() {
                 <div className="flex-1 min-h-[300px] flex flex-col mt-2">
                   <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Interactive Map</label>
                   <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm flex-1">
-                    <LocationPickerMap 
-                      latitude={formData.latitude} 
-                      longitude={formData.longitude} 
-                      onLocationSelect={handleLocationSelect} 
+                    <LocationPickerMap
+                      latitude={formData.latitude}
+                      longitude={formData.longitude}
+                      onLocationSelect={handleLocationSelect}
                     />
                   </div>
                 </div>
@@ -313,14 +313,14 @@ export default function CreateStation() {
 
             {/* Actions aligned to bottom right */}
             <motion.div variants={itemVariants} className="flex justify-end gap-4 shrink-0">
-              <button 
-                type="button" 
-                onClick={() => navigate('/stations')} 
+              <button
+                type="button"
+                onClick={() => navigate('/stations')}
                 className="px-8 py-4 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-charcoal-900 font-bold rounded-xl transition-all shadow-sm flex items-center gap-2"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 type="submit"
                 disabled={isSubmitting}
                 className="px-10 py-4 bg-lime-400 hover:bg-lime-500 disabled:opacity-50 text-charcoal-900 font-black rounded-xl transition-all shadow-lg shadow-lime-400/30 flex items-center gap-2 hover:-translate-y-0.5"

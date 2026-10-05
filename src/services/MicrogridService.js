@@ -81,3 +81,8 @@ export const updateSlotStatus = async (slotId, status) => {
   if (!response.ok) throw new Error('Failed to update slot status');
   return true;
 };
+
+// Soft-delete: marks slot status as "Deleted" so it appears in History
+export const deleteSlot = async (slotId) => {
+  return updateSlotStatus(slotId, 'Deleted');
+};

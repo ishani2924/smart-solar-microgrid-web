@@ -36,6 +36,7 @@ import ProsumerStations from './pages/ProsumerStations';
 import BookingConfirmation from './pages/BookingConfirmation';
 import OperatorScan from './pages/OperatorScan';
 import OperatorStationMap from './pages/OperatorStationMap';
+import BookSlot from './pages/BookSlot';
 
 function Home() {
   return (
@@ -66,7 +67,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
+
           <Route element={<DashboardLayout />}>
             <Route path="/prosumer/dashboard" element={<ProtectedRoute requiredRole="Prosumer"><ProsumerDashboard /></ProtectedRoute>} />
             <Route path="/prosumer/bookings" element={<ProtectedRoute requiredRole="Prosumer"><ProsumerBookings /></ProtectedRoute>} />
@@ -86,10 +87,11 @@ function App() {
 
             <Route path="/stations" element={<ProtectedRoute><StationList /></ProtectedRoute>} />
             <Route path="/stations/create" element={<ProtectedRoute requiredRoles={['Backoffice', 'GridOperator', 'Admin']}><CreateStation /></ProtectedRoute>} />
+            <Route path="/stations/:id/book" element={<ProtectedRoute requiredRoles={['Prosumer', 'GridOperator', 'Backoffice', 'Admin']}><BookSlot /></ProtectedRoute>} />
             <Route path="/stations/:id" element={<ProtectedRoute><StationDetails /></ProtectedRoute>} />
             <Route path="/stations/:id/edit" element={<ProtectedRoute requiredRoles={['Backoffice', 'GridOperator', 'Admin']}><EditStation /></ProtectedRoute>} />
           </Route>
-          
+
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
