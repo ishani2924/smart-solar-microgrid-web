@@ -229,7 +229,6 @@ export const reservationAPI = {
     return response.data;
   },
 };
-};
 
 export const transferAPI = {
   issueQr: async (reservationId) => {
