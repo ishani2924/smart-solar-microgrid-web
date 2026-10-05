@@ -27,9 +27,10 @@ const Navbar = () => {
     if (!user) return '/login';
     switch (user.role) {
       case 'Prosumer': return '/profile';
+      case 'Admin': return '/admin/users';
       case 'Backoffice': return '/admin/users';
       case 'GridOperator': return '/operator/dashboard';
-      default: return '/';
+      default: return '/profile';
     }
   };
 

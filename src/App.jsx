@@ -66,7 +66,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
+
           <Route element={<DashboardLayout />}>
             <Route path="/prosumer/dashboard" element={<ProtectedRoute requiredRole="Prosumer"><ProsumerDashboard /></ProtectedRoute>} />
             <Route path="/prosumer/bookings" element={<ProtectedRoute requiredRole="Prosumer"><ProsumerBookings /></ProtectedRoute>} />
@@ -89,7 +89,7 @@ function App() {
             <Route path="/stations/:id" element={<ProtectedRoute><StationDetails /></ProtectedRoute>} />
             <Route path="/stations/:id/edit" element={<ProtectedRoute requiredRoles={['Backoffice', 'GridOperator', 'Admin']}><EditStation /></ProtectedRoute>} />
           </Route>
-          
+
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
