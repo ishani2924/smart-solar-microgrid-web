@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Menu, X, User, Users, Activity, Settings,
-  Zap, LogOut, Search, Bell, BarChart2, ShieldCheck, HelpCircle, LayoutDashboard, QrCode, MapPin
+  Zap, LogOut, Search, Bell, BarChart2, ShieldCheck, HelpCircle, LayoutDashboard, Calendar, QrCode, MapPin
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { userAPI } from '../services/api';
@@ -11,10 +11,14 @@ import { userAPI } from '../services/api';
 // Master list of all available sidebar tabs with stable keys
 export const ALL_TABS = {
   dashboard: [
+    { key: 'prosumer-dashboard', name: 'My Dashboard', path: '/prosumer/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+    { key: 'prosumer-bookings', name: 'My Bookings', path: '/prosumer/bookings', icon: <Calendar className="w-4 h-4" /> },
+    { key: 'prosumer-stations', name: 'Stations', path: '/prosumer/stations', icon: <MapPin className="w-4 h-4" /> },
     { key: 'overview', name: 'Overview', path: '/operator/dashboard', icon: <Activity className="w-4 h-4" /> },
     { key: 'scan-qr', name: 'Scan QR', path: '/operator/scan', icon: <QrCode className="w-4 h-4" /> },
     { key: 'booking-confirmation', name: 'Booking QR', path: '/booking/confirmation', icon: <QrCode className="w-4 h-4" /> },
     { key: 'stations', name: 'Stations', path: '/stations', icon: <Zap className="w-4 h-4" /> },
+    { key: 'admin-bookings', name: 'Bookings', path: '/admin/bookings', icon: <Calendar className="w-4 h-4" /> },
     { key: 'station-map', name: 'Station Map', path: '/operator/map', icon: <MapPin className="w-4 h-4" /> },
     { key: 'analysis', name: 'Analysis', path: '/analysis', icon: <BarChart2 className="w-4 h-4" /> },
     { key: 'admin-users', name: 'Admin Users', path: '/admin/users', icon: <Users className="w-4 h-4" /> },
@@ -85,15 +89,23 @@ const DashboardLayout = () => {
   const getNavLinks = () => {
     const filterTabs = (tabs) => {
       console.log('DashboardLayout: filterTabs called with visibleTabs:', visibleTabs, 'user role:', user?.role);
-      // Always return a copy so we never mutate the exported ALL_TABS arrays
-      // If visibleTabs is null (role has no configuration = unrestricted) or user is Backoffice, show all tabs
-      if (!visibleTabs || user?.role === 'Backoffice') {
-        console.log('DashboardLayout: Showing all tabs (visibleTabs is null or user is Backoffice)');
-        return [...tabs];
+
+      const roleStr = (user?.role || '').toLowerCase().trim();
+      const isProsumerRole = roleStr === 'prosumer';
+      const isBackofficeRole = roleStr === 'backoffice' || roleStr === 'admin';
+
+      // Always restrict Prosumer to specific tabs, ignoring the backend visibleTabs array
+      if (isProsumerRole) {
+        return tabs.filter(t => t.key.startsWith('prosumer-') || t.key === 'my-account' || t.key === 'support');
       }
-      const filtered = tabs.filter(t => visibleTabs.includes(t.key));
-      console.log('DashboardLayout: Filtered tabs from', tabs.length, 'to', filtered.length);
-      return filtered;
+
+      // If visibleTabs is null (role has no configuration) or user is Backoffice, show all non-prosumer tabs
+      if (!visibleTabs || isBackofficeRole) {
+        return tabs.filter(t => !t.key.startsWith('prosumer-'));
+      }
+
+      // Filter for other roles (e.g. GridOperator) based on backend visibleTabs, excluding prosumer tabs
+      return tabs.filter(t => visibleTabs.includes(t.key) && !t.key.startsWith('prosumer-'));
     };
 
     let dashboardLinks = filterTabs(ALL_TABS.dashboard);
@@ -117,7 +129,30 @@ const DashboardLayout = () => {
     };
   };
 
-  const { dashboardLinks, settingsLinks } = getNavLinks();
+  const { dashboardLinks, reservationLinks, settingsLinks } = getNavLinks();
+
+  // Shared NavLink renderer used by all sidebar groups
+  const renderNavLink = (link) => (
+    <NavLink
+      key={link.name}
+      to={link.path}
+      end={link.path === '/reservations'} // exact match for /reservations so /reservations/pending doesn't also highlight it
+      className={({ isActive }) =>
+        `flex items-center gap-3 px-8 py-2.5 text-sm font-semibold transition-all relative ${isActive
+          ? 'bg-lime-50/50 text-lime-700'
+          : 'hover:bg-gray-50 text-gray-500 hover:text-charcoal-900'
+        }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-lime-500 rounded-r-md" />}
+          <div className={isActive ? 'text-lime-600' : 'text-gray-400'}>{link.icon}</div>
+          {link.name}
+        </>
+      )}
+    </NavLink>
+  );
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-white border-r border-gray-100 text-charcoal-500">
@@ -203,18 +238,20 @@ const DashboardLayout = () => {
       <div className="p-6 mt-auto">
         {user && (
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-charcoal-900 font-bold overflow-hidden border border-gray-200 shadow-sm">
-              <img src="/heroimg.jpg" className="w-full h-full object-cover" alt="User" />
+            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-charcoal-900 font-bold border border-gray-200 shadow-sm shrink-0">
+              <User className="w-5 h-5 text-charcoal-900" />
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-gray-400 font-medium">Hi,</span>
-              <span className="text-sm font-bold text-charcoal-900 leading-none">{user.firstName} {user.lastName}</span>
+              <span className="text-sm font-bold text-charcoal-900 leading-none truncate max-w-[120px]" title={user.name || user.email || 'User'}>
+                {user.firstName || user.name ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.name : (user.email ? user.email.split('@')[0] : 'Operator')}
+              </span>
             </div>
           </div>
         )}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-charcoal-900 transition-colors"
+          className="flex items-center gap-3 text-sm font-bold text-red-500 hover:text-red-600 hover:bg-red-50 w-full p-3 rounded-xl transition-all"
         >
           <LogOut className="w-4 h-4" />
           Log Out
@@ -270,9 +307,14 @@ const DashboardLayout = () => {
             </h1>
           </div>
           <div className="flex items-center gap-6">
-            <button className="text-gray-400 hover:text-charcoal-900 transition-colors">
-              <Search className="w-5 h-5" />
-            </button>
+            <div className="relative">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className="pl-9 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-lime-400 focus:bg-white transition-all w-40 lg:w-64"
+              />
+            </div>
             <button className="text-gray-400 hover:text-charcoal-900 transition-colors relative">
               <Bell className="w-5 h-5" />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-lime-500 rounded-full border-2 border-white flex items-center justify-center text-[8px] text-white font-bold">8</div>

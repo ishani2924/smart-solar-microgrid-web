@@ -196,16 +196,39 @@ export const reservationAPI = {
     const response = await api.post('/reservations', data);
     return response.data;
   },
-
+  createReservation: async (data) => {
+    const response = await api.post('/reservations', data);
+    return response.data;
+  },
   getPending: async () => {
     const response = await api.get('/reservations/pending');
     return response.data;
   },
-
+  getProsumerReservations: async (nic) => {
+    const response = await api.get(`/reservations/prosumer/${nic}`);
+    return response.data;
+  },
+  getAllReservations: async () => {
+    const response = await api.get('/reservations');
+    return response.data;
+  },
   approve: async (id) => {
     const response = await api.put(`/reservations/${id}/approve`);
     return response.data;
   },
+  approveReservation: async (id) => {
+    const response = await api.put(`/reservations/${id}/approve`);
+    return response.data;
+  },
+  completeReservation: async (id) => {
+    const response = await api.put(`/reservations/${id}/complete`);
+    return response.data;
+  },
+  cancelReservation: async (id) => {
+    const response = await api.put(`/reservations/${id}/cancel`);
+    return response.data;
+  },
+};
 };
 
 export const transferAPI = {

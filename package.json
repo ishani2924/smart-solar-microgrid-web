@@ -4,21 +4,24 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.8",
     "@react-three/drei": "^9.105.6",
     "@react-three/fiber": "^8.16.2",
     "axios": "^1.20.0",
     "clsx": "^2.1.1",
     "framer-motion": "^13.4.0",
     "html5-qrcode": "^2.3.8",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.378.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-leaflet": "^4.2.1",
     "react-router-dom": "^7.18.4",
     "tailwind-merge": "^2.3.0",
     "three": "^0.164.0"

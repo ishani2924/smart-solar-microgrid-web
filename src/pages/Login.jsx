@@ -22,7 +22,7 @@ const Login = () => {
       if (result.success) {
         // Redirect based on role
         if (result.role === 'Prosumer') {
-          navigate('/profile');
+          navigate('/prosumer/dashboard');
         } else if (result.role === 'Backoffice') {
           navigate('/admin/users');
         } else if (result.role === 'GridOperator') {
