@@ -191,10 +191,17 @@ export const prosumerAdminAPI = {
   },
 };
 
-// Reservation API
 export const reservationAPI = {
+  create: async (data) => {
+    const response = await api.post('/reservations', data);
+    return response.data;
+  },
   createReservation: async (data) => {
     const response = await api.post('/reservations', data);
+    return response.data;
+  },
+  getPending: async () => {
+    const response = await api.get('/reservations/pending');
     return response.data;
   },
   getProsumerReservations: async (nic) => {
@@ -203,6 +210,10 @@ export const reservationAPI = {
   },
   getAllReservations: async () => {
     const response = await api.get('/reservations');
+    return response.data;
+  },
+  approve: async (id) => {
+    const response = await api.put(`/reservations/${id}/approve`);
     return response.data;
   },
   approveReservation: async (id) => {
@@ -217,6 +228,7 @@ export const reservationAPI = {
     const response = await api.put(`/reservations/${id}/cancel`);
     return response.data;
   },
+};
 };
 
 export const transferAPI = {

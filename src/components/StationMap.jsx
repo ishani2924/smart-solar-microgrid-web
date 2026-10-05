@@ -220,7 +220,7 @@ export default function StationMap({ heightClass = 'h-[520px]' }) {
             </div>
             <button
               type="button"
-              onClick={() => navigate(`/stations/${selected.stationId}`)}
+              onClick={() => navigate(`/stations/${selected.stationId}/book`)}
               className="mt-6 w-full py-3 rounded-2xl bg-lime-300 text-[#1A1C1E] font-bold"
             >
               Book slot

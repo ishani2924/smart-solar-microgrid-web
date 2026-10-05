@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Battery, Zap, Sun, Calendar, ChevronDown, MoreVertical } from 'lucide-react';
+import { Battery, Zap, Sun, Calendar, ChevronDown, MoreVertical, MapPin, QrCode } from 'lucide-react';
 import StationMap from '../components/StationMap';
+import PendingBookings from '../components/PendingBookings';
 import heroImg from '../assets/heroimg.jpg';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchStations } from '../services/MicrogridService';
@@ -112,6 +113,29 @@ const OperatorDashboard = () => {
   }, [user]);
   return (
     <div className="flex flex-col gap-6 h-full w-full pb-8">
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Link to="/operator/map" className="flex items-center gap-4 bg-white rounded-3xl border border-gray-100 p-5 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-[#1A1C1E] flex items-center justify-center">
+            <MapPin className="w-5 h-5 text-lime-300" />
+          </div>
+          <div>
+            <p className="font-bold text-charcoal-900">Station map</p>
+            <p className="text-sm text-gray-500">See every station in Sri Lanka</p>
+          </div>
+        </Link>
+        <Link to="/operator/scan" className="flex items-center gap-4 bg-white rounded-3xl border border-gray-100 p-5 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-[#1A1C1E] flex items-center justify-center">
+            <QrCode className="w-5 h-5 text-lime-300" />
+          </div>
+          <div>
+            <p className="font-bold text-charcoal-900">Scan QR</p>
+            <p className="text-sm text-gray-500">Verify a prosumer booking</p>
+          </div>
+        </Link>
+      </div>
+
+      <PendingBookings />
       
       {/* Top Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
