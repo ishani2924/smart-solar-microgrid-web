@@ -3,7 +3,9 @@ import { motion } from 'framer-motion';
 import { Calendar, Search, MapPin, Battery, Clock, Filter, CheckCircle, XCircle, Zap, Edit2, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import { API_BASE_URL } from '../services/api';
 import { fetchStations } from '../services/MicrogridService';
+
 const ProsumerBookings = () => {
   const { user, token } = useAuth();
   const [bookings, setBookings] = useState([]);
@@ -22,7 +24,7 @@ const ProsumerBookings = () => {
       }
       try {
         const [bookingsRes, stationsData] = await Promise.all([
-          axios.get(`http://localhost:5059/api/reservations/prosumer/${nic}`, {
+          axios.get(`${API_BASE_URL}/reservations/prosumer/${nic}`, {
             headers: { Authorization: `Bearer ${token}` }
           }).catch(err => { console.error(err); return { data: { data: [] } }; }),
           fetchStations().catch(err => { console.error(err); return []; })
