@@ -1,8 +1,4 @@
-/**
- * ReservationStatusBadge.jsx
- * A colored pill badge for reservation statuses.
- * Colors: Pending=amber, Approved=green, Cancelled=red, Completed=sky
- */
+
 
 import React from 'react';
 

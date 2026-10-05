@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5059/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
-// Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -10,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor to include JWT token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -24,10 +22,9 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor to handle errors and normalize response format
 api.interceptors.response.use(
   (response) => {
-    // Normalize API response format (Success -> success, Data -> data, Message -> message)
+
     const normalizeObject = (obj) => {
       if (!obj || typeof obj !== 'object') return obj;
 
@@ -38,7 +35,7 @@ api.interceptors.response.use(
       const normalized = {};
       for (const key in obj) {
         const newKey = key.charAt(0).toLowerCase() + key.slice(1);
-        // Recursively normalize nested objects
+
         normalized[newKey] = normalizeObject(obj[key]);
       }
       return normalized;
@@ -49,7 +46,7 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Clear token and redirect to login
+
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
@@ -58,7 +55,6 @@ api.interceptors.response.use(
   }
 );
 
-// Auth API
 export const authAPI = {
   login: async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
@@ -66,7 +62,6 @@ export const authAPI = {
   },
 };
 
-// Prosumer API
 export const prosumerAPI = {
   register: async (data) => {
     const response = await api.post('/prosumers/register', data);
@@ -97,7 +92,6 @@ export const prosumerAPI = {
   },
 };
 
-// User API (for backoffice)
 export const userAPI = {
   getAllUsers: async () => {
     const response = await api.get('/users');
@@ -134,7 +128,6 @@ export const userAPI = {
     return response.data;
   },
 
-  // Role-based tab permissions
   getRoleTabPermissions: async (role) => {
     console.log('API: Getting role tab permissions for:', role);
     const response = await api.get(`/roles/${role}/tabs`);
@@ -153,7 +146,6 @@ export const userAPI = {
   },
 };
 
-// Prosumer API (for backoffice)
 export const prosumerAdminAPI = {
   getAllProsumers: async (params = {}) => {
     const response = await api.get('/prosumers', { params });

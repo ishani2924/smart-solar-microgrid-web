@@ -13,13 +13,13 @@ const WhySolarGridSection = () => {
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-6 md:px-12 flex flex-col items-center">
-        
+
         <div className="pill-badge mb-6">
           <span className="dot"></span>
           WHY US
         </div>
 
-        <motion.h2 
+        <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -30,7 +30,7 @@ const WhySolarGridSection = () => {
 
         <div className="flex flex-wrap justify-center gap-4 max-w-5xl">
           {reasons.map((reason, i) => (
-            <motion.div 
+            <motion.div
               key={i}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}

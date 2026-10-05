@@ -50,7 +50,7 @@ const OperatorDashboard = () => {
         setMyStations(filteredStations);
 
         const stationIds = filteredStations.map(s => s.stationId || s.id);
-        const myReservations = Array.isArray(reservationsData) 
+        const myReservations = Array.isArray(reservationsData)
           ? reservationsData.filter(r => stationIds.includes(r.stationId))
           : [];
 
@@ -101,7 +101,7 @@ const OperatorDashboard = () => {
           bookingsByStatus,
           monthlyEnergy
         });
-        
+
       } catch (err) {
         console.error(err);
       } finally {
@@ -136,12 +136,10 @@ const OperatorDashboard = () => {
       </div>
 
       <PendingBookings />
-      
-      {/* Top Row */}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Performance Monitoring (Span 2) */}
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="lg:col-span-2 bg-[#1A1C1E] rounded-3xl p-6 md:p-8 flex flex-col relative overflow-hidden"
@@ -155,8 +153,7 @@ const OperatorDashboard = () => {
           </div>
 
           <div className="flex flex-col md:flex-row gap-8 z-10 flex-1">
-            
-            {/* Stats Left */}
+
             <div className="flex flex-col gap-8 w-full md:w-1/3">
               <div className="flex flex-col">
                 <div className="flex items-center gap-2 mb-2">
@@ -189,12 +186,11 @@ const OperatorDashboard = () => {
               </div>
             </div>
 
-            {/* Image & Capacity Right */}
             <div className="w-full md:w-2/3 flex flex-col justify-end items-center relative">
               <div className="w-full h-48 md:h-64 absolute top-0 -mt-10 lg:-mt-16 right-0 overflow-hidden flex items-center justify-center">
                 <img src={heroImg} className="h-[150%] w-[150%] object-cover opacity-70 mask-image-gradient" style={{ maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)' }} alt="Solar Panel" />
               </div>
-              
+
               <div className="flex justify-between w-full max-w-sm mt-auto bg-[#2A2C2E]/80 backdrop-blur-md rounded-2xl p-4 z-10 border border-[#3A3C3E]">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
@@ -215,8 +211,7 @@ const OperatorDashboard = () => {
           </div>
         </motion.div>
 
-        {/* Recent Bookings (Span 1) */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -258,11 +253,9 @@ const OperatorDashboard = () => {
 
       </div>
 
-      {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-        
-        {/* Energy Production (Span 2) */}
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -281,10 +274,8 @@ const OperatorDashboard = () => {
             </div>
           </div>
 
-          {/* Bar chart replacement */}
           <div className="flex-1 flex items-end relative min-h-[250px] pl-8 pb-6">
-            
-            {/* Y-axis labels */}
+
             <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] font-bold text-gray-400">
               {(() => {
                 const max = Math.max(10, ...metrics.monthlyEnergy.map(m => m.value));
@@ -294,7 +285,6 @@ const OperatorDashboard = () => {
               })()}
             </div>
 
-            {/* Grid lines */}
             <div className="absolute left-8 right-0 top-0 bottom-6 flex flex-col justify-between pointer-events-none">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="w-full border-t border-dashed border-gray-100 flex items-center justify-start -ml-2">
@@ -303,7 +293,6 @@ const OperatorDashboard = () => {
               ))}
             </div>
 
-            {/* Bars */}
             <div className="w-full h-full flex justify-around items-end z-10 px-2 pb-1">
               {metrics.monthlyEnergy.map((data, i) => {
                 const max = Math.max(10, ...metrics.monthlyEnergy.map(m => m.value));
@@ -312,7 +301,7 @@ const OperatorDashboard = () => {
                 return (
                   <div key={i} className="flex flex-col items-center justify-end w-8 group" style={{ height: '100%' }}>
                     <span className="text-gray-500 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity mb-1">{data.value.toFixed(1)}</span>
-                    <div 
+                    <div
                       className={`w-full rounded-t-sm transition-all ${isGreen ? 'bg-lime-500 hover:bg-lime-400' : 'bg-yellow-400 hover:bg-yellow-300'}`}
                       style={{ height: `${height}%` }}
                     ></div>
@@ -321,7 +310,6 @@ const OperatorDashboard = () => {
               })}
             </div>
 
-            {/* X-axis labels */}
             <div className="absolute left-8 right-0 -bottom-2 flex justify-around text-[10px] font-bold text-gray-400 px-4">
               {metrics.monthlyEnergy.map((data, i) => (
                 <span key={i} className="w-8 text-center">{data.month}</span>
@@ -331,8 +319,7 @@ const OperatorDashboard = () => {
           </div>
         </motion.div>
 
-        {/* Solar Panels Points (Span 1) */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}

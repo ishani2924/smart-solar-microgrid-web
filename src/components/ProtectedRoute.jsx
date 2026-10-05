@@ -13,9 +13,8 @@ const ProtectedRoute = ({ children, requiredRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Support both single role (string) and multiple roles (array)
   const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
-  
+
   if (requiredRoles && !roles.includes(user?.role)) {
     return <Navigate to="/" replace />;
   }

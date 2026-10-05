@@ -38,11 +38,11 @@ const Navbar = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 pt-4 px-6 md:px-12 flex justify-center pointer-events-none">
-      <div 
+      <div
         className="w-full max-w-7xl flex justify-between items-center transition-all duration-300 pointer-events-auto"
         style={isScrolled ? {
           padding: '0.75rem 1rem',
-          background: 'rgba(16,16,16,0.95)', // Dark background when scrolled
+          background: 'rgba(16,16,16,0.95)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
           borderRadius: '9999px',
@@ -52,7 +52,7 @@ const Navbar = () => {
           padding: '1rem 0'
         }}
       >
-        {/* Logo */}
+
         <div className="flex items-center gap-2 font-display font-bold text-xl text-white tracking-tight">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z" fill="#C5F849"/>
@@ -60,7 +60,6 @@ const Navbar = () => {
           SolarGrid
         </div>
 
-        {/* Desktop Nav - Center Pill */}
         <nav className="hidden md:flex items-center">
           <ul className="flex items-center p-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-md">
             {navLinks.map((link) => (
@@ -82,7 +81,6 @@ const Navbar = () => {
           </ul>
         </nav>
 
-        {/* Right CTA */}
         <div className="hidden md:flex items-center gap-4">
           {isAuthenticated ? (
             <>
@@ -108,7 +106,6 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Toggle */}
         <button className="md:hidden text-white pointer-events-auto"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

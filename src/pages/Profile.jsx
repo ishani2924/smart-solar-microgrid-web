@@ -6,24 +6,24 @@ import { prosumerAPI } from '../services/api';
 const Profile = () => {
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
-  
+
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     phoneNumber: '',
     address: '',
   });
-  
+
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
-  
+
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const Profile = () => {
 
     try {
       const response = await prosumerAPI.updateProfile(formData);
-      
+
       if (response.success) {
         updateUser(response.data);
         setMessage({ type: 'success', text: 'Profile updated successfully!' });
@@ -61,12 +61,12 @@ const Profile = () => {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setMessage({ type: 'error', text: 'New passwords do not match' });
       return;
     }
-    
+
     if (passwordData.newPassword.length < 6) {
       setMessage({ type: 'error', text: 'Password must be at least 6 characters' });
       return;
@@ -80,7 +80,7 @@ const Profile = () => {
         passwordData.oldPassword,
         passwordData.newPassword
       );
-      
+
       if (response.success) {
         setMessage({ type: 'success', text: 'Password changed successfully!' });
         setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
@@ -105,10 +105,10 @@ const Profile = () => {
 
     try {
       const response = await prosumerAPI.requestDeactivation();
-      
+
       if (response.success) {
         setMessage({ type: 'success', text: 'Deactivation request submitted successfully. Please contact admin for approval.' });
-        // Refresh user data to get updated status
+
         const profileResponse = await prosumerAPI.getProfile();
         if (profileResponse.success) {
           updateUser(profileResponse.data);
@@ -129,7 +129,7 @@ const Profile = () => {
 
   return (
     <div className="text-charcoal-900 w-full h-full flex flex-col pt-4 pb-8">
-      {/* Header */}
+
       <div className="flex items-center justify-between mb-10 w-full max-w-4xl mx-auto">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-charcoal-900 tracking-tight">My Profile</h1>
@@ -138,18 +138,17 @@ const Profile = () => {
       </div>
 
       <div className="w-full max-w-4xl mx-auto flex-1">
-        {/* Status Message */}
+
         {message.text && (
           <div className={`mb-6 px-4 py-3 rounded-lg text-sm font-medium shadow-sm ${
-            message.type === 'success' 
-              ? 'bg-lime-50 text-lime-700 border border-lime-200' 
+            message.type === 'success'
+              ? 'bg-lime-50 text-lime-700 border border-lime-200'
               : 'bg-red-50 text-red-600 border border-red-200'
           }`}>
             {message.text}
           </div>
         )}
 
-        {/* Account Status */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6">
           <div className="flex items-center justify-between">
             <div>
@@ -157,7 +156,7 @@ const Profile = () => {
               <div className="flex items-center gap-3 mt-3">
                 <span className="text-gray-500 text-sm font-medium">Current status:</span>
                 <span className={`px-3 py-1 text-[11px] font-bold rounded-full ${
-                  user.status === 'Active' ? 'bg-[#E3F8B3] text-[#557711]' : 
+                  user.status === 'Active' ? 'bg-[#E3F8B3] text-[#557711]' :
                   user.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600'
                 }`}>{user.status}</span>
               </div>
@@ -174,7 +173,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Profile Information */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-xl font-bold text-charcoal-900">Profile Information</h2>
@@ -285,7 +283,6 @@ const Profile = () => {
           )}
         </div>
 
-        {/* Change Password */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-xl font-bold text-charcoal-900">Security</h2>

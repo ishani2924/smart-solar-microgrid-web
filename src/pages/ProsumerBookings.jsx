@@ -3,8 +3,11 @@ import { motion } from 'framer-motion';
 import { Calendar, Search, MapPin, Battery, Clock, Filter, CheckCircle, XCircle, Zap, Edit2, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import { API_BASE_URL } from '../services/api';
 import { fetchStations } from '../services/MicrogridService';
-import { transferAPI } from '../services/api';
+import axios from 'axios';
+import { API_BASE_URL, transferAPI } from '../services/api';
+import { fetchStations } from '../services/MicrogridService';
 import BookingQrModal from '../components/BookingQrModal';
 import TransferStatusBar, { fetchTransferStatuses } from '../components/TransferStatusBar';
 const ProsumerBookings = () => {
@@ -27,12 +30,12 @@ const ProsumerBookings = () => {
       }
       try {
         const [bookingsRes, stationsData] = await Promise.all([
-          axios.get(`http://localhost:5059/api/reservations/prosumer/${nic}`, {
+          axios.get(`${API_BASE_URL}/reservations/prosumer/${nic}`, {
             headers: { Authorization: `Bearer ${token}` }
           }).catch(err => { console.error(err); return { data: { data: [] } }; }),
           fetchStations().catch(err => { console.error(err); return []; })
         ]);
-        
+
         if (stationsData && stationsData.length > 0) {
           const map = {};
           stationsData.forEach(s => { map[s.stationId] = s.name; });
@@ -92,12 +95,10 @@ const ProsumerBookings = () => {
     }
   };
 
-
   const filteredBookings = bookings.filter(b => {
-    // 1. Check status filter
+
     if (filter !== 'All' && b.status !== filter) return false;
 
-    // 2. Check date filter
     if (selectedDate) {
       const d = new Date(b.reservationDate);
       const bDateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -106,7 +107,6 @@ const ProsumerBookings = () => {
     return true;
   });
 
-  // --- Calendar Logic ---
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -127,7 +127,7 @@ const ProsumerBookings = () => {
 
   return (
     <div className="flex flex-col xl:flex-row gap-6 h-full w-full pb-8 overflow-y-auto custom-scrollbar">
-      {/* ── Left Column: Calendar Panel ── */}
+
       <div className="w-full xl:w-1/3 flex flex-col gap-6 shrink-0">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -148,7 +148,6 @@ const ProsumerBookings = () => {
             </div>
           </div>
 
-          {/* Calendar Grid */}
           <div className="grid grid-cols-7 gap-2 mb-6">
             {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
               <div key={d} className="text-center text-[10px] font-black text-gray-400 uppercase tracking-wider mb-2">{d}</div>
@@ -203,14 +202,12 @@ const ProsumerBookings = () => {
             })}
           </div>
 
-          {/* Legend */}
           <div className="flex flex-wrap items-center justify-center gap-3 text-[9px] font-black text-gray-400 uppercase tracking-wider bg-gray-50 p-3 rounded-xl border border-gray-100">
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded bg-lime-400"></div> Approved</div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded bg-yellow-300"></div> Pending</div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded bg-blue-100 border border-blue-200"></div> Other</div>
           </div>
 
-          {/* Clear Filter Button */}
           {selectedDate && (
             <motion.button
               initial={{ opacity: 0, height: 0 }}
@@ -224,7 +221,6 @@ const ProsumerBookings = () => {
         </motion.div>
       </div>
 
-      {/* ── Right Column: Booking List ── */}
       {qr && <BookingQrModal qr={qr} onClose={() => setQr(null)} />}
       <div className="w-full xl:w-2/3 flex flex-col gap-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -277,7 +273,6 @@ const ProsumerBookings = () => {
                 {filteredBookings.map((booking, idx) => (
                   <div key={booking.id || idx} className="border border-gray-100 rounded-2xl p-4 hover:border-lime-200 hover:shadow-sm transition-all flex flex-col gap-4 bg-white relative">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    {/* Station */}
                     <div className="flex items-center gap-3 w-full md:w-1/4 md:min-w-[140px]">
                       <div className="w-8 h-8 rounded-lg bg-lime-50 border border-lime-100 flex items-center justify-center shrink-0">
                         <Battery className="w-4 h-4 text-lime-600" />
@@ -289,19 +284,16 @@ const ProsumerBookings = () => {
                       </div>
                     </div>
 
-                    {/* Time */}
                     <div className="flex flex-col gap-0.5 w-full md:w-1/4 md:border-l border-gray-100 md:pl-4">
                       <span className="text-[11px] font-bold text-charcoal-900">{new Date(booking.reservationDate).toLocaleDateString()}</span>
                       <span className="text-[10px] font-semibold text-gray-500">{new Date(booking.reservationDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
 
-                    {/* Requested kWh */}
                     <div className="flex flex-col gap-0.5 w-full md:w-1/5 md:border-l border-gray-100 md:pl-4">
                       <span className="text-[11px] font-bold text-charcoal-900">{booking.energyAmountKwh} kWh</span>
                       <span className="text-[9px] font-semibold text-gray-400 uppercase">Requested</span>
                     </div>
 
-                    {/* Status & Actions */}
                     <div className="flex items-center md:justify-end gap-3 w-full md:flex-1 md:border-l border-gray-100 md:pl-4">
                       <span className={`px-2 py-1 text-[9px] font-bold rounded-md uppercase tracking-wider shrink-0 ${
                           booking.status === 'Approved' ? 'bg-green-100 text-green-700' :
@@ -324,14 +316,14 @@ const ProsumerBookings = () => {
 
                       {(booking.status === 'Pending' || booking.status === 'Approved') && (
                         <div className="flex items-center gap-1 shrink-0 ml-auto md:ml-2">
-                           <button 
+                           <button
                              disabled={!isModifiable(booking)}
                              title={!isModifiable(booking) ? "Cannot modify within 12 hours" : "Modify booking"}
                              className="p-2 text-gray-400 hover:text-lime-600 hover:bg-lime-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                            >
                              <Edit2 className="w-4 h-4" />
                            </button>
-                           <button 
+                           <button
                              onClick={() => handleCancelBooking(booking.id)}
                              disabled={!isModifiable(booking)}
                              title={!isModifiable(booking) ? "Cannot cancel within 12 hours" : "Cancel booking"}

@@ -12,7 +12,7 @@ export default function AdminBookings() {
   const [processingId, setProcessingId] = useState(null);
   const [statusFilter, setStatusFilter] = useState('Pending');
   const [qr, setQr] = useState(null);
-  
+
   const { user } = useAuth();
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function AdminBookings() {
     try {
       const response = await reservationAPI.getAllReservations();
       if (response.success) {
-        // Hydrate bookings with station and slot data
+
         const bookingsData = response.data || [];
         const hydratedBookings = await Promise.all(
           bookingsData.map(async (booking) => {
@@ -38,7 +38,7 @@ export default function AdminBookings() {
             }
           })
         );
-        // Sort by date descending
+
         hydratedBookings.sort((a, b) => new Date(b.reservationDate) - new Date(a.reservationDate));
         setBookings(hydratedBookings);
       } else {
@@ -107,8 +107,8 @@ export default function AdminBookings() {
     );
   }
 
-  const filteredBookings = statusFilter === 'All' 
-    ? bookings 
+  const filteredBookings = statusFilter === 'All'
+    ? bookings
     : bookings.filter(b => b.status === statusFilter);
 
   return (
@@ -118,16 +118,15 @@ export default function AdminBookings() {
           <h1 className="text-3xl font-black text-charcoal-900 tracking-tight">Booking Management</h1>
           <p className="text-gray-500 font-medium mt-1">Manage energy transfer reservations for your stations.</p>
         </div>
-        
-        {/* Status Filter Tabs */}
+
         <div className="flex bg-gray-100 p-1 rounded-xl">
           {['Pending', 'Approved', 'Completed', 'Cancelled', 'All'].map(status => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
               className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                statusFilter === status 
-                  ? 'bg-white text-charcoal-900 shadow-sm' 
+                statusFilter === status
+                  ? 'bg-white text-charcoal-900 shadow-sm'
                   : 'text-gray-500 hover:text-charcoal-900'
               }`}
             >
@@ -156,7 +155,7 @@ export default function AdminBookings() {
         </div>
       ) : (
         <div className="flex flex-col w-full">
-          {/* Header */}
+
           <div className="flex items-center px-6 py-3 text-[11px] font-black text-gray-400 uppercase tracking-wider mb-2">
             <div className="w-[15%] pl-2">PROSUMER NIC</div>
             <div className="w-[20%]">STATION</div>
@@ -166,11 +165,10 @@ export default function AdminBookings() {
             <div className="w-[20%] text-right pr-4">ACTIONS</div>
           </div>
 
-          {/* List */}
           <div className="flex flex-col gap-3">
             {filteredBookings.map(booking => (
               <div key={booking.id || booking.reservationId} className="flex items-center px-6 py-4 bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:border-lime-200 hover:shadow-md transition-all relative overflow-hidden group">
-                {/* Colored left accent based on status */}
+
                 <div className={`absolute top-0 left-0 bottom-0 w-1 ${
                   booking.status === 'Pending' ? 'bg-yellow-400' :
                   booking.status === 'Approved' ? 'bg-blue-400' :
@@ -178,12 +176,10 @@ export default function AdminBookings() {
                   'bg-red-400'
                 }`}></div>
 
-                {/* Prosumer NIC */}
                 <div className="w-[15%] pl-2">
                   <span className="font-bold text-charcoal-900 text-sm">{booking.prosumerNic}</span>
                 </div>
 
-                {/* Station */}
                 <div className="w-[20%] flex items-center gap-2 pr-2">
                   <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
                     <MapPin className="w-4 h-4 text-red-500" />
@@ -191,35 +187,31 @@ export default function AdminBookings() {
                   <span className="font-bold text-sm text-gray-700 truncate">{booking.station?.name || booking.stationId}</span>
                 </div>
 
-                {/* Date & Time */}
                 <div className="w-[15%] flex flex-col justify-center">
                   <span className="font-bold text-sm text-gray-700">{new Date(booking.reservationDate).toLocaleDateString()}</span>
                   <span className="text-xs font-semibold text-gray-400">{booking.slot ? `${booking.slot.startTime} - ${booking.slot.endTime}` : 'Unknown'}</span>
                 </div>
 
-                {/* Energy */}
                 <div className="w-[15%] flex items-center gap-2">
                   <Zap className="w-4 h-4 text-yellow-500" />
                   <span className="font-black text-charcoal-900 text-sm">{booking.energyAmountKwh} <span className="text-[10px] font-bold text-gray-500">kWh</span></span>
                 </div>
 
-                {/* Status */}
                 <div className="w-[15%]">
                   {getStatusBadge(booking.status)}
                 </div>
 
-                {/* Actions */}
                 <div className="w-[20%] flex items-center justify-end gap-2 pr-4">
                   {booking.status === 'Pending' && (
                     <>
-                      <button 
+                      <button
                         onClick={() => handleStatusChange(booking.id, 'approve')}
                         disabled={processingId === booking.id}
                         className="px-3 py-1.5 flex items-center gap-1.5 bg-lime-100 text-lime-700 hover:bg-lime-200 text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" /> Approve
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleStatusChange(booking.id, 'cancel')}
                         disabled={processingId === booking.id}
                         className="px-3 py-1.5 flex items-center gap-1.5 bg-red-100 text-red-700 hover:bg-red-200 text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
@@ -238,14 +230,20 @@ export default function AdminBookings() {
                       >
                         QR
                       </button>
-                      <button 
+                      <button
+                        onClick={() => handleStatusChange(booking.id, 'complete')}
+                        disabled={processingId === booking.id}
+                        className="px-3 py-1.5 flex items-center gap-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        Complete
+                      </button>
                         onClick={() => handleStatusChange(booking.id, 'complete')}
                         disabled={processingId === booking.id}
                         className="px-3 py-1.5 flex items-center gap-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" /> Complete
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleStatusChange(booking.id, 'cancel')}
                         disabled={processingId === booking.id}
                         className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
@@ -255,7 +253,7 @@ export default function AdminBookings() {
                       </button>
                     </>
                   )}
-                  
+
                   {['Completed', 'Cancelled'].includes(booking.status) && (
                     <span className="text-xs font-bold text-gray-300">No actions</span>
                   )}

@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import heroImg from '../assets/heroimg.jpg';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../services/api';
 import { fetchStations } from '../services/MicrogridService';
 import TransferStatusBar, { fetchTransferStatuses } from '../components/TransferStatusBar';
 
@@ -24,12 +25,12 @@ const ProsumerDashboard = () => {
       }
       try {
         const [bookingsRes, stationsData] = await Promise.all([
-          axios.get(`http://localhost:5059/api/reservations/prosumer/${nic}`, {
+          axios.get(`${API_BASE_URL}/reservations/prosumer/${nic}`, {
             headers: { Authorization: `Bearer ${token}` }
           }).catch(err => { console.error(err); return { data: { data: [] } }; }),
           fetchStations().catch(err => { console.error(err); return []; })
         ]);
-        
+
         if (stationsData && stationsData.length > 0) {
           const map = {};
           stationsData.forEach(s => { map[s.stationId] = s.name; });
@@ -54,21 +55,20 @@ const ProsumerDashboard = () => {
   const activeReservations = bookings.filter(b => b.status === 'Pending' || b.status === 'Approved').length;
   const completedReservations = bookings.filter(b => b.status === 'Completed');
   const energyConsumed = completedReservations.reduce((sum, b) => sum + (b.energyAmount || 0), 0).toFixed(1);
-  const carbonSaved = (energyConsumed * 0.4).toFixed(1); // Rough estimate: 0.4 kg CO2 per kWh
-  
+  const carbonSaved = (energyConsumed * 0.4).toFixed(1);
+
   const pendingCount = bookings.filter(b => b.status === 'Pending').length;
 
   const recentBookings = [...bookings].sort((a, b) => new Date(b.reservationDate) - new Date(a.reservationDate)).slice(0, 3);
 
-  // Generate mock weekly usage from actual bookings (group by day of week)
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const today = new Date().getDay();
   const sortedDays = [...daysOfWeek.slice(today + 1), ...daysOfWeek.slice(0, today + 1)];
-  
+
   return (
     <div className="flex flex-col gap-6 h-full w-full pb-8">
-      {/* Welcome Banner */}
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full bg-charcoal-900 rounded-3xl p-8 relative overflow-hidden flex flex-col md:flex-row justify-between items-center"
@@ -91,7 +91,6 @@ const ProsumerDashboard = () => {
         </div>
       </motion.div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { title: 'Energy Consumed', value: energyConsumed, unit: 'kWh', icon: <Zap className="w-5 h-5 text-lime-500" />, trend: 'Lifetime' },
@@ -167,10 +166,8 @@ const ProsumerDashboard = () => {
             ))}
         </div>
       </motion.div>
-
-      {/* Usage Chart & Recent Bookings */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -179,7 +176,7 @@ const ProsumerDashboard = () => {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-charcoal-900 font-bold text-lg">Weekly Usage Trend</h2>
           </div>
-          {/* Chart */}
+
           <div className="flex-1 flex items-end justify-between gap-4 mt-auto relative h-48 px-2 pb-6">
             <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-6">
               {[...Array(4)].map((_, i) => (
@@ -187,8 +184,8 @@ const ProsumerDashboard = () => {
               ))}
             </div>
             {sortedDays.map((day, i) => {
-              // Creating a realistic looking visual trend for the week based on bookings length to make it dynamic
-              const baseHeight = ((i + 1) * 10 + (totalBookings * 2)) % 60 + 20; 
+
+              const baseHeight = ((i + 1) * 10 + (totalBookings * 2)) % 60 + 20;
               const h1 = baseHeight;
               const h2 = baseHeight * 0.3;
               return (
@@ -204,7 +201,7 @@ const ProsumerDashboard = () => {
           </div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}

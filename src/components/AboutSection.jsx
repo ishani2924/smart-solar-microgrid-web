@@ -12,8 +12,7 @@ const AboutSection = () => {
   return (
     <section id="about" className="py-20 md:py-32 bg-white relative">
       <div className="container mx-auto px-6 md:px-12">
-        
-        {/* Top Badge */}
+
         <div className="flex mb-8">
           <div className="pill-badge">
             <span className="dot"></span>
@@ -22,10 +21,9 @@ const AboutSection = () => {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-12">
-          
-          {/* Left Side: Images */}
+
           <div className="w-full lg:w-1/3 flex flex-col gap-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -33,7 +31,7 @@ const AboutSection = () => {
             >
               <img src={heroImg} alt="Solar facility" className="w-full h-full object-cover object-left" />
             </motion.div>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -42,7 +40,7 @@ const AboutSection = () => {
             >
               <img src={heroImg} alt="Solar landscape" className="w-full h-full object-cover object-right" />
             </motion.div>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -53,9 +51,8 @@ const AboutSection = () => {
             </motion.div>
           </div>
 
-          {/* Right Side: Content */}
           <div className="w-full lg:w-2/3 flex flex-col justify-center">
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -63,7 +60,7 @@ const AboutSection = () => {
             >
               What is SolarGrid?
             </motion.h2>
-            
+
             <motion.p
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -76,10 +73,9 @@ const AboutSection = () => {
               The system allows administrators to manage microgrid stations, Grid Operators to manage operational activities, and Solar Prosumers to find available stations and reserve energy slots using the mobile application.
             </motion.p>
 
-            {/* Statistics Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {stats.map((stat, i) => (
-                <motion.div 
+                <motion.div
                   key={i}
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}

@@ -6,14 +6,14 @@ import { userAPI } from '../services/api';
 const AdminUsers = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
-  
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -34,12 +34,12 @@ const AdminUsers = () => {
       setLoading(true);
       const response = await userAPI.getAllUsers();
       if (response.success) {
-        // Handle both array and object with numeric keys
+
         let usersArray;
         if (Array.isArray(response.data)) {
           usersArray = response.data;
         } else if (response.data && typeof response.data === 'object') {
-          // Convert object with numeric keys to array
+
           usersArray = Object.values(response.data);
         } else {
           usersArray = [];
@@ -98,9 +98,9 @@ const AdminUsers = () => {
       };
 
       const response = await userAPI.updateUser(selectedUser.id, updateData);
-      
+
       if (response.success) {
-        // If password is provided, reset it
+
         if (formData.password) {
           await userAPI.resetPassword(selectedUser.id, formData.password);
         }
@@ -120,11 +120,11 @@ const AdminUsers = () => {
 
   const openEditModal = (user) => {
     setSelectedUser(user);
-    setFormData({ 
-      email: user.email, 
-      password: '', 
+    setFormData({
+      email: user.email,
+      password: '',
       role: user.role,
-      status: user.status 
+      status: user.status
     });
     setShowEditModal(true);
   };
@@ -142,15 +142,14 @@ const AdminUsers = () => {
     switch (role) {
       case 'Backoffice': return 'bg-purple-100 text-purple-600';
       case 'GridOperator': return 'bg-blue-100 text-blue-600';
-      case 'Prosumer': return 'bg-[#E3F8B3] text-[#80B622]'; // Based on screenshot light green text/bg
+      case 'Prosumer': return 'bg-[#E3F8B3] text-[#80B622]';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   return (
     <div className="text-charcoal-900 w-full h-full flex flex-col pt-4 pb-8">
-      
-      {/* Header Area */}
+
       <div className="flex items-center justify-between mb-10 w-full max-w-6xl mx-auto">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-charcoal-900 tracking-tight">User Management</h1>
@@ -184,7 +183,6 @@ const AdminUsers = () => {
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="w-full max-w-6xl mx-auto flex-1">
         {message.text && (
           <div className={`mb-6 px-4 py-3 rounded-lg text-sm font-medium shadow-sm ${
@@ -263,7 +261,6 @@ const AdminUsers = () => {
         )}
       </div>
 
-      {/* Create User Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-charcoal-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-100">
@@ -333,7 +330,6 @@ const AdminUsers = () => {
         </div>
       )}
 
-      {/* Edit User Modal */}
       {showEditModal && selectedUser && (
         <div className="fixed inset-0 bg-charcoal-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-100">
