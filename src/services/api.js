@@ -191,6 +191,23 @@ export const prosumerAdminAPI = {
   },
 };
 
+export const reservationAPI = {
+  create: async (data) => {
+    const response = await api.post('/reservations', data);
+    return response.data;
+  },
+
+  getPending: async () => {
+    const response = await api.get('/reservations/pending');
+    return response.data;
+  },
+
+  approve: async (id) => {
+    const response = await api.put(`/reservations/${id}/approve`);
+    return response.data;
+  },
+};
+
 export const transferAPI = {
   issueQr: async (reservationId) => {
     const response = await api.post(`/transfers/reservations/${reservationId}/issue`);

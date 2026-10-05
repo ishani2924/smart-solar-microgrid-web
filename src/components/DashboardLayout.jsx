@@ -100,6 +100,13 @@ const DashboardLayout = () => {
     if (user?.role === 'Prosumer') {
       dashboardLinks = dashboardLinks.filter((tab) => tab.key !== 'scan-qr');
     }
+    if (user?.role === 'GridOperator') {
+      const operatorTabs = ['scan-qr', 'station-map']
+        .map((key) => ALL_TABS.dashboard.find((tab) => tab.key === key))
+        .filter((tab) => tab && !dashboardLinks.some((item) => item.key === tab.key));
+      const overviewIndex = dashboardLinks.findIndex((tab) => tab.key === 'overview');
+      dashboardLinks.splice(overviewIndex + 1, 0, ...operatorTabs);
+    }
     if (user?.role === 'Backoffice') {
       dashboardLinks.push(...BACKOFFICE_ONLY_TABS);
     }

@@ -32,6 +32,7 @@ import EditStation from './pages/Microgrid/EditStation';
 import BookingConfirmation from './pages/BookingConfirmation';
 import OperatorScan from './pages/OperatorScan';
 import OperatorStationMap from './pages/OperatorStationMap';
+import BookSlot from './pages/BookSlot';
 
 function Home() {
   return (
@@ -78,6 +79,7 @@ function App() {
 
             <Route path="/stations" element={<ProtectedRoute><StationList /></ProtectedRoute>} />
             <Route path="/stations/create" element={<ProtectedRoute><CreateStation /></ProtectedRoute>} />
+            <Route path="/stations/:id/book" element={<ProtectedRoute requiredRoles={['Prosumer', 'GridOperator', 'Backoffice', 'Admin']}><BookSlot /></ProtectedRoute>} />
             <Route path="/stations/:id" element={<ProtectedRoute><StationDetails /></ProtectedRoute>} />
             <Route path="/stations/:id/edit" element={<ProtectedRoute><EditStation /></ProtectedRoute>} />
           </Route>
