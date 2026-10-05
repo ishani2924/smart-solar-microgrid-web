@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import heroImg from '../assets/heroimg.jpg';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../services/api';
 
 const ProsumerDashboard = () => {
   const { user, token } = useAuth();
@@ -19,7 +20,7 @@ const ProsumerDashboard = () => {
          return;
       }
       try {
-        const response = await axios.get(`http://localhost:5059/api/reservations/prosumer/${nic}`, {
+        const response = await axios.get(`${API_BASE_URL}/reservations/prosumer/${nic}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data && response.data.success) {

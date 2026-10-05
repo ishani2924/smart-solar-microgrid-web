@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Calendar, Search, MapPin, Battery, Clock, Filter, CheckCircle, XCircle, Zap } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import { API_BASE_URL } from '../services/api';
 
 const ProsumerBookings = () => {
   const { user, token } = useAuth();
@@ -18,7 +19,7 @@ const ProsumerBookings = () => {
          return;
       }
       try {
-        const response = await axios.get(`http://localhost:5059/api/reservations/prosumer/${nic}`, {
+        const response = await axios.get(`${API_BASE_URL}/reservations/prosumer/${nic}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data && response.data.success) {
