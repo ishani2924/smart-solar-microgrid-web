@@ -27,7 +27,7 @@ export default function CreateStation() {
     const fetchOperators = async () => {
       try {
         const response = await userAPI.getAllUsers();
-        // Extract array if wrapped in standard response format
+
         const users = Array.isArray(response) ? response : (response?.data || []);
         const operators = users.filter(u => u.role === 'GridOperator' || u.role === 'Grid Operator');
         setGridOperators(operators);
@@ -81,7 +81,7 @@ export default function CreateStation() {
 
   return (
     <div className="text-charcoal-900 w-full flex flex-col pb-12">
-      {/* Premium Hero Header */}
+
       <div className="relative w-full bg-charcoal-900 overflow-hidden px-8 py-10 lg:px-16 lg:py-12 rounded-b-[3rem] shadow-2xl mb-10 border-b-4 border-lime-400 shrink-0">
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-lime-400/10 rounded-full blur-3xl"></div>
@@ -100,7 +100,6 @@ export default function CreateStation() {
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-8">
         <motion.form
           variants={containerVariants}
@@ -110,10 +109,8 @@ export default function CreateStation() {
           className="grid grid-cols-1 lg:grid-cols-12 gap-8"
         >
 
-          {/* Left Side: Station Details */}
           <div className="lg:col-span-5 flex flex-col gap-8">
 
-            {/* Identity Card */}
             <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
               <div className="bg-gray-50/50 px-6 py-5 border-b border-gray-100 flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-100 flex items-center justify-center text-lime-500">
@@ -156,7 +153,6 @@ export default function CreateStation() {
               </div>
             </motion.div>
 
-            {/* Capabilities Card */}
             <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
               <div className="bg-gray-50/50 px-6 py-5 border-b border-gray-100 flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-100 flex items-center justify-center text-lime-500">
@@ -212,7 +208,6 @@ export default function CreateStation() {
               </div>
             </motion.div>
 
-            {/* Operating Hours Card */}
             <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
               <div className="bg-gray-50/50 px-6 py-5 border-b border-gray-100 flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-100 flex items-center justify-center text-blue-500">
@@ -247,7 +242,6 @@ export default function CreateStation() {
             </motion.div>
           </div>
 
-          {/* Right Side: Location & Map */}
           <div className="lg:col-span-7 flex flex-col gap-8">
             <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex flex-col h-full">
               <div className="bg-gray-50/50 px-8 py-5 border-b border-gray-100 flex items-center gap-4 shrink-0">
@@ -311,7 +305,6 @@ export default function CreateStation() {
               </div>
             </motion.div>
 
-            {/* Actions aligned to bottom right */}
             <motion.div variants={itemVariants} className="flex justify-end gap-4 shrink-0">
               <button
                 type="button"

@@ -36,7 +36,7 @@ const Analysis = () => {
 
         let totalEnergyBooked = 0;
         const bookingsByStatus = { Pending: 0, Approved: 0, Completed: 0, Cancelled: 0 };
-        
+
         reservations.forEach(r => {
           const status = r.status || 'Pending';
           if (bookingsByStatus[status] !== undefined) {
@@ -67,7 +67,7 @@ const Analysis = () => {
 
   return (
     <div className="text-charcoal-900 w-full h-full flex flex-col pt-4 pb-8">
-      {/* Header Area */}
+
       <div className="flex items-center justify-between mb-10 w-full max-w-7xl mx-auto px-4 md:px-8">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-charcoal-900 tracking-tight">System Analysis</h1>
@@ -75,12 +75,10 @@ const Analysis = () => {
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="w-full max-w-7xl mx-auto px-4 md:px-8 flex flex-col gap-8 flex-1">
-        
-        {/* Top KPIs */}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          
+
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
             <div className="w-12 h-12 rounded-xl bg-lime-50 text-lime-500 flex items-center justify-center mb-4">
               <Zap className="w-6 h-6" />
@@ -123,21 +121,20 @@ const Analysis = () => {
 
         </div>
 
-        {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[400px]">
-          
+
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }} className="bg-charcoal-900 rounded-3xl p-8 shadow-xl flex flex-col relative overflow-hidden">
-             {/* Background glow */}
+
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-lime-400/10 rounded-full blur-[80px] pointer-events-none"></div>
-            
+
             <div className="z-10 flex justify-between items-center mb-8">
               <h2 className="text-white font-bold text-xl">Booking Status Distribution</h2>
               <span className="text-lime-400 text-sm font-semibold bg-lime-400/10 px-3 py-1 rounded-full">All Time</span>
             </div>
-            
+
             <div className="flex-1 z-10 flex flex-col justify-center">
               <div className="grid grid-cols-2 gap-4">
-                
+
                 <div className="bg-white/5 rounded-2xl p-5 border border-white/10 flex items-center gap-4 hover:bg-white/10 transition-colors">
                   <div className="w-10 h-10 rounded-full bg-lime-500/20 text-lime-400 flex items-center justify-center shrink-0">
                     <CheckCircle className="w-5 h-5" />

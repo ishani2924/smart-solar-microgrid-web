@@ -1,12 +1,4 @@
-/**
- * PendingReservationsPage.jsx
- * Route: /reservations/pending
- * Role: GridOperator, Backoffice
- *
- * Shows only Pending reservations in a card layout.
- * Key action: Approve — sends PUT /api/reservations/{id}/approve
- * Secondary action: View → navigates to /reservations/:id
- */
+
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -35,11 +27,11 @@ const PendingCard = ({ reservation, onApprove, onView, approving }) => (
     transition={{ duration: 0.25 }}
     className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
   >
-    {/* Top accent stripe */}
+
     <div className="h-1 bg-gradient-to-r from-amber-400 to-amber-300" />
 
     <div className="p-6">
-      {/* Header row */}
+
       <div className="flex items-start justify-between mb-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
@@ -63,7 +55,6 @@ const PendingCard = ({ reservation, onApprove, onView, approving }) => (
         </div>
       </div>
 
-      {/* Detail fields */}
       <div className="grid grid-cols-2 gap-4 mb-5">
         <div className="flex items-start gap-2">
           <User className="w-3.5 h-3.5 text-gray-400 mt-0.5 flex-shrink-0" />
@@ -123,7 +114,6 @@ const PendingCard = ({ reservation, onApprove, onView, approving }) => (
         </div>
       )}
 
-      {/* Actions */}
       <div className="flex gap-3 pt-4 border-t border-gray-100">
         <button
           onClick={() => onView(reservation.id)}
@@ -150,7 +140,7 @@ const PendingReservationsPage = () => {
   const navigate = useNavigate();
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [approving, setApproving] = useState(null); // id of reservation being approved
+  const [approving, setApproving] = useState(null);
   const [error, setError] = useState(null);
   const [approveError, setApproveError] = useState(null);
 
@@ -177,7 +167,7 @@ const PendingReservationsPage = () => {
     try {
       const res = await approveReservation(id);
       if (res.success) {
-        // Remove from list (it's no longer Pending)
+
         setReservations((prev) => prev.filter((r) => r.id !== id));
       }
     } catch (err) {
@@ -193,7 +183,7 @@ const PendingReservationsPage = () => {
 
   return (
     <div className="flex flex-col gap-6 pb-8">
-      {/* Header */}
+
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -220,21 +210,18 @@ const PendingReservationsPage = () => {
         </button>
       </motion.div>
 
-      {/* Approve error banner */}
       {approveError && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm font-medium">
           {approveError}
         </div>
       )}
 
-      {/* API error */}
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm font-medium">
           {error}
         </div>
       )}
 
-      {/* Loading skeletons */}
       {loading && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
@@ -255,7 +242,6 @@ const PendingReservationsPage = () => {
         </div>
       )}
 
-      {/* Empty state */}
       {!loading && !error && reservations.length === 0 && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -270,7 +256,6 @@ const PendingReservationsPage = () => {
         </motion.div>
       )}
 
-      {/* Cards grid */}
       {!loading && reservations.length > 0 && (
         <AnimatePresence mode="popLayout">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

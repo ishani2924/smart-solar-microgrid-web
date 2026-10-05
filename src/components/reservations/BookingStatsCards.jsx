@@ -1,10 +1,4 @@
-/**
- * BookingStatsCards.jsx
- * Dashboard summary stat cards for booking counts.
- * Fetches live data from GET /api/reservations/dashboard.
- * Shows: Pending, Approved (Future), Cancelled, Completed counts.
- * Assignment requirement: PendingCount + ApprovedFutureCount are the key metrics.
- */
+
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -18,7 +12,7 @@ const StatCard = ({ icon: Icon, label, value, color, bg, delay, trend }) => (
     transition={{ delay, duration: 0.4, ease: 'easeOut' }}
     className={`relative overflow-hidden rounded-2xl p-6 ${bg} border border-white/60 shadow-sm`}
   >
-    {/* Background decoration */}
+
     <div className={`absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-10 ${color.replace('text-', 'bg-')}`} />
 
     <div className="relative z-10">

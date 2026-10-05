@@ -1,16 +1,4 @@
-/**
- * ReservationTable.jsx
- * Sortable data table for reservation lists.
- * Props:
- *   data: ReservationResponseDto[]
- *   loading: boolean
- *   onView(id): navigate to detail page
- *   onApprove(id): approve a reservation (optional)
- *   onCancel(id): cancel a reservation (optional)
- *   showApprove: boolean — show Approve button column
- *   showCancel: boolean — show Cancel button column
- *   emptyMessage: string
- */
+
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -136,7 +124,7 @@ const ReservationTable = ({
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
-                      {/* View — always shown */}
+
                       <button
                         onClick={() => handleView(r.id)}
                         title="View details"
@@ -146,7 +134,6 @@ const ReservationTable = ({
                         View
                       </button>
 
-                      {/* Approve — only for Pending rows when showApprove=true */}
                       {showApprove && r.status === 'Pending' && onApprove && (
                         <button
                           onClick={() => onApprove(r.id)}
@@ -158,7 +145,6 @@ const ReservationTable = ({
                         </button>
                       )}
 
-                      {/* Cancel — only for Pending/Approved rows when showCancel=true */}
                       {showCancel &&
                         (r.status === 'Pending' || r.status === 'Approved') &&
                         onCancel && (
@@ -180,7 +166,6 @@ const ReservationTable = ({
         </table>
       </div>
 
-      {/* Footer row count */}
       {!loading && data.length > 0 && (
         <div className="px-4 py-3 border-t border-gray-100 text-xs font-semibold text-gray-400">
           {data.length} {data.length === 1 ? 'reservation' : 'reservations'}

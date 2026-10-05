@@ -1,13 +1,4 @@
-/**
- * BookingDashboardPage.jsx
- * Route: /reservations/dashboard
- * Role: GridOperator, Backoffice
- *
- * Shows:
- * 1. Live stat cards (Pending + Approved Future = assignment requirement)
- * 2. Recent reservations activity feed
- * 3. Quick-action shortcuts to Pending and All Reservations pages
- */
+
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -35,14 +26,14 @@ const BookingDashboardPage = () => {
     try {
       const res = await getAllReservations();
       if (res.success && Array.isArray(res.data)) {
-        // Sort by createdAt desc and take latest 6
+
         const sorted = [...res.data].sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
         setRecent(sorted.slice(0, 6));
       }
     } catch {
-      // Silent fail — stats cards already show their own error
+
     } finally {
       setLoadingRecent(false);
       setLastRefreshed(new Date());
@@ -55,7 +46,7 @@ const BookingDashboardPage = () => {
 
   return (
     <div className="flex flex-col gap-6 pb-8">
-      {/* Page Header */}
+
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -77,10 +68,8 @@ const BookingDashboardPage = () => {
         </button>
       </motion.div>
 
-      {/* Stat Cards — fetches its own data */}
       <BookingStatsCards />
 
-      {/* Quick Actions */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -124,7 +113,6 @@ const BookingDashboardPage = () => {
         </button>
       </motion.div>
 
-      {/* Recent Activity */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -166,7 +154,7 @@ const BookingDashboardPage = () => {
                 onClick={() => navigate(`/reservations/${r.id}`)}
                 className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50/60 cursor-pointer transition-colors group"
               >
-                {/* Status dot avatar */}
+
                 <div
                   className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${
                     r.status === 'Pending'

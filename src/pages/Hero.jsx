@@ -14,23 +14,21 @@ const logoNames = ['Aeon', 'Vela', 'Apex', 'Orbit', 'Zeno']
 export default function Hero() {
   return (
     <section className="h-screen overflow-hidden bg-black relative">
-      {/* Background Video */}
+
       <FadingVideo
         src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260619_191346_9d19d66e-86a4-47f7-8dc6-712c1788c3b2.mp4"
         className="absolute left-1/2 top-0 -translate-x-1/2 object-cover object-top z-0"
         style={{ width: '120%', height: '120%' }}
       />
 
-      {/* Content Overlay */}
       <div className="relative z-10 flex flex-col h-full">
-        {/* ── Navbar ── */}
+
         <nav className="fixed top-4 left-0 right-0 z-50 flex items-center justify-between px-8 lg:px-16">
-          {/* Logo */}
+
           <div className="liquid-glass h-12 w-12 rounded-full flex items-center justify-center">
             <span className="font-heading text-2xl italic text-white">a</span>
           </div>
 
-          {/* Center Nav Links (hidden on mobile) */}
           <div className="hidden md:flex liquid-glass rounded-full px-1.5 py-1.5 items-center gap-0.5">
             {navLinks.map((link) => (
               <a
@@ -47,13 +45,11 @@ export default function Hero() {
             </button>
           </div>
 
-          {/* Right Spacer */}
           <div className="h-12 w-12" />
         </nav>
 
-        {/* ── Main Content ── */}
         <div className="flex-1 flex flex-col items-center justify-center pt-24 px-4 text-center">
-          {/* Badge */}
+
           <motion.div
             {...blurFade}
             transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
@@ -67,7 +63,6 @@ export default function Hero() {
             </span>
           </motion.div>
 
-          {/* Headline */}
           <div className="mt-6 max-w-3xl">
             <BlurText
               text="Crafted Digital Experiences Built to Outlast Trends"
@@ -75,7 +70,6 @@ export default function Hero() {
             />
           </div>
 
-          {/* Subtext */}
           <motion.p
             {...blurFade}
             transition={{ duration: 0.8, delay: 0.8, ease: 'easeOut' }}
@@ -86,7 +80,6 @@ export default function Hero() {
             and code you can be proud of.
           </motion.p>
 
-          {/* CTA Buttons */}
           <motion.div
             {...blurFade}
             transition={{ duration: 0.8, delay: 1.1, ease: 'easeOut' }}
@@ -102,7 +95,6 @@ export default function Hero() {
             </button>
           </motion.div>
 
-          {/* Stats Cards */}
           <motion.div
             {...blurFade}
             transition={{ duration: 0.8, delay: 1.3, ease: 'easeOut' }}
@@ -129,7 +121,6 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* ── Bottom Trust Bar ── */}
         <motion.div
           {...blurFade}
           transition={{ duration: 0.8, delay: 1.4, ease: 'easeOut' }}

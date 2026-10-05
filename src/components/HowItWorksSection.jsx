@@ -13,8 +13,7 @@ const HowItWorksSection = () => {
   return (
     <section id="how-it-works" className="py-20 md:py-32 bg-gray-50 relative overflow-hidden">
       <div className="container mx-auto px-6 md:px-12 relative z-10">
-        
-        {/* Header */}
+
         <div className="flex flex-col items-center text-center mb-16 md:mb-24">
           <div className="pill-badge mb-6 bg-white">
             <span className="dot"></span>
@@ -25,10 +24,9 @@ const HowItWorksSection = () => {
           </h2>
         </div>
 
-        {/* Steps Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {steps.map((step, i) => (
-            <motion.div 
+            <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -36,11 +34,11 @@ const HowItWorksSection = () => {
               transition={{ delay: i * 0.1 }}
               className="relative bg-white rounded-[2rem] p-8 border border-gray-100 hover:border-lime-300 transition-colors overflow-hidden group shadow-sm hover:shadow-md"
             >
-              {/* Giant background number */}
+
               <div className="absolute -right-4 -bottom-8 text-[8rem] font-display font-bold text-gray-50 group-hover:text-lime-50 transition-colors z-0 select-none">
                 {step.num}
               </div>
-              
+
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-full bg-charcoal-900 text-lime-400 flex items-center justify-center font-display font-bold text-xl mb-6 shadow-md">
                   {step.num}

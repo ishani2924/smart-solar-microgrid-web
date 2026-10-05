@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 const HeroSection = () => {
   return (
     <section className="relative w-full h-[95vh] min-h-[700px] p-4 md:p-6 pb-0 flex flex-col">
-      {/* Container holding the background, making it rounded */}
+
       <div
         className="relative w-full h-full rounded-3xl overflow-hidden flex flex-col justify-end"
         style={{
@@ -14,10 +14,9 @@ const HeroSection = () => {
           backgroundPosition: 'center',
         }}
       >
-        {/* Dark gradient overlay at the bottom for text readability */}
+
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
 
-        {/* Huge centered text (placed absolutely so it stays centered) */}
         <div className="absolute top-[25%] inset-x-0 flex justify-center items-center pointer-events-none">
           <motion.h1
             initial={{ opacity: 0, scale: 0.95 }}
@@ -30,10 +29,8 @@ const HeroSection = () => {
           </motion.h1>
         </div>
 
-        {/* Bottom Content Area */}
         <div className="relative z-10 w-full px-6 md:px-12 pb-8 md:pb-12 flex flex-col md:flex-row justify-between items-end gap-8">
 
-          {/* Left Side: Headline & Button */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -60,14 +57,13 @@ const HeroSection = () => {
             </Link>
           </motion.div>
 
-          {/* Right Side: Stats & Card */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
             className="flex flex-col sm:flex-row items-end gap-6 md:gap-10"
           >
-            {/* Stats Lines */}
+
             <div className="flex flex-col gap-4 mb-2">
               <div className="flex flex-col">
                 <span className="text-white font-display text-3xl font-medium">72%</span>
@@ -88,7 +84,6 @@ const HeroSection = () => {
               </div>
             </div>
 
-            {/* Video/Image Mini Card */}
             <div className="w-[280px] rounded-2xl overflow-hidden p-3 bg-black/40 backdrop-blur-xl border border-white/10 flex flex-col gap-3">
               <div className="w-full h-[120px] rounded-xl overflow-hidden relative">
                 <img src="/creaenergy-hero-bg.jpg" alt="Video thumbnail" className="w-full h-full object-cover brightness-75" />

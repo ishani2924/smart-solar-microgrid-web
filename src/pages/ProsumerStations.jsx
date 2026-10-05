@@ -16,7 +16,6 @@ const containerStyle = {
   inset: 0
 };
 
-// Default center (Colombo, Sri Lanka)
 const defaultCenter = { lat: 6.9271, lng: 79.8612 };
 
 const ProsumerStations = () => {
@@ -28,7 +27,6 @@ const ProsumerStations = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState('');
 
-  // Booking Modal State
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -91,7 +89,7 @@ const ProsumerStations = () => {
   }, []);
 
   const getDistanceInKm = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Earth radius in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a =
@@ -121,7 +119,6 @@ const ProsumerStations = () => {
       return 0;
     });
 
-  // If user location is known, center map on user, else center on first station, else default
   const mapCenter = userLocation
     ? userLocation
     : (filteredStations.length > 0 ? { lat: filteredStations[0].latitude, lng: filteredStations[0].longitude } : defaultCenter);
@@ -134,7 +131,6 @@ const ProsumerStations = () => {
     setMapRef(null);
   }, []);
 
-  // Recenter map when a station is clicked
   const handleStationClick = (station) => {
     setSelectedStation(station);
     if (mapRef) {
@@ -158,7 +154,7 @@ const ProsumerStations = () => {
   const loadSlotsForStation = async (stationId) => {
     setSlotsLoading(true);
     try {
-      const response = await fetchSlots(stationId, '', 'available'); // fetch all available slots
+      const response = await fetchSlots(stationId, '', 'available');
       const slots = response.data || response || [];
 
       const uniqueDates = [...new Set(slots.map(s => new Date(s.date).toLocaleDateString('en-CA')))].sort();
@@ -190,7 +186,7 @@ const ProsumerStations = () => {
 
     try {
       const payload = {
-        prosumerNic: user?.nic || user?.id, // Ensure we have the Prosumer NIC
+        prosumerNic: user?.nic || user?.id,
         stationId: bookingStation.stationId || bookingStation.id,
         slotId: selectedSlot,
         reservationDate: bookingDate,
@@ -203,7 +199,7 @@ const ProsumerStations = () => {
         setBookingSuccess('Reservation created successfully!');
         setTimeout(() => {
           setShowBookingModal(false);
-          navigate('/prosumer/bookings'); // redirect to bookings
+          navigate('/prosumer/bookings');
         }, 1500);
       } else {
         setBookingError(response.message || 'Failed to create reservation.');
@@ -226,7 +222,7 @@ const ProsumerStations = () => {
       </div>
 
       <div className="flex-1 w-full rounded-3xl overflow-hidden relative shadow-sm border border-gray-100 min-h-[600px]">
-        {/* Map Background */}
+
         <div className="absolute inset-0 z-0">
           {isLoaded ? (
             <GoogleMap
@@ -237,14 +233,14 @@ const ProsumerStations = () => {
               onUnmount={onUnmount}
               options={{
                 disableDefaultUI: true,
-                zoomControl: false, // Hide zoom control to make it completely clean
+                zoomControl: false,
                 mapTypeControl: false,
                 streetViewControl: false,
               }}
             >
               {userLocation && (
                 <>
-                  {/* Circle indicating 5km radius */}
+
                   <Circle
                     center={userLocation}
                     radius={5000}
@@ -260,7 +256,6 @@ const ProsumerStations = () => {
                     }}
                   />
 
-                  {/* User Location Marker */}
                   <Marker
                     position={userLocation}
                     icon={{
@@ -283,7 +278,7 @@ const ProsumerStations = () => {
                   onClick={() => handleStationClick(station)}
                   icon={{
                     path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
-                    fillColor: selectedStation && selectedStation.stationId === station.stationId ? '#1c1917' : '#84cc16', // charcoal if selected, else lime
+                    fillColor: selectedStation && selectedStation.stationId === station.stationId ? '#1c1917' : '#84cc16',
                     fillOpacity: 1,
                     strokeColor: selectedStation && selectedStation.stationId === station.stationId ? '#a3e635' : '#1c1917',
                     strokeWeight: 2,
@@ -297,7 +292,7 @@ const ProsumerStations = () => {
                       mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                     >
                       <div className="absolute -translate-x-1/2 -translate-y-[calc(100%+45px)] w-[240px] bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-50">
-                        {/* Custom Close Button */}
+
                         <button
                           onClick={() => setSelectedStation(null)}
                           className="absolute top-3 right-3 text-gray-400 hover:text-charcoal-900 transition-colors"
@@ -305,7 +300,6 @@ const ProsumerStations = () => {
                           <X className="w-4 h-4" />
                         </button>
 
-                        {/* Content */}
                         <div>
                           <h4 className="font-bold text-sm text-charcoal-900 mb-1 pr-6">{station.name}</h4>
                           <p className="text-xs text-gray-500 mb-3">{station.address}</p>
@@ -335,7 +329,6 @@ const ProsumerStations = () => {
                           </div>
                         </div>
 
-                        {/* Tail Pointer */}
                         <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-b border-r border-gray-100 rotate-45 shadow-sm"></div>
                       </div>
                     </OverlayView>
@@ -350,13 +343,12 @@ const ProsumerStations = () => {
           )}
         </div>
 
-        {/* Floating Station List (Grid Overlay) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="absolute top-4 left-4 bottom-4 w-full max-w-[360px] flex flex-col gap-4 z-10 pointer-events-none"
         >
-          {/* Search Box */}
+
           <div className="relative w-full shrink-0 pointer-events-auto">
             <Search className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
             <input
@@ -368,7 +360,6 @@ const ProsumerStations = () => {
             />
           </div>
 
-          {/* List/Grid of Cards */}
           <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-3 pr-2 pb-4 pointer-events-auto mask-image-gradient-bottom" style={{ maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)' }}>
             {loading ? (
               <div className="text-center py-10 bg-white/90 backdrop-blur-md rounded-2xl text-sm font-medium text-gray-400 shadow-md">Loading stations...</div>
@@ -423,7 +414,6 @@ const ProsumerStations = () => {
 
       </div>
 
-      {/* Booking Modal */}
       {showBookingModal && createPortal(
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-charcoal-900/60 backdrop-blur-sm mt-0">
           <motion.div
@@ -431,7 +421,7 @@ const ProsumerStations = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl relative overflow-hidden flex flex-col max-h-[90vh] my-auto"
           >
-            {/* Modal Content - Scrollable */}
+
             <div className="relative z-10 p-8 overflow-y-auto custom-scrollbar flex-1">
               <button
                 onClick={() => setShowBookingModal(false)}
@@ -466,7 +456,7 @@ const ProsumerStations = () => {
 
               <form onSubmit={handleCreateBooking} className="flex flex-col gap-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Left Column */}
+
                   <div className="flex flex-col gap-6">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Select Date</label>
@@ -523,7 +513,6 @@ const ProsumerStations = () => {
 
                   </div>
 
-                  {/* Right Column */}
                   <div className="flex flex-col gap-6">
                     <div>
                       <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider mb-2">Energy Amount (kWh)</label>

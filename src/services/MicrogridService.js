@@ -47,7 +47,6 @@ export const updateStationStatus = async (id, status) => {
   return true;
 };
 
-// Slots
 export const fetchSlots = async (stationId, date = '', status = '') => {
   const params = new URLSearchParams();
   if (date) params.append('date', date);
@@ -82,7 +81,6 @@ export const updateSlotStatus = async (slotId, status) => {
   return true;
 };
 
-// Soft-delete: marks slot status as "Deleted" so it appears in History
 export const deleteSlot = async (slotId) => {
   return updateSlotStatus(slotId, 'Deleted');
 };

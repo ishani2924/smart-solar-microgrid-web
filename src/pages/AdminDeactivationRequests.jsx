@@ -6,7 +6,7 @@ import { prosumerAdminAPI } from '../services/api';
 const AdminDeactivationRequests = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -26,7 +26,7 @@ const AdminDeactivationRequests = () => {
       setLoading(true);
       const response = await prosumerAdminAPI.getDeactivationRequests();
       if (response.success) {
-        // Handle both array and object with numeric keys
+
         let requestsArray;
         if (Array.isArray(response.data)) {
           requestsArray = response.data;
@@ -88,7 +88,7 @@ const AdminDeactivationRequests = () => {
 
   return (
     <div className="text-charcoal-900 w-full h-full flex flex-col pt-4 pb-8">
-      {/* Header Area */}
+
       <div className="flex items-center justify-between mb-10 w-full max-w-6xl mx-auto">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold text-charcoal-900 tracking-tight">Deactivation Requests</h1>
@@ -110,7 +110,6 @@ const AdminDeactivationRequests = () => {
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="w-full max-w-6xl mx-auto flex-1">
         {message.text && (
           <div className={`mb-6 px-4 py-3 rounded-lg text-sm font-medium shadow-sm ${
@@ -187,13 +186,12 @@ const AdminDeactivationRequests = () => {
         )}
       </div>
 
-      {/* Request Details Modal */}
       {showDetailsModal && selectedRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
               <h2 className="text-lg font-bold text-charcoal-900">Review Deactivation Request</h2>
-              <button 
+              <button
                 onClick={() => {
                   setShowDetailsModal(false);
                   setSelectedRequest(null);
@@ -205,7 +203,7 @@ const AdminDeactivationRequests = () => {
                 </svg>
               </button>
             </div>
-            
+
             <div className="p-6 space-y-6">
               <div className="grid grid-cols-2 gap-y-6 gap-x-4">
                 <div>

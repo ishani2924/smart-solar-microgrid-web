@@ -5,10 +5,9 @@ const PlatformSection = () => {
   return (
     <section className="py-20 md:py-32 bg-gray-50 overflow-hidden">
       <div className="container mx-auto px-6 md:px-12 flex flex-col gap-24">
-        
-        {/* Block 1: Microgrid Station Section */}
+
         <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-24">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -32,7 +31,7 @@ const PlatformSection = () => {
               ))}
             </div>
           </motion.div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -51,9 +50,8 @@ const PlatformSection = () => {
           </motion.div>
         </div>
 
-        {/* Block 2: Energy Slot Section */}
         <div className="flex flex-col md:flex-row-reverse items-center gap-12 lg:gap-24">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -80,7 +78,7 @@ const PlatformSection = () => {
               </ul>
             </div>
           </motion.div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -97,9 +95,8 @@ const PlatformSection = () => {
           </motion.div>
         </div>
 
-        {/* Block 3: Connected System Section */}
         <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-24">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -127,13 +124,13 @@ const PlatformSection = () => {
               </div>
             </div>
           </motion.div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             className="w-full md:w-1/2 h-[400px] flex justify-center items-center relative"
           >
-            {/* Visual representation of connected systems */}
+
             <div className="w-48 h-48 rounded-full bg-lime-400 absolute z-10 flex items-center justify-center shadow-xl border-4 border-white">
               <span className="font-display font-bold text-xl text-charcoal-900 text-center">Central<br/>Web Service</span>
             </div>
@@ -143,7 +140,7 @@ const PlatformSection = () => {
             <div className="w-32 h-32 rounded-full bg-charcoal-900 shadow-xl border border-charcoal-800 absolute -bottom-4 -right-4 z-20 flex items-center justify-center text-white font-bold">
               Mobile App
             </div>
-            {/* Connection lines */}
+
             <svg className="absolute inset-0 w-full h-full z-0" style={{ pointerEvents: 'none' }}>
               <path d="M150 150 L250 250" stroke="#C5F849" strokeWidth="4" strokeDasharray="8 8" />
             </svg>
