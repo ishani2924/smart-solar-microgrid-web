@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { reservationAPI } from '../services/api';
+import { reservationAPI, transferAPI } from '../services/api';
+import BookingQrModal from '../components/BookingQrModal';
 import { fetchStationById, fetchSlots } from '../services/MicrogridService';
 import { Calendar, Clock, MapPin, Zap, CheckCircle2, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,6 +11,7 @@ export default function AdminBookings() {
   const [error, setError] = useState('');
   const [processingId, setProcessingId] = useState(null);
   const [statusFilter, setStatusFilter] = useState('Pending');
+  const [qr, setQr] = useState(null);
 
   const { user } = useAuth();
 
@@ -55,6 +57,14 @@ export default function AdminBookings() {
       let response;
       if (action === 'approve') {
         response = await reservationAPI.approveReservation(id);
+        if (response && response.success) {
+          const issued = await transferAPI.issueQr(id);
+          setQr(issued.data);
+        }
+      } else if (action === 'qr') {
+        const issued = await transferAPI.issueQr(id);
+        setQr(issued.data);
+        return;
       } else if (action === 'complete') {
         response = await reservationAPI.completeReservation(id);
       } else if (action === 'cancel') {
@@ -125,6 +135,8 @@ export default function AdminBookings() {
           ))}
         </div>
       </div>
+
+      {qr && <BookingQrModal qr={qr} onClose={() => setQr(null)} />}
 
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-2xl flex items-center gap-3 border border-red-100">
@@ -212,6 +224,13 @@ export default function AdminBookings() {
 
                   {booking.status === 'Approved' && (
                     <>
+                      <button
+                        onClick={() => handleStatusChange(booking.id, 'qr')}
+                        disabled={processingId === booking.id}
+                        className="px-3 py-1.5 flex items-center gap-1.5 bg-lime-100 text-lime-700 hover:bg-lime-200 text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        QR
+                      </button>
                       <button
                         onClick={() => handleStatusChange(booking.id, 'complete')}
                         disabled={processingId === booking.id}
