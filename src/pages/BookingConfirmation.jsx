@@ -55,7 +55,7 @@ const BookingConfirmation = () => {
         <input
           value={reservationId}
           onChange={(event) => setReservationId(event.target.value)}
-          placeholder="Reservation id"
+          placeholder="Paste Reservation ID here"
           required
           className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl"
         />

@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import AdminUsers from './pages/AdminUsers';
 import AdminProsumers from './pages/AdminProsumers';
 import AdminDeactivationRequests from './pages/AdminDeactivationRequests';
+import AdminRegistrationRequests from './pages/AdminRegistrationRequests';
 import AdminBookings from './pages/AdminBookings';
 import AboutSection from './components/AboutSection';
 import HowItWorksSection from './components/HowItWorksSection';
@@ -76,6 +77,7 @@ function App() {
             <Route path="/admin/users" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminUsers /></ProtectedRoute>} />
             <Route path="/admin/prosumers" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminProsumers /></ProtectedRoute>} />
             <Route path="/admin/deactivation-requests" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminDeactivationRequests /></ProtectedRoute>} />
+            <Route path="/admin/registration-requests" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><AdminRegistrationRequests /></ProtectedRoute>} />
             <Route path="/admin/tab-permissions" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice']}><TabPermissions /></ProtectedRoute>} />
             <Route path="/admin/bookings" element={<ProtectedRoute requiredRoles={['Admin', 'Backoffice', 'GridOperator']}><AdminBookings /></ProtectedRoute>} />
             <Route path="/operator/dashboard" element={<ProtectedRoute requiredRoles={['GridOperator', 'Backoffice', 'Admin']}><OperatorDashboard /></ProtectedRoute>} />

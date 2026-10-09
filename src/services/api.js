@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5059/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -22,29 +22,30 @@ api.interceptors.request.use(
   }
 );
 
+const normalizeObject = (obj) => {
+  if (!obj || typeof obj !== 'object') return obj;
+
+  if (Array.isArray(obj)) {
+    return obj.map(item => normalizeObject(item));
+  }
+
+  const normalized = {};
+  for (const key in obj) {
+    const newKey = key.charAt(0).toLowerCase() + key.slice(1);
+    normalized[newKey] = normalizeObject(obj[key]);
+  }
+  return normalized;
+};
+
 api.interceptors.response.use(
   (response) => {
-
-    const normalizeObject = (obj) => {
-      if (!obj || typeof obj !== 'object') return obj;
-
-      if (Array.isArray(obj)) {
-        return obj.map(item => normalizeObject(item));
-      }
-
-      const normalized = {};
-      for (const key in obj) {
-        const newKey = key.charAt(0).toLowerCase() + key.slice(1);
-
-        normalized[newKey] = normalizeObject(obj[key]);
-      }
-      return normalized;
-    };
-
     response.data = normalizeObject(response.data);
     return response;
   },
   (error) => {
+    if (error.response?.data) {
+      error.response.data = normalizeObject(error.response.data);
+    }
     if (error.response?.status === 401) {
 
       localStorage.removeItem('token');
