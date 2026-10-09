@@ -18,14 +18,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-
 import { API_BASE_URL, transferAPI } from '../services/api';
-import { fetchStations } from '../services/MicrogridService';
-import BookingQrModal from '../components/BookingQrModal';
-import TransferStatusBar, { fetchTransferStatuses } from '../components/TransferStatusBar';
-import { API_BASE_URL } from '../services/api';
 import { fetchStations, fetchSlots } from '../services/MicrogridService';
 import { updateReservation } from '../services/reservationApi';
+import BookingQrModal from '../components/BookingQrModal';
+import TransferStatusBar, { fetchTransferStatuses } from '../components/TransferStatusBar';
 
 const ProsumerBookings = () => {
   const { user, token } = useAuth();
@@ -77,7 +74,14 @@ const ProsumerBookings = () => {
         if (bookingsRes.data && bookingsRes.data.success !== false) {
           const list = bookingsRes.data.data || [];
           setBookings(list);
-          setTransferStatus(await fetchTransferStatuses(list));
+          if (fetchTransferStatuses) {
+            try {
+              const statuses = await fetchTransferStatuses(list);
+              setTransferStatus(statuses || {});
+            } catch (te) {
+              console.error('Error fetching transfer statuses:', te);
+            }
+          }
         } else {
           setBookings([]);
         }
@@ -90,6 +94,15 @@ const ProsumerBookings = () => {
     };
     fetchData();
   }, [user, token]);
+
+  const showQr = async (id) => {
+    try {
+      const response = await transferAPI.getConfirmation(id);
+      setQr(response.data);
+    } catch (err) {
+      alert(err.response?.data?.message || 'The QR is not ready yet. It appears after the grid operator approves the booking.');
+    }
+  };
 
   const getHoursUntilBooking = (booking) => {
     try {
@@ -110,8 +123,7 @@ const ProsumerBookings = () => {
     }
   };
 
-  // 12-hour rule & status business rules
-  // Modifiable ONLY if status is Pending (before Grid Operator approval) AND >= 12 hours remaining
+  // 12-hour rule: modifiable ONLY if Pending and at least 12 hours remaining
   const isModifiable = (booking) => {
     if (booking.status !== 'Pending') return false;
     const diffHours = getHoursUntilBooking(booking);
@@ -145,15 +157,6 @@ const ProsumerBookings = () => {
     }
   };
 
-  const showQr = async (id) => {
-    try {
-      const response = await transferAPI.getConfirmation(id);
-      setQr(response.data);
-    } catch (err) {
-      alert(err.response?.data?.message || 'The QR is not ready yet. It appears after the grid operator approves the booking.');
-    }
-  };
-
   const handleOpenModifyModal = async (booking) => {
     setSelectedBooking(booking);
     setModifyError('');
@@ -168,7 +171,6 @@ const ProsumerBookings = () => {
       const slotsData = await fetchSlots(rawStationId, '', 'available');
       const slots = slotsData.data || slotsData || [];
 
-      // Ensure the booking's current slot is available in the options
       let allSlots = [...slots];
       if (booking.slotId && !allSlots.some(s => (s.slotId || s.id) === booking.slotId)) {
         allSlots.push({
@@ -189,7 +191,6 @@ const ProsumerBookings = () => {
       const bDate = new Date(booking.reservationDate);
       const bookingDateStr = `${bDate.getFullYear()}-${String(bDate.getMonth() + 1).padStart(2, '0')}-${String(bDate.getDate()).padStart(2, '0')}`;
 
-      // Collect available dates (within 7 days from now)
       const dates = [...new Set([
         bookingDateStr,
         ...allSlots.map(s => {
@@ -290,7 +291,7 @@ const ProsumerBookings = () => {
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  const firstDayOfMonth = new Date(currentYear, currentMonth + 1 - 1, 1).getDay();
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const paddingDays = Array.from({ length: firstDayOfMonth }, (_, i) => i);
 
@@ -305,14 +306,12 @@ const ProsumerBookings = () => {
   const prevMonth = () => setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
   const nextMonth = () => setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
 
-  // Slots for currently selected date in modify modal
   const slotsForSelectedDate = availableSlots.filter(s => {
     const sDate = new Date(s.date);
     const sDateStr = `${sDate.getFullYear()}-${String(sDate.getMonth() + 1).padStart(2, '0')}-${String(sDate.getDate()).padStart(2, '0')}`;
     return sDateStr === selectedModifyDate;
   });
 
-  // Calculate available capacity for chosen slot
   const selectedSlotObj = availableSlots.find(s => (s.slotId || s.id) === selectedSlotId);
   const effectiveMaxCapacity = selectedSlotObj
     ? (selectedSlotObj.availableCapacity + (selectedSlotObj.slotId === selectedBooking?.slotId ? (selectedBooking?.energyAmountKwh || 0) : 0))
@@ -320,6 +319,9 @@ const ProsumerBookings = () => {
 
   return (
     <div className="flex flex-col xl:flex-row gap-6 h-full w-full pb-8 overflow-y-auto custom-scrollbar">
+
+      {/* QR Code Modal for Approved Bookings */}
+      {qr && <BookingQrModal qr={qr} onClose={() => setQr(null)} />}
 
       {/* Left Sidebar - Calendar Filter */}
       <div className="w-full xl:w-1/3 flex flex-col gap-6 shrink-0">
@@ -415,7 +417,6 @@ const ProsumerBookings = () => {
         </motion.div>
       </div>
 
-      {qr && <BookingQrModal qr={qr} onClose={() => setQr(null)} />}
       {/* Main Content - Bookings List */}
       <div className="w-full xl:w-2/3 flex flex-col gap-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -467,115 +468,60 @@ const ProsumerBookings = () => {
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {filteredBookings.map((booking, idx) => (
-                  <div key={booking.id || idx} className="border border-gray-100 rounded-2xl p-4 hover:border-lime-200 hover:shadow-sm transition-all flex flex-col gap-4 bg-white relative">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 w-full md:w-1/4 md:min-w-[140px]">
-                        <div className="w-8 h-8 rounded-lg bg-lime-50 border border-lime-100 flex items-center justify-center shrink-0">
-                          <Battery className="w-4 h-4 text-lime-600" />
+                {filteredBookings.map((booking, idx) => {
+                  const modifiable = isModifiable(booking);
+                  const cancellable = isCancellable(booking);
+                  const is12hLock = is12HourRuleApplied(booking);
+
+                  return (
+                    <div
+                      key={booking.id || idx}
+                      className="border border-gray-100 rounded-2xl p-4 hover:border-lime-200 hover:shadow-sm transition-all flex flex-col gap-4 bg-white relative"
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        {/* Station Info */}
+                        <div className="flex items-center gap-3 w-full md:w-1/4 md:min-w-[140px]">
+                          <div className="w-8 h-8 rounded-lg bg-lime-50 border border-lime-100 flex items-center justify-center shrink-0">
+                            <Battery className="w-4 h-4 text-lime-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-[13px] font-bold text-charcoal-900 truncate">
+                              {stationsMap[booking.stationId] || booking.stationName || `Station ${booking.stationId?.substring(0, 6)}`}
+                            </h3>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <h3 className="text-[13px] font-bold text-charcoal-900 truncate">
-                            {stationsMap[booking.stationId] || booking.stationName || `Station ${booking.stationId.substring(0, 6)}`}
-                          </h3>
+
+                        {/* Date & Time */}
+                        <div className="flex flex-col gap-0.5 w-full md:w-1/4 md:border-l border-gray-100 md:pl-4">
+                          <span className="text-[11px] font-bold text-charcoal-900">
+                            {new Date(booking.reservationDate).toLocaleDateString()}
+                          </span>
+                          <span className="text-[10px] font-semibold text-gray-500">
+                            {booking.startTime && booking.endTime
+                              ? `${booking.startTime} - ${booking.endTime}`
+                              : new Date(booking.reservationDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
                         </div>
-                      </div>
-                      {filteredBookings.map((booking, idx) => {
-                        const modifiable = isModifiable(booking);
-                        const cancellable = isCancellable(booking);
-                        const is12hLock = is12HourRuleApplied(booking);
 
-                        return (
-                          <div
-                            key={booking.id || idx}
-                            className="border border-gray-100 rounded-2xl p-4 hover:border-lime-200 hover:shadow-sm transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white relative"
-                          >
-                            {/* Station Info */}
-                            <div className="flex items-center gap-3 w-full md:w-1/4 md:min-w-[140px]">
-                              <div className="w-8 h-8 rounded-lg bg-lime-50 border border-lime-100 flex items-center justify-center shrink-0">
-                                <Battery className="w-4 h-4 text-lime-600" />
-                              </div>
-                              <div className="min-w-0">
-                                <h3 className="text-[13px] font-bold text-charcoal-900 truncate">
-                                  {stationsMap[booking.stationId] || booking.stationName || `Station ${booking.stationId?.substring(0, 6)}`}
-                                </h3>
-                              </div>
-                            </div>
+                        {/* Energy Amount */}
+                        <div className="flex flex-col gap-0.5 w-full md:w-1/5 md:border-l border-gray-100 md:pl-4">
+                          <span className="text-[11px] font-bold text-charcoal-900">{booking.energyAmountKwh} kWh</span>
+                          <span className="text-[9px] font-semibold text-gray-400 uppercase">Requested</span>
+                        </div>
 
-                            {/* Date & Time */}
-                            <div className="flex flex-col gap-0.5 w-full md:w-1/4 md:border-l border-gray-100 md:pl-4">
-                              <span className="text-[11px] font-bold text-charcoal-900">
-                                {new Date(booking.reservationDate).toLocaleDateString()}
-                              </span>
-                              <span className="text-[10px] font-semibold text-gray-500">
-                                {booking.startTime && booking.endTime
-                                  ? `${booking.startTime} - ${booking.endTime}`
-                                  : new Date(booking.reservationDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            </div>
+                        {/* Status & Actions */}
+                        <div className="flex items-center md:justify-end gap-3 w-full md:flex-1 md:border-l border-gray-100 md:pl-4">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={`px-2 py-1 text-[9px] font-bold rounded-md uppercase tracking-wider shrink-0 ${
+                              booking.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                              booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                              booking.status === 'Completed' ? 'bg-blue-100 text-blue-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {booking.status}
+                            </span>
 
-                            {/* Energy Amount */}
-                            <div className="flex flex-col gap-0.5 w-full md:w-1/5 md:border-l border-gray-100 md:pl-4">
-                              <span className="text-[11px] font-bold text-charcoal-900">{booking.energyAmountKwh} kWh</span>
-                              <span className="text-[9px] font-semibold text-gray-400 uppercase">Requested</span>
-                            </div>
-
-                            <div className="flex items-center md:justify-end gap-3 w-full md:flex-1 md:border-l border-gray-100 md:pl-4">
-                              <span className={`px-2 py-1 text-[9px] font-bold rounded-md uppercase tracking-wider shrink-0 ${booking.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                  booking.status === 'Completed' ? 'bg-blue-100 text-blue-700' :
-                                    'bg-red-100 text-red-700'
-                                }`}>
-                                {booking.status}
-                              </span>
-
-                              {booking.status === 'Approved' && (
-                                <button
-                                  type="button"
-                                  onClick={() => showQr(booking.id)}
-                                  className="px-3 py-1.5 bg-lime-100 text-lime-700 text-[10px] font-bold rounded-lg"
-                                >
-                                  View QR
-                                </button>
-                              )}
-                              {/* Status & Actions */}
-                              <div className="flex items-center md:justify-end gap-3 w-full md:flex-1 md:border-l border-gray-100 md:pl-4">
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className={`px-2 py-1 text-[9px] font-bold rounded-md uppercase tracking-wider shrink-0 ${booking.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                    booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                      booking.status === 'Completed' ? 'bg-blue-100 text-blue-700' :
-                                        'bg-red-100 text-red-700'
-                                    }`}>
-                                    {booking.status}
-                                  </span>
-
-                                  {(booking.status === 'Pending' || booking.status === 'Approved') && (
-                                    <div className="flex items-center gap-1 shrink-0 ml-auto md:ml-2">
-                                      <button
-                                        disabled={!isModifiable(booking)}
-                                        title={!isModifiable(booking) ? "Cannot modify within 12 hours" : "Modify booking"}
-                                        className="p-2 text-gray-400 hover:text-lime-600 hover:bg-lime-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                      >
-                                        <Edit2 className="w-4 h-4" />
-                                      </button>
-                                      <button
-                                        onClick={() => handleCancelBooking(booking.id)}
-                                        disabled={!isModifiable(booking)}
-                                        title={!isModifiable(booking) ? "Cannot cancel within 12 hours" : "Cancel booking"}
-                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="border-t border-gray-100 pt-4">
-                                <TransferStatusBar status={booking.status} transferStatus={transferStatus[booking.id]} />
-                              </div>
-                            </div>
-                ))}
-                            {/* 12-Hour Lock Badge */}
+                            {/* 12-Hour Lock Badge for Pending bookings */}
                             {booking.status === 'Pending' && is12hLock && (
                               <span
                                 className="px-1.5 py-0.5 text-[8px] font-bold rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider flex items-center gap-1 shrink-0"
@@ -586,9 +532,19 @@ const ProsumerBookings = () => {
                             )}
                           </div>
 
-                        {/* Action Buttons */ }
-                        {
-                          (booking.status === 'Pending' || booking.status === 'Approved') && (
+                          {/* View QR Button for Approved Bookings */}
+                          {booking.status === 'Approved' && (
+                            <button
+                              type="button"
+                              onClick={() => showQr(booking.id)}
+                              className="px-3 py-1.5 bg-lime-100 hover:bg-lime-200 text-lime-700 text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
+                            >
+                              View QR
+                            </button>
+                          )}
+
+                          {/* Action Buttons */}
+                          {(booking.status === 'Pending' || booking.status === 'Approved') && (
                             <div className="flex items-center gap-1 shrink-0 ml-auto md:ml-2">
                               {/* Modify Button */}
                               {booking.status === 'Pending' ? (
@@ -600,10 +556,11 @@ const ProsumerBookings = () => {
                                       ? "Cannot modify: 12-hour rule applies (less than 12 hours remaining before scheduled slot)"
                                       : "Modify pending reservation"
                                   }
-                                  className={`p-2 rounded-lg transition-colors ${modifiable
-                                    ? "text-gray-500 hover:text-lime-600 hover:bg-lime-50 cursor-pointer"
-                                    : "text-gray-300 opacity-40 cursor-not-allowed"
-                                    }`}
+                                  className={`p-2 rounded-lg transition-colors ${
+                                    modifiable
+                                      ? "text-gray-500 hover:text-lime-600 hover:bg-lime-50 cursor-pointer"
+                                      : "text-gray-300 opacity-40 cursor-not-allowed"
+                                  }`}
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </button>
@@ -626,19 +583,27 @@ const ProsumerBookings = () => {
                                     ? "Cannot cancel within 12 hours of scheduled slot"
                                     : "Cancel booking"
                                 }
-                                className={`p-2 rounded-lg transition-colors ${cancellable
-                                  ? "text-gray-500 hover:text-red-600 hover:bg-red-50 cursor-pointer"
-                                  : "text-gray-300 opacity-40 cursor-not-allowed"
-                                  }`}
+                                className={`p-2 rounded-lg transition-colors ${
+                                  cancellable
+                                    ? "text-gray-500 hover:text-red-600 hover:bg-red-50 cursor-pointer"
+                                    : "text-gray-300 opacity-40 cursor-not-allowed"
+                                }`}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
-                          )
-                        }
+                          )}
+                        </div>
                       </div>
-                  </div>
-                );
+
+                      {/* Transfer Status Bar */}
+                      {TransferStatusBar && (
+                        <div className="border-t border-gray-100 pt-3">
+                          <TransferStatusBar status={booking.status} transferStatus={transferStatus[booking.id]} />
+                        </div>
+                      )}
+                    </div>
+                  );
                 })}
               </div>
             )}
@@ -742,8 +707,9 @@ const ProsumerBookings = () => {
                                   setSelectedSlotId(firstSlot.slotId || firstSlot.id);
                                 }
                               }}
-                              className={`flex flex-col items-center justify-center min-w-[70px] py-2 rounded-xl cursor-pointer transition-all border-2 shrink-0 ${isSelected ? 'border-lime-400 bg-lime-50 shadow-sm' : 'border-gray-100 bg-white hover:border-lime-200'
-                                }`}
+                              className={`flex flex-col items-center justify-center min-w-[70px] py-2 rounded-xl cursor-pointer transition-all border-2 shrink-0 ${
+                                isSelected ? 'border-lime-400 bg-lime-50 shadow-sm' : 'border-gray-100 bg-white hover:border-lime-200'
+                              }`}
                             >
                               <span className={`text-[10px] font-bold uppercase ${isSelected ? 'text-lime-700' : 'text-gray-400'}`}>{dayName}</span>
                               <span className={`text-xl font-black ${isSelected ? 'text-charcoal-900' : 'text-gray-700'}`}>{dayNum}</span>
