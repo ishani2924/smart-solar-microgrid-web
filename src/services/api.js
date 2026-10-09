@@ -237,6 +237,21 @@ export const transferAPI = {
     return response.data;
   },
 
+  regenerateQr: async (reservationId) => {
+    const response = await api.put(`/transfers/reservations/${reservationId}/regenerate`);
+    return response.data;
+  },
+
+  updateQr: async (reservationId, data) => {
+    const response = await api.put(`/transfers/reservations/${reservationId}`, data);
+    return response.data;
+  },
+
+  deleteQr: async (reservationId) => {
+    const response = await api.delete(`/transfers/reservations/${reservationId}`);
+    return response.data;
+  },
+
   getConfirmation: async (reservationId) => {
     const response = await api.get(`/transfers/reservations/${reservationId}`);
     return response.data;
