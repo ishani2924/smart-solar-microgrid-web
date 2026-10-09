@@ -83,6 +83,46 @@ export default function AdminBookings() {
     }
   };
 
+  const regenerateQr = async () => {
+    try {
+      const issued = await transferAPI.regenerateQr(qr.reservationId);
+      if (!issued?.success) {
+        alert(issued?.message || 'Could not regenerate the QR.');
+        return;
+      }
+      setQr(issued.data);
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Could not regenerate the QR.');
+    }
+  };
+
+  const deleteQr = async () => {
+    if (!window.confirm('Delete this QR? The old code will stop working.')) return;
+    try {
+      const response = await transferAPI.deleteQr(qr.reservationId);
+      if (!response?.success) {
+        alert(response?.message || 'Could not delete the QR.');
+        return;
+      }
+      setQr(null);
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Could not delete the QR.');
+    }
+  };
+
+  const saveQr = async (fields) => {
+    try {
+      const updated = await transferAPI.updateQr(qr.reservationId, fields);
+      if (!updated?.success) {
+        throw new Error(updated?.message || 'Could not update the QR.');
+      }
+      setQr(updated.data);
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Could not update the QR.');
+      throw err;
+    }
+  };
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Pending':
@@ -136,7 +176,15 @@ export default function AdminBookings() {
         </div>
       </div>
 
-      {qr && <BookingQrModal qr={qr} onClose={() => setQr(null)} />}
+      {qr && (
+        <BookingQrModal
+          qr={qr}
+          onClose={() => setQr(null)}
+          onRegenerate={regenerateQr}
+          onDelete={deleteQr}
+          onSave={saveQr}
+        />
+      )}
 
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-2xl flex items-center gap-3 border border-red-100">
