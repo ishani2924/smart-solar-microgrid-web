@@ -217,6 +217,14 @@ export const reservationAPI = {
     const response = await api.put(`/reservations/${id}/complete`);
     return response.data;
   },
+  update: async (id, data) => {
+    const response = await api.put(`/reservations/${id}`, data);
+    return response.data;
+  },
+  updateReservation: async (id, data) => {
+    const response = await api.put(`/reservations/${id}`, data);
+    return response.data;
+  },
   cancelReservation: async (id) => {
     const response = await api.put(`/reservations/${id}/cancel`);
     return response.data;
