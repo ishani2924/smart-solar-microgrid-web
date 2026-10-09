@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { userAPI } from '../services/api';
+import { userAPI, prosumerAdminAPI } from '../services/api';
 
 const AdminUsers = () => {
   const { user, logout } = useAuth();
@@ -13,6 +13,7 @@ const AdminUsers = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [pendingRegistrationsCount, setPendingRegistrationsCount] = useState(0);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -27,7 +28,19 @@ const AdminUsers = () => {
       return;
     }
     fetchUsers();
+    fetchPendingRegistrationsCount();
   }, [user, navigate]);
+
+  const fetchPendingRegistrationsCount = async () => {
+    try {
+      const response = await prosumerAdminAPI.getAllProsumers({ status: 'Pending' });
+      if (response.success && Array.isArray(response.data)) {
+        setPendingRegistrationsCount(response.data.length);
+      }
+    } catch (error) {
+      console.error('Failed to fetch pending registrations count', error);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -161,6 +174,17 @@ const AdminUsers = () => {
             className="bg-white border border-gray-200 hover:bg-gray-50 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm"
           >
             Manage Prosumers
+          </button>
+          <button
+            onClick={() => navigate('/admin/registration-requests')}
+            className="bg-white border border-gray-200 hover:bg-gray-50 text-charcoal-900 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm relative"
+          >
+            Registration Requests
+            {pendingRegistrationsCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm">
+                {pendingRegistrationsCount}
+              </span>
+            )}
           </button>
           <button
             onClick={() => navigate('/admin/deactivation-requests')}

@@ -157,7 +157,7 @@ export default function AdminBookings() {
         <div className="flex flex-col w-full">
 
           <div className="flex items-center px-6 py-3 text-[11px] font-black text-gray-400 uppercase tracking-wider mb-2">
-            <div className="w-[15%] pl-2">PROSUMER NIC</div>
+            <div className="w-[15%] pl-2">PROSUMER NIC / ID</div>
             <div className="w-[20%]">STATION</div>
             <div className="w-[15%]">DATE & TIME</div>
             <div className="w-[15%]">ENERGY</div>
@@ -176,8 +176,9 @@ export default function AdminBookings() {
                   'bg-red-400'
                 }`}></div>
 
-                <div className="w-[15%] pl-2">
-                  <span className="font-bold text-charcoal-900 text-sm">{booking.prosumerNic}</span>
+                <div className="w-[15%] pl-2 flex flex-col justify-center">
+                  <span className="font-bold text-charcoal-900 text-sm" title="Prosumer NIC">{booking.prosumerNic}</span>
+                  <span className="text-[10px] font-mono text-gray-500 select-all" title="Reservation ID (copy this to issue QR)">{booking.id || booking.reservationId}</span>
                 </div>
 
                 <div className="w-[20%] flex items-center gap-2 pr-2">

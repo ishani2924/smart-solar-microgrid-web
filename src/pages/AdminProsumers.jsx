@@ -37,6 +37,13 @@ const AdminProsumers = () => {
         } else {
           prosumersArray = [];
         }
+
+        prosumersArray.sort((a, b) => {
+          if (a.status === 'Pending' && b.status !== 'Pending') return -1;
+          if (a.status !== 'Pending' && b.status === 'Pending') return 1;
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+
         setProsumers(prosumersArray);
       } else {
         setProsumers([]);
