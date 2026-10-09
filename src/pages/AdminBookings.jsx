@@ -235,12 +235,6 @@ export default function AdminBookings() {
                         disabled={processingId === booking.id}
                         className="px-3 py-1.5 flex items-center gap-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
                       >
-                        Complete
-                      </button>
-                        onClick={() => handleStatusChange(booking.id, 'complete')}
-                        disabled={processingId === booking.id}
-                        className="px-3 py-1.5 flex items-center gap-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
-                      >
                         <CheckCircle2 className="w-3.5 h-3.5" /> Complete
                       </button>
                       <button

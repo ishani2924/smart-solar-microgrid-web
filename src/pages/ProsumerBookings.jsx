@@ -3,9 +3,7 @@ import { motion } from 'framer-motion';
 import { Calendar, Search, MapPin, Battery, Clock, Filter, CheckCircle, XCircle, Zap, Edit2, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import { API_BASE_URL } from '../services/api';
-import { fetchStations } from '../services/MicrogridService';
-import axios from 'axios';
+
 import { API_BASE_URL, transferAPI } from '../services/api';
 import { fetchStations } from '../services/MicrogridService';
 import BookingQrModal from '../components/BookingQrModal';
