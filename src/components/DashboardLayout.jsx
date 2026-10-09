@@ -15,7 +15,6 @@ export const ALL_TABS = {
     { key: 'prosumer-stations', name: 'Stations', path: '/prosumer/stations', icon: <MapPin className="w-4 h-4" /> },
     { key: 'overview', name: 'Overview', path: '/operator/dashboard', icon: <Activity className="w-4 h-4" /> },
     { key: 'scan-qr', name: 'Scan QR', path: '/operator/scan', icon: <QrCode className="w-4 h-4" /> },
-    { key: 'booking-confirmation', name: 'Booking QR', path: '/booking/confirmation', icon: <QrCode className="w-4 h-4" /> },
     { key: 'stations', name: 'Stations', path: '/stations', icon: <Zap className="w-4 h-4" /> },
     { key: 'admin-bookings', name: 'Bookings', path: '/admin/bookings', icon: <Calendar className="w-4 h-4" /> },
     { key: 'station-map', name: 'Station Map', path: '/operator/map', icon: <MapPin className="w-4 h-4" /> },
